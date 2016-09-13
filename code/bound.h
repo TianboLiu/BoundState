@@ -166,7 +166,9 @@ double tQ(double Q = 0, void * par = 0){
 double wfC12(double p, void * par = 0){//p in unit GeV
   //Normalization: int wfC12^2 p^2 sin(theta) dp dtheta dphi = 1
   double Normalization = sqrt(8.0 * pow(b, 3.0) / 3.0 / sqrt(M_PI));
+  //double Normalization = sqrt(4.0 * pow(b, 3.0) / sqrt(M_PI));
   double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * b * p * exp(-b*b*p*p/2.0);
+  //double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * exp(-b*b*p*p/2.0);
   return result;
 }
 

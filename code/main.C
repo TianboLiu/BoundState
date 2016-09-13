@@ -3,6 +3,7 @@
 using namespace std;
 
 int main(){
+  Lambda = 0;
   bool Prepare = true;
   if (Prepare){
     //Get wave function and potential grid, and setup interpolation
@@ -15,8 +16,10 @@ int main(){
 
   double Pd[2] = {0.3, M_PI/6.0};
 
-  double one = sigma();
-  cout << one << endl;
+  for (double th = 0.0; th < M_PI; th += M_PI/100){
+    Pd[1] = th;
+    cout << th << " " << dsigma(Pd) << endl;
+  }
 
   return 0;
 }
