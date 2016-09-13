@@ -250,11 +250,11 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   double xu[2] = {M_PI, M_PI};//integration upper boundary
   ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
   wf.SetParameters(par);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 1.0e-17, 0.01, 300);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 1.0e-15, 0.01, 500);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   if (isnan(result)) return 0;
-  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
+  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2);
 }
 
 double sigmaint(const double * Pd){
@@ -280,7 +280,7 @@ double dsigmaMC(const double * Pd, double * err = 0){
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   if (err != 0) err[0] = ig.Error()/result;
-  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
+  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2);
 }
 
 double sigma(){//Total cross section
