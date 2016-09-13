@@ -14,7 +14,7 @@ int main(){
     makeFQ();
   }
 
-  double Pd[2] = {0.3, M_PI/6.0};
+  double Pd[2] = {1.4, M_PI/6.0};
 
   for (double th = 0.0; th < M_PI; th += M_PI/100){
     Pd[1] = th;

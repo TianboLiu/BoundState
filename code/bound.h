@@ -44,9 +44,9 @@ double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
 /************* End of Parameters *********/
 
 //Wave function and effective potential
-const int _MAX1_ = 166;
+const int _MAX1_ = 161;
 double _x1[_MAX1_], _y1[_MAX1_];
-const int _MAX2_ = 40;
+const int _MAX2_ = 60;
 double _x2[_MAX2_], _y2[_MAX2_];
 const int _MAX3_ = 301;
 double _x3[_MAX3_], _y3[_MAX3_];
@@ -64,7 +64,7 @@ int readgrid(){
     return 1;
   }
   for (int i = 0; i < _MAX1_; i++)
-    f1 >> _x1[i] >> tmp >> _y1[i];
+    f1 >> _x1[i] >> _y1[i];
   f1.close();
   ip1.SetData(_MAX1_, _x1, _y1);
   //potential
@@ -74,7 +74,7 @@ int readgrid(){
     return 1;
   }
   for (int i = 0; i < _MAX2_; i++)
-    f2 >> _x2[i] >> _y2[i] >> tmp >> tmp;
+    f2 >> _x2[i] >> _y2[i];
   f2.close();
   ip2.SetData(_MAX2_, _x2, _y2);
   return 0;
@@ -85,7 +85,7 @@ double _Nur_ = 1.0;//wave function renormalization
 double ur(double r, void * par = 0){//r in unit GeV^-1
   double rfm = r / GeVfm;//trans to fm unit
   double result = 0.0;
-  if (rfm < 8.20)
+  if (rfm < 8.0)
     result = ip1.Eval(rfm);
   result = _Nur_ * result;//renormalize
   return result;//in unit GeV^1/2
@@ -110,7 +110,7 @@ double urone(){//check ur normalization
 double Veff(double r, void * par = 0){//r in unit GeV^-1
   double rfm = r / GeVfm;//trans to fm unit
   double result = 0.0;
-  if (rfm < 2.0)
+  if (rfm < 5.0)
     result = ip2.Eval(rfm);
   result = result /1000.0;//trans to GeV unit
   return result;//in unit GeV
@@ -243,7 +243,7 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   wf.SetParameters(par);
   ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
   ig.SetAbsTolerance(0.0);
-  ig.SetRelTolerance(0.001);
+  ig.SetRelTolerance(0.01);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
