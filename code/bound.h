@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <cstring>
 #include <cmath>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_monte.h>
@@ -36,6 +37,9 @@ const double Mp = 0.9382720;
 const double Mn = 0.9395654;
 const double MN = (Mp + Mn) / 2.0;
 const double Mphi = 1.019455;
+const double Mkaon = 0.493677;
+const double Mpion = 0.13957018;
+const double MLambda = 1.115683;
 /************* End of Constants **********/
 
 /************* Parameters ****************/
@@ -299,7 +303,7 @@ int makeDS(){//pd in GeV, costheta, dsigma / dpd dcostheta
   double ds;
   std::cout << "Generating dsigma grid ..." << std::endl;
   for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.05){
-    for (double ac = 1.0; ac >=-1.000001; ac -= 0.02){
+    for (double ac = 1.0; ac >=-1.00000; ac -= 0.02){
       Pd[1] = acos(ac);
       ds = dsigma(Pd);
       std::cout << Pd[0] << " " << Pd[1] << " " << ac << " " << ds << std::endl;
@@ -309,8 +313,43 @@ int makeDS(){//pd in GeV, costheta, dsigma / dpd dcostheta
   fclose(fp);
   return 0;
 }
- 
 
+//decay events generator
+int decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel
+  double masses[3] = {Mp, Mkaon, Mkaon};
+  TGenPhaseSpace event;
+  event.SetDecay(pd, 3, masses);
+  event.Generate();
+  TLorentzVector * p;
+  p = event.GetDecay(0);
+  pfs[0].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//p
+  p = event.GetDecay(1);
+  pfs[1].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K+
+  p = event.GetDecay(2);
+  pfs[2].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K-
+  return 0;
+}
+
+int decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
+  TLorentzVector * p;
+  double mass1[2] = {MLambda, Mkaon};
+  TGenPhaseSpace step1;
+  step1.SetDecay(pd, 2, mass1);
+  step1.Generate();
+  p = step1.GetDecay(1);
+  pfs[2].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K+
+  p = step1.GetDecay(0);
+  TLorentzVector pL(p->Px(), p->Py(), p->Pz(), p->E());//Lambda
+  double mass2[2] = {Mp, Mpion};
+  TGenPhaseSpace step2;
+  step2.SetDecay(pL, 2, mass2);
+  step2.Generate();
+  p = step2.GetDecay(0);
+  pfs[0].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//p
+  p = step2.GetDecay(1);
+  pfs[1].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//pi-
+  return 0;
+}
   
 
 
