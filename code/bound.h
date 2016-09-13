@@ -21,8 +21,11 @@
 #include "Math/AllIntegrationTypes.h"
 #include "Math/GaussIntegrator.h"
 #include "Math/GSLIntegrator.h"
+#include "Math/GSLMCIntegrator.h"
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
+#include "TH2D.h"
+#include "TFile.h"
 
 
 /************* Constants *****************/
@@ -38,7 +41,7 @@ const double Mphi = 1.019455;
 /************* Parameters ****************/
 double NA = 12.0;//nucleon number
 double Lambda = 3.0 * GeVfm;//cut off parameter
-double Md = MN + Mphi - 0.0145;//bound state mass
+double Md = MN + Mphi - 0.0448;//bound state mass
 double Ebeam = 1.45;//photon beam energy
 double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
 /************* End of Parameters *********/
@@ -203,6 +206,7 @@ double Tint(const double * kk, const double * par){
   pf[1].SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), MN);//set 4-momentum of final nucleon
   pf[2].SetXYZM(par[3] * sin(par[4]) * cos(par[5]), par[3] * sin(par[4]) * sin(par[5]), par[3] * cos(par[4]), Md);//set 4-momentum of final bound state
   double result = Tk(pf) * kk[0] * kk[0] * sin(kk[1]);
+  if (isnan(result)) return 0;
   return result;
 }
 
@@ -213,8 +217,8 @@ double Tfi(TLorentzVector p, TLorentzVector pd){
   ROOT::Math::WrappedParamFunction<> wf(&Tint, 3, 6);
   wf.SetParameters(par);
   ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
-  ig.SetAbsTolerance(0.0);
-  ig.SetRelTolerance(0.001);
+  ig.SetAbsTolerance(1.0e-30);
+  ig.SetRelTolerance(0.01);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result;
@@ -230,6 +234,7 @@ double T2(const double * omega, const double * par){
   TLorentzVector p;
   p.SetXYZM(pp * sin(omega[0]) * cos(omega[1]), pp * sin(omega[0]) * sin(omega[1]), pp * cos(omega[0]), MN);//set 4-momentum of final nucleon
   double result = pow(Tfi(p, pd), 2) * sin(omega[0]) * p.P() * p.E();
+  if (isnan(result)) return 0;
   return result;
 }
 
@@ -241,11 +246,10 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   double xu[2] = {M_PI, M_PI};//integration upper boundary
   ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
   wf.SetParameters(par);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
-  ig.SetAbsTolerance(0.0);
-  ig.SetRelTolerance(0.01);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 1.0e-17, 0.01, 300);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
+  if (isnan(result)) return 0;
   return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
 }
 
@@ -253,6 +257,26 @@ double sigmaint(const double * Pd){
   double result = dsigma(Pd) * sin(Pd[1]);
   std::cout << result << std::endl;
   return result;
+}
+
+double T2MC(const double * omega, void * vpar){//
+  double * par = (double *) vpar;
+  return T2(omega, par);
+}
+
+double dsigmaMC(const double * Pd, double * err = 0){
+  TLorentzVector pd;
+  pd.SetXYZM(Pd[0] * sin(Pd[1]), 0.0, Pd[0] * cos(Pd[1]), Md);
+  double par[3] = {pd.P(), pd.Theta(), pd.Phi()};
+  double xl[2] = {0.0, -M_PI};//integration lower boundary
+  double xu[2] = {M_PI, M_PI};//integration upper boundary
+  ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
+  wf.SetParameters(par);
+  ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 1.0e-20, 0.02, 1000);
+  ig.SetFunction(wf);
+  double result = ig.Integral(xl, xu);
+  if (err != 0) err[0] = ig.Error()/result;
+  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
 }
 
 double sigma(){//Total cross section
@@ -266,8 +290,27 @@ double sigma(){//Total cross section
   double result = ig.Integral(xl, xu);
   return result;//in unit GeV^-2
 }
-  
-  
+
+//generate 2D table of dsigma for interpolation
+int makeDS(){//pd in GeV, costheta, dsigma / dpd dcostheta
+  FILE * fp;
+  fp = fopen("ds.dat", "w");
+  double Pd[2];
+  double ds;
+  std::cout << "Generating dsigma grid ..." << std::endl;
+  for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.05){
+    for (double ac = 1.0; ac >=-1.000001; ac -= 0.02){
+      Pd[1] = acos(ac);
+      ds = dsigma(Pd);
+      std::cout << Pd[0] << " " << Pd[1] << " " << ac << " " << ds << std::endl;
+      fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], ac, ds);
+    }
+  }
+  fclose(fp);
+  return 0;
+}
+ 
+
   
 
 
