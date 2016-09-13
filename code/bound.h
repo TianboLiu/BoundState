@@ -296,9 +296,9 @@ double sigma(){//Total cross section
 }
 
 //generate 2D table of dsigma for interpolation
-int makeDS(){//pd in GeV, costheta, dsigma / dpd dcostheta
+int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd dcostheta
   FILE * fp;
-  fp = fopen("ds.dat", "w");
+  fp = fopen(filename, "w");
   double Pd[2];
   double ds;
   std::cout << "Generating dsigma grid ..." << std::endl;
