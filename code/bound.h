@@ -12,7 +12,9 @@
 
 #include "TSystem.h"
 #include "Math/Functor.h"
+#include "Math/ParamFunctor.h"
 #include "Math/Factory.h"
+#include "Math/WrappedParamFunction.h"
 #include "Math/Interpolator.h"
 #include "Math/Integrator.h"
 #include "Math/IntegratorMultiDim.h"
@@ -34,9 +36,11 @@ const double Mphi = 1.019455;
 /************* End of Constants **********/
 
 /************* Parameters ****************/
-double NA;//nucleon number
+double NA = 12.0;//nucleon number
 double Lambda = 3.0 * GeVfm;//cut off parameter
-double Md;//bound state mass
+double Md = MN + Mphi - 0.0145;//bound state mass
+double Ebeam = 1.45;//photon beam energy
+double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
 /************* End of Parameters *********/
 
 //Wave function and effective potential
@@ -130,6 +134,7 @@ int makeFQ(){//Q in unit GeV;
   double Q;
   ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
   ig.SetFunction(&FQint, &Q);
+  ig.SetAbsTolerance(0.0);
   ig.SetRelTolerance(0.001);
   for (Q = 0.0; Q < 0.3; Q+=0.001){
     fprintf(fp, "%.4E  %.8E\n", Q, ig.Integral(0.0, 2.5 * GeVfm));
@@ -151,6 +156,120 @@ double FQ(double Q, void * par = 0){//Q in unit GeV
     result = ip3.Eval(Q);
   return result;//in unit GeV^-1/2
 }
+
+//gamma N -> phi N transition amplitude
+double tQ(double Q = 0, void * par = 0){
+  return 0.005;//in unit GeV^-2
+}
+
+//C12 nuclear wave function
+double wfC12(double p, void * par = 0){//p in unit GeV
+  //Normalization: int wfC12^2 p^2 sin(theta) dp dtheta dphi = 1
+  double Normalization = sqrt(8.0 * pow(b, 3.0) / 3.0 / sqrt(M_PI));
+  double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * b * p * exp(-b*b*p*p/2.0);
+  return result;
+}
+
+//Total transition amplitude 
+double Tk(TLorentzVector pf[3]){//4-momentum of k, p, pd in unit GeV
+  TLorentzVector k = pf[0];//4-momentum of intermediate phi
+  TLorentzVector p = pf[1];//4-momentum of final nucleon
+  TLorentzVector pd = pf[2];//4-momentum of bound state d
+  TLorentzVector q(0.0, 0.0, Ebeam, Ebeam);//4-momentum of photon beam
+  TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
+  p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
+  TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
+  p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
+  TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
+  double s = kp2.M2();//invariant mass square of phi-N system
+  double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
+  if (Q2 <= 0)
+    return 0;
+  double Q = sqrt(Q2);
+  double Fvalue = FQ(Q);
+  double tvalue = tQ(Q);
+  double Edenominator = Ebeam + NA * MN - sqrt(pow(p1.P(), 2) + pow((NA-1)*MN, 2)) - k.E() - p.E();//Energy denominator of intermediate state
+  double result = wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue / Edenominator;
+  return result;
+}
+  
+double Tint(const double * kk, const double * par){
+  //kk: k, theta, phi
+  //par (every 3): p, pd
+  TLorentzVector pf[3];
+  pf[0].SetXYZM(kk[0] * sin(kk[1]) * cos(kk[2]), kk[0] * sin(kk[1]) * sin(kk[2]), kk[0] * cos(kk[1]), Mphi);//set 4-momentum of intermediate phi meson
+  pf[1].SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), MN);//set 4-momentum of final nucleon
+  pf[2].SetXYZM(par[3] * sin(par[4]) * cos(par[5]), par[3] * sin(par[4]) * sin(par[5]), par[3] * cos(par[4]), Md);//set 4-momentum of final bound state
+  double result = Tk(pf) * kk[0] * kk[0] * sin(kk[1]);
+  return result;
+}
+
+double Tfi(TLorentzVector p, TLorentzVector pd){
+  double par[6] = {p.P(), p.Theta(), p.Phi(), pd.P(), pd.Theta(), pd.Phi()};
+  double xl[3] = {0, 0, -M_PI};//integration lower bound
+  double xu[3] = {2.0, M_PI, M_PI};//integration upper bound
+  ROOT::Math::WrappedParamFunction<> wf(&Tint, 3, 6);
+  wf.SetParameters(par);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
+  ig.SetAbsTolerance(0.0);
+  ig.SetRelTolerance(0.001);
+  ig.SetFunction(wf);
+  double result = ig.Integral(xl, xu);
+  return result;
+}
+
+double T2(const double * omega, const double * par){
+  TLorentzVector pd;
+  pd.SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), Md);//set 4-momentum of final bound state
+  double pp2 = pow(Ebeam + 2.0 * MN - pd.E(), 2) - MN*MN;
+  if (pp2 <= 0.0)
+    return 0;
+  double pp = sqrt(pp2);//momentum of final nucleon constrained by energy conservation
+  TLorentzVector p;
+  p.SetXYZM(pp * sin(omega[0]) * cos(omega[1]), pp * sin(omega[0]) * sin(omega[1]), pp * cos(omega[0]), MN);//set 4-momentum of final nucleon
+  double result = pow(Tfi(p, pd), 2) * sin(omega[0]) * p.P() * p.E();
+  return result;
+}
+
+double dsigma(const double * Pd){//ds / dpd dcostheta
+  TLorentzVector pd;
+  pd.SetXYZM(Pd[0] * sin(Pd[1]), 0.0, Pd[0] * cos(Pd[1]), Md);
+  double par[3] = {pd.P(), pd.Theta(), pd.Phi()};
+  double xl[2] = {0.0, -M_PI};//integration lower boundary
+  double xu[2] = {M_PI, M_PI};//integration upper boundary
+  ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
+  wf.SetParameters(par);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
+  ig.SetAbsTolerance(0.0);
+  ig.SetRelTolerance(0.001);
+  ig.SetFunction(wf);
+  double result = ig.Integral(xl, xu);
+  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2) * result;
+}
+
+double sigmaint(const double * Pd){
+  double result = dsigma(Pd) * sin(Pd[1]);
+  std::cout << result << std::endl;
+  return result;
+}
+
+double sigma(){//Total cross section
+  double xl[2] = {0.0, 0.0};//integration lower boundary
+  double xu[2] = {1.5, M_PI};//integration upper boundary
+  ROOT::Math::Functor wf(&sigmaint, 2);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
+  ig.SetFunction(wf);
+  ig.SetAbsTolerance(0.0);
+  ig.SetRelTolerance(0.01);
+  double result = ig.Integral(xl, xu);
+  return result;//in unit GeV^-2
+}
+  
+  
+  
+
+
+
 
 
 

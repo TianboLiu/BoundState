@@ -13,9 +13,12 @@ int main(){
     makeFQ();
   }
 
-  double one = FQ(0.05);
+  double Pd[2] = {0.3, M_PI/6.0};
 
+  double one = sigma();
   cout << one << endl;
 
   return 0;
 }
+
+
