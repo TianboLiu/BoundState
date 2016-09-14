@@ -302,11 +302,10 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
   double ds;
   std::cout << "Generating dsigma grid ..." << std::endl;
   for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.02){
-    for (double ac = 1.0; ac >=-0.000001; ac -= 0.02){
-      Pd[1] = acos(ac);
+    for (Pd[1] = 0.0; Pd[1] <= 0.501 * M_PI; Pd[1] += 0.01 * M_PI){
       ds = dsigma(Pd);
-      std::cout << Pd[0] << " " << Pd[1] << " " << ac << " " << ds << std::endl;
-      fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], ac, ds);
+      std::cout << Pd[0] << "   " << Pd[1] << "  " << cos(Pd[1]) << "   " << ds << std::endl;
+      fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], cos(Pd[1]), ds);
     }
   }
   fclose(fp);
