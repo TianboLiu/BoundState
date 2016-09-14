@@ -27,6 +27,7 @@
 #include "TLorentzVector.h"
 #include "TH2D.h"
 #include "TFile.h"
+#include "TGraph2D.h"
 
 
 /************* Constants *****************/
@@ -220,9 +221,7 @@ double Tfi(TLorentzVector p, TLorentzVector pd){
   double xu[3] = {2.0, M_PI, M_PI};//integration upper bound
   ROOT::Math::WrappedParamFunction<> wf(&Tint, 3, 6);
   wf.SetParameters(par);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
-  ig.SetAbsTolerance(1.0e-30);
-  ig.SetRelTolerance(0.01);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001, 100000);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result;
@@ -250,7 +249,7 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   double xu[2] = {M_PI, M_PI};//integration upper boundary
   ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
   wf.SetParameters(par);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 1.0e-15, 0.01, 500);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.01, 500);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   if (isnan(result)) return 0;
@@ -302,8 +301,8 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
   double Pd[2];
   double ds;
   std::cout << "Generating dsigma grid ..." << std::endl;
-  for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.05){
-    for (double ac = 1.0; ac >=-1.00000; ac -= 0.02){
+  for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.02){
+    for (double ac = 1.0; ac >=-0.000001; ac -= 0.02){
       Pd[1] = acos(ac);
       ds = dsigma(Pd);
       std::cout << Pd[0] << " " << Pd[1] << " " << ac << " " << ds << std::endl;
@@ -350,10 +349,46 @@ int decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
   pfs[1].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//pi-
   return 0;
 }
+
+//grid for dsigma interpolation
+TGraph2D ds2D(1);
+int LoadDS(const char * datfile){
+  ifstream f0(datfile);
+  if (!f0.is_open()){
+    std::cerr << "ds file does not exist!" << std::endl;
+    return 1;
+  }
+  int nline = 0;
+  std::string tmp;
+  while (std::getline(f0, tmp))
+    nline++;
+  f0.close();
+  double x, y, z;  
+  ifstream f1(datfile);
+  ds2D.Set(nline);
+  for (int i = 0; i < nline; i++){
+    f1 >> x >> y >> z;
+    ds2D.SetPoint(i, x, y, z);
+  }
+  f1.close();
+  return 0;
+}
+
+//ds
+double ds(const double * pd){//interpolation of ds/dpd dcostheta
+  //pd: pd in GeV, costheta
+  return ds2D.Interpolate(pd[0], pd[1]);
+}
   
-
-
-
+double sigmatotal(){//total cross section of bound state production in GeV^-2
+  double xl[2] = {0.0, -1.0};//set lower integration boundary
+  double xu[2] = {1.4, 1.0};//set upper integration boundary
+  ROOT::Math::Functor wf(&ds, 2);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001);
+  ig.SetFunction(wf);
+  double result = ig.Integral(xl, xu);
+  return result;
+}
 
 
 
