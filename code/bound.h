@@ -108,7 +108,7 @@ double urone(){//check ur normalization
   ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
   ig.SetFunction(&ur2);
   ig.SetRelTolerance(0.001);
-  double su = ig.Integral(0.0, 18.20 * GeVfm);
+  double su = ig.Integral(0.0, 18.20 * GeVfm) / pow(_Nur_, 2);
   _Nur_ = 1.0 / sqrt(su);
   //std::cout << _Nur_ << std::endl;
   return ig.Integral(0.0, 8.5 * GeVfm);
@@ -149,6 +149,15 @@ int makeFQ(){//Q in unit GeV;
   }
   fprintf(fp, "%.4E  %.8E\n", 0.3, 0.0);
   fclose(fp);
+  std::ifstream f3("FQ.dat");
+  for (int i = 0; i < _MAX3_; i++)
+    f3 >> _x3[i] >> _y3[i];
+  f3.close();
+  ip3.SetData(_MAX3_, _x3, _y3);
+  return 0;
+}
+
+int LoadFQ(){//load FQ grid from existing file
   std::ifstream f3("FQ.dat");
   for (int i = 0; i < _MAX3_; i++)
     f3 >> _x3[i] >> _y3[i];
