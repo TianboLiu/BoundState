@@ -20,6 +20,8 @@
 #include "Math/GSLIntegrator.h"
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
+#include "TFile.h"
+#include "TTree.h"
 
 using namespace std;
 
@@ -28,16 +30,15 @@ double func(const double * x, const double * par){
 }
 
 int main(){
-  double par[2] = {1, 2};
-  ROOT::Math::WrappedParamFunction<> wf(&func, 3, 2);
-  wf.SetParameters(par);
-  double a[3] = {0, 0, 0};
-  double b[3] = {1, 1, 1};
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE);
-  ig.SetFunction(wf);
-  double re = ig.Integral(a, b);
+  TLorentzVector p(0.1, 0.2, 0.3, 0.4);
+  TFile * fs = new TFile("t.root", "RECREATE");
+  TTree * Ts = new TTree("data", "data");
+  Ts->SetDirectory(fs);
+  Ts->Branch("p", "TLorentzVector", &p);
+  Ts->Fill();
+  fs->Write();
 
-  cout << re << endl;
+
   
   return 0;
 }

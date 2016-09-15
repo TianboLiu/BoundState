@@ -6,10 +6,6 @@
 #include <cstdio>
 #include <cstring>
 #include <cmath>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_monte.h>
-#include <gsl/gsl_monte_vegas.h>
-#include <gsl/gsl_errno.h>
 
 #include "TSystem.h"
 #include "Math/Functor.h"
@@ -27,7 +23,10 @@
 #include "TLorentzVector.h"
 #include "TH2D.h"
 #include "TFile.h"
+#include "TTree.h"
 #include "TGraph2D.h"
+#include "TRandom.h"
+#include "TRandom3.h"
 
 
 /************* Constants *****************/
@@ -374,6 +373,7 @@ int LoadDS(const char * datfile){
   double x, y, z;  
   ifstream f1(datfile);
   ds2D.Set(nline);
+  std::cout << "Loading ds grid ..." << std::endl;
   for (int i = 0; i < nline; i++){
     f1 >> x >> y >> z;
     ds2D.SetPoint(i, x, y, z);
@@ -397,6 +397,42 @@ double sigmatotal(){//total cross section of bound state production in GeV^-2
   double result = ig.Integral(xl, xu);
   return result;
 }
+
+//generator
+int genData(const char * dsfile, const char * datafile, const Long64_t Nsim = 10){
+  LoadDS(dsfile);//Load ds grid
+  TFile * fs = new TFile(datafile, "RECREATE");
+  TTree * Ts = new TTree("data", "data");
+  Ts->SetDirectory(fs);
+  double pd[2];//pd, costheta
+  double phi;
+  TLorentzVector Pd;//4-momentum of Pd
+  TLorentzVector AP[3];//4-momenta of final particle from NKK channel
+  TLorentzVector BP[3];//4-momenta of final particle from LambdaK channel
+  double xs;//ds / dPd dcostheta
+  Ts->Branch("ds", &xs, "ds/D");
+  Ts->Branch("Pd", "TLorentzVector", &Pd);
+  Ts->Branch("AP0", "TLorentzVector", &AP[0]);
+  Ts->Branch("AP1", "TLorentzVector", &AP[1]);
+  Ts->Branch("AP2", "TLorentzVector", &AP[2]);
+  Ts->Branch("BP0", "TLorentzVector", &BP[0]);
+  Ts->Branch("BP1", "TLorentzVector", &BP[1]);
+  Ts->Branch("BP2", "TLorentzVector", &BP[2]);
+  for (Long64_t i = 0; i < Nsim; i++){
+    pd[0] = gRandom->Uniform(0.0, 1.4);//Generate pd
+    pd[1] = gRandom->Uniform(0.0, 1.0);//Generate costheta
+    phi = gRandom->Uniform(-M_PI, M_PI);//Generate phi
+    xs = ds(pd);//Calculate ds / dpd dcostheta
+    Pd.SetXYZM(pd[0] * sqrt(1.0 - pd[1]*pd[1]) * cos(phi), pd[0] * sqrt(1.0 - pd[1]*pd[1]) * sin(phi), pd[0] * pd[1], Md);//Set 4-momentum of bound state
+    decay0(Pd, AP);//Generate decay from NKK channel
+    decay1(Pd, BP);//Generate decay from LambdaK channel
+    Ts->Fill();
+  }
+  fs->Write();
+  return 0;
+}
+  
+  
 
 
 
