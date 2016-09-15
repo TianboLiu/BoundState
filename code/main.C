@@ -5,7 +5,7 @@ using namespace std;
 int main(){
   Ebeam = 1.45;
 
-  bool Prepare = true;
+  bool Prepare = false;
   if (Prepare){
     //Get wave function and potential grid, and setup interpolation
     readgrid();
@@ -15,7 +15,7 @@ int main(){
     makeFQ();
   }
 
-  makeDS("ds1450.dat");
+  //makeDS("ds2.dat");
   //double Pd[2] = {0.3, M_PI/6.0};
   //cout << dsigma(Pd) << endl;
 
