@@ -5,17 +5,18 @@ using namespace std;
 int main(){
   Ebeam = 1.45;
 
-  bool Prepare = false;
+  bool Prepare = true;
   if (Prepare){
     //Get wave function and potential grid, and setup interpolation
     readgrid();
     //Wave function renormalization
-    urone();
-    //Generate FQ grid
-    makeFQ();
+    cout << urone() << endl;
+    //Generate or load FQ grid
+    //makeFQ();
+    LoadFQ();
   }
 
-  //makeDS("ds2.dat");
+  makeDS("ds.dat");
   //double Pd[2] = {0.3, M_PI/6.0};
   //cout << dsigma(Pd) << endl;
 
