@@ -2,10 +2,7 @@
 #include <fstream>
 #include <cstdio>
 #include <cmath>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_monte.h>
-#include <gsl/gsl_monte_vegas.h>
-#include <gsl/gsl_errno.h>
+#include <omp.h>
 
 #include "TSystem.h"
 #include "Math/Functor.h"
@@ -25,18 +22,14 @@
 
 using namespace std;
 
-double func(const double * x, const double * par){
-  return (x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) * par[0] * par[1];
-}
 
 int main(){
-  TLorentzVector p(0.1, 0.2, 0.3, 0.4);
-  TFile * fs = new TFile("t.root", "RECREATE");
-  TTree * Ts = new TTree("data", "data");
-  Ts->SetDirectory(fs);
-  Ts->Branch("p", "TLorentzVector", &p);
-  Ts->Fill();
-  fs->Write();
+  double x;
+#pragma omp parallel for
+  for (int i = 0; i < 100; i++){
+    x = i*i;
+    cout << x << endl;
+  }
 
 
   
