@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <omp.h>
 
 #include "TSystem.h"
 #include "Math/Functor.h"
@@ -320,6 +321,35 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
   fclose(fp);
   return 0;
 }
+
+int makeDS_Parallel(const char * filename = "ds.dat"){//same as makeDS but parallel
+  FILE * fp;
+  fp = fopen(filename, "w");
+  double Pd[100][101][2];
+  double ds[100][101];
+  std::cout << "Generating dsigma grid Parallel..." << std::endl;
+  #pragma omp parallel
+  {
+    #pragma omp for schedule(dynamic) collapse(2)
+    for (int i = 0; i < 100; i++){
+      for (int j = 0; j <= 100; j++){
+	Pd[i][j][0] = 0.01 * i;
+	Pd[i][j][1] = 0.005 * M_PI * j;
+	ds[i][j] = dsigma(Pd[i][j]);
+	std::cout << Pd[i][j][0] << "   " << Pd[i][j][1] << "  " << cos(Pd[i][j][1]) << "   " << ds[i][j] << std::endl;
+      }
+    }
+  }
+  std::cout << "Writing File ..." << std::endl;
+  for (int i = 0; i < 100; i++){
+    for (int j = 0; j <= 100; j++){
+      fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[i][j][0], cos(Pd[i][j][1]), ds[i][j]);
+    }
+  }   
+  fclose(fp);
+  return 0;
+}
+  
 
 //decay events generator
 int decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel

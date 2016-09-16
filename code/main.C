@@ -24,30 +24,7 @@ int main(int argc, char * argv[]){
 
   bool Parallel = true;
   if (Parallel){
-    FILE * fp;
-    fp = fopen(fds, "w");
-    double Pd[70][51][2];
-    double ds[70][51];
-    cout << "Generating dsigma grid Parallel..." << endl;
-    #pragma omp parallel
-    {
-      #pragma omp for
-      for (int i = 0; i < 70; i++){
-	for (int j = 0; j <= 50; j++){
-	  Pd[i][j][0] = 0.02 * i;
-	  Pd[i][j][1] = 0.01 * M_PI * j;
-	  ds[i][j] = dsigma(Pd[i][j]);
-	  cout << Pd[i][j][0] << "   " << Pd[i][j][1] << "  " << cos(Pd[i][j][1]) << "   " << ds[i][j] <<endl;
-	}
-      }
-    }
-    cout << "Writing File ..." << endl;
-    for (int i = 0; i < 70; i++){
-      for (int j = 0; j <= 50; j++){
-	fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[i][j][0], cos(Pd[i][j][1]), ds[i][j]);
-      }
-    }   
-    fclose(fp);
+    makeDS_Parallel(fds);
   }
   else if (false){
     makeDS(fds);
