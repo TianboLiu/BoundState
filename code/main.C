@@ -26,22 +26,30 @@ int main(int argc, char * argv[]){
   if (Parallel){
     FILE * fp;
     fp = fopen(fds, "w");
-    double Pd[2];
-    double ds;
+    double Pd[70][51][2];
+    double ds[70][51];
     cout << "Generating dsigma grid Parallel..." << endl;
-#pragma omp parallel for
-    for (int x = 0; x < 70; x++){
-      for (int y = 0; y <= 50; y++){
-	Pd[0] = 0.02 * x;
-	Pd[1] = 0.01 * M_PI * y;
-	ds = dsigma(Pd);
-	cout << Pd[0] << "   " << Pd[1] << "  " << cos(Pd[1]) << "   " << ds <<endl;
-	fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], cos(Pd[1]), ds);
+    #pragma omp parallel
+    {
+      #pragma omp for
+      for (int i = 0; i < 70; i++){
+	for (int j = 0; j <= 50; j++){
+	  Pd[i][j][0] = 0.02 * i;
+	  Pd[i][j][1] = 0.01 * M_PI * j;
+	  ds[i][j] = dsigma(Pd[i][j]);
+	  cout << Pd[i][j][0] << "   " << Pd[i][j][1] << "  " << cos(Pd[i][j][1]) << "   " << ds[i][j] <<endl;
+	}
       }
     }
+    cout << "Writing File ..." << endl;
+    for (int i = 0; i < 70; i++){
+      for (int j = 0; j <= 50; j++){
+	fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[i][j][0], cos(Pd[i][j][1]), ds[i][j]);
+      }
+    }   
     fclose(fp);
   }
-  else{
+  else if (false){
     makeDS(fds);
   }
   return 0;
