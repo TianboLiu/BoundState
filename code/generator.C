@@ -2,9 +2,9 @@
 
 using namespace std;
 
-int main(){
+int main(int argc, char * argv[]){
 
-  genData("ds1450.dat", "E1450.root", 10);
+  genData(argv[1], argv[2], 10);//ds grid file, create root file, Nsim
 
   return 0;
 }

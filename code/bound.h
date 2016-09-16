@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 
 #include "TSystem.h"
@@ -62,10 +63,10 @@ ROOT::Math::Interpolator ip1(_MAX1_, ROOT::Math::Interpolation::kCSPLINE);
 ROOT::Math::Interpolator ip2(_MAX2_, ROOT::Math::Interpolation::kCSPLINE);
 ROOT::Math::Interpolator ip3(_MAX3_, ROOT::Math::Interpolation::kCSPLINE);
 
-int readgrid(){
+int readgrid(const char * fwf = "wf.dat", const char * fVeff = "Veff.dat"){
   double tmp;
   //wave function
-  std::ifstream f1("wf.dat");
+  std::ifstream f1(fwf);
   if (!f1.is_open()){
     std::cerr << "File wf1.dat does not exist!" << std::endl;
     return 1;
@@ -75,7 +76,7 @@ int readgrid(){
   f1.close();
   ip1.SetData(_MAX1_, _x1, _y1);
   //potential
-  std::ifstream f2("Veff.dat");
+  std::ifstream f2(fVeff);
   if (!f2.is_open()){
     std::cerr << "File Veff.dat does not exist!" << std::endl;
     return 1;
@@ -135,9 +136,9 @@ double FQint(double r, void * pQ = 0){//r in unit GeV^-1
 }
 
 //Generate FQ.dat and interpolate
-int makeFQ(){//Q in unit GeV;
+int makeFQ(const char * fFQ = "FQ.dat"){//Q in unit GeV;
   FILE * fp;
-  fp = fopen("FQ.dat","w");
+  fp = fopen(fFQ,"w");
   double Q;
   ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
   ig.SetFunction(&FQint, &Q);
@@ -148,7 +149,7 @@ int makeFQ(){//Q in unit GeV;
   }
   fprintf(fp, "%.4E  %.8E\n", 0.3, 0.0);
   fclose(fp);
-  std::ifstream f3("FQ.dat");
+  std::ifstream f3(fFQ);
   for (int i = 0; i < _MAX3_; i++)
     f3 >> _x3[i] >> _y3[i];
   f3.close();
@@ -156,8 +157,8 @@ int makeFQ(){//Q in unit GeV;
   return 0;
 }
 
-int LoadFQ(){//load FQ grid from existing file
-  std::ifstream f3("FQ.dat");
+int LoadFQ(const char * fFQ = "FQ.dat"){//load FQ grid from existing file
+  std::ifstream f3(fFQ);
   for (int i = 0; i < _MAX3_; i++)
     f3 >> _x3[i] >> _y3[i];
   f3.close();
@@ -359,7 +360,7 @@ int decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
 
 //grid for dsigma interpolation
 TGraph2D ds2D(1);
-int LoadDS(const char * datfile){
+int LoadDS(const char * datfile = "ds.dat"){
   ifstream f0(datfile);
   if (!f0.is_open()){
     std::cerr << "ds file does not exist!" << std::endl;
