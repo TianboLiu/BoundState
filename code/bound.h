@@ -46,7 +46,7 @@ const double MLambda = 1.115683;
 /************* Parameters ****************/
 double NA = 12.0;//nucleon number
 double Lambda = 3.0 * GeVfm;//cut off parameter
-double Md = MN + Mphi - 0.0448;//bound state mass
+double Md = MN + Mphi - 0.0077;//bound state mass
 double Ebeam = 1.45;//photon beam energy
 double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
 /************* End of Parameters *********/
