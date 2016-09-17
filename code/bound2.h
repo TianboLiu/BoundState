@@ -191,10 +191,7 @@ double wfC12(double p, void * par = 0){//p in unit GeV
 }
 
 //Total transition amplitude 
-double Tk(TLorentzVector pf[3]){//4-momentum of k, p, pd in unit GeV
-  TLorentzVector k = pf[0];//4-momentum of intermediate phi
-  TLorentzVector p = pf[1];//4-momentum of final nucleon
-  TLorentzVector pd = pf[2];//4-momentum of bound state d
+double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//4-momentum of k, p, pd in unit GeV
   TLorentzVector q(0.0, 0.0, Ebeam, Ebeam);//4-momentum of photon beam
   TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
   p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
@@ -208,21 +205,23 @@ double Tk(TLorentzVector pf[3]){//4-momentum of k, p, pd in unit GeV
   double Q = sqrt(Q2);
   double Fvalue = FQ(Q);
   double tvalue = tQ(Q);
-  double Edenominator = Ebeam + NA * MN - sqrt(pow(p1.P(), 2) + pow((NA-1)*MN, 2)) - k.E() - p.E();//Energy denominator of intermediate state
-  if (Edenominator + k.E() > k.M()) std::cout << "Pole" << std::endl;
+  double Es = Ebeam + NA * MN - 
+  double Eres = Ebeam + NA * MN - sqrt(pow(p1.P(), 2) + pow((NA-1)*MN, 2)) - k.E() - p.E();//Energy denominator of intermediate state
   double result = wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue / Edenominator;
   return result;
 }
   
 double Tint(const double * kk, const double * par){
-  //kk: k, theta, phi
+  //kk: theta, phi
   //par (every 3): p, pd
+  double Es = Ebeam + NA * MN - sqrt(par[0]*par[0] + pow((NA-1)*MN, 2)) - sqrt(par[0]*par[0] + MN*MN);
+  if (Es <= Mphi) return 0;
+  double k = sqrt(Es*Es - Mphi*Mphi);
   TLorentzVector pf[3];
-  pf[0].SetXYZM(kk[0] * sin(kk[1]) * cos(kk[2]), kk[0] * sin(kk[1]) * sin(kk[2]), kk[0] * cos(kk[1]), Mphi);//set 4-momentum of intermediate phi meson
+  pf[0].SetXYZM(k * sin(kk[0]) * cos(kk[1]), k * sin(kk[0]) * sin(kk[1]), k * cos(kk[0]), Mphi);//set 4-momentum of intermediate phi meson
   pf[1].SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), MN);//set 4-momentum of final nucleon
   pf[2].SetXYZM(par[3] * sin(par[4]) * cos(par[5]), par[3] * sin(par[4]) * sin(par[5]), par[3] * cos(par[4]), Md);//set 4-momentum of final bound state
-  double result = Tk(pf) * kk[0] * kk[0] * sin(kk[1]);
-  if (isnan(result)) return 0;
+  double result = Tk(pf) * sin(kk[0]);
   return result;
 }
 

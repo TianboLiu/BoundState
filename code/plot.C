@@ -12,10 +12,10 @@ using namespace std;
 
 int main(){
 
-  LoadDS("ds.dat");
+  LoadDS("ds1450.dat");
   cout << sigmatotal()*3.89379e5*132.0 << endl;
   
-  if (false){
+  if (true){
     TCanvas * c1 = new TCanvas("", "", 800, 600);
     ds2D.Draw("surf1");
     

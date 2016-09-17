@@ -22,13 +22,16 @@ int main(int argc, char * argv[]){
     LoadFQ(fFQ);
   }
 
-  bool Parallel = true;
+  bool Parallel = false;
   if (Parallel){
     makeDS_Parallel(fds);
   }
   else if (false){
     makeDS(fds);
   }
+
+  cout << sigma() << endl;
+  
   return 0;
 }
 
