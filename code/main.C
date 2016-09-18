@@ -30,8 +30,10 @@ int main(int argc, char * argv[]){
     makeDS(fds);
   }
 
-  cout << sigma() << endl;
-  
+  bool Total = true;
+  if (Total){
+    cout << Ebeam << "    " << sigma()*3.89379e5*132.0 << "  nb"  << endl;
+  }
   return 0;
 }
 

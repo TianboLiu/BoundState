@@ -221,7 +221,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
       double tvalue = tQ(Q);
-      result1 = 2.0 * M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k1 * k1;
+      result1 = M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k1 * k1;
     }
   }
   if (!(k2 > 0)) result2 = 0;
@@ -241,7 +241,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
       double tvalue = tQ(Q);
-      result2 = 2.0 * M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k2 * k2;
+      result2 = M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k2 * k2;
     }
   }
   return result1 + result2;
@@ -289,7 +289,7 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   double xu[2] = {M_PI, M_PI};//integration upper boundary
   ROOT::Math::WrappedParamFunction<> wf(&T2, 2, 3);
   wf.SetParameters(par);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.01, 500);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001, 1000);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   if (isnan(result)){
@@ -306,9 +306,10 @@ double sigmaint(const double * Pd){
 
 double sigma(){//Total cross section
   double xl[2] = {0.0, 0.0};//integration lower boundary
-  double xu[2] = {1.0, M_PI/2.0};//integration upper boundary
+  double xu[2] = {1.0, M_PI};//integration upper boundary
   ROOT::Math::Functor wf(&sigmaint, 2);
-  ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 300);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.01, 1000);
+  //ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 300);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result;//in unit GeV^-2
@@ -324,7 +325,7 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
   for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.02){
     for (Pd[1] = 0.0; Pd[1] <= 0.501 * M_PI; Pd[1] += 0.01 * M_PI){
       ds = dsigma(Pd);
-      std::cout << Pd[0] << "   " << Pd[1] << "  " << cos(Pd[1]) << "   " << ds << std::endl;
+      std::cout  << Ebeam << "---" << Pd[0] << "   " << Pd[1] << "  " << cos(Pd[1]) << "   " << ds << std::endl;
       fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], cos(Pd[1]), ds);
     }
   }
@@ -346,7 +347,7 @@ int makeDS_Parallel(const char * filename = "ds.dat"){//same as makeDS but paral
 	Pd[i][j][0] = 0.01 * i;
 	Pd[i][j][1] = 0.005 * M_PI * j;
 	ds[i][j] = dsigma(Pd[i][j]);
-	std::cout << Pd[i][j][0] << "   " << Pd[i][j][1] << "  " << cos(Pd[i][j][1]) << "   " << ds[i][j] << std::endl;
+	std::cout << Ebeam << "---" << Pd[i][j][0] << "   " << Pd[i][j][1] << "  " << cos(Pd[i][j][1]) << "   " << ds[i][j] << std::endl;
       }
     }
   }
