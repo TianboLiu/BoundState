@@ -308,7 +308,7 @@ double sigma(){//Total cross section
   double xl[2] = {0.0, 0.0};//integration lower boundary
   double xu[2] = {1.0, M_PI/2.0};//integration upper boundary
   ROOT::Math::Functor wf(&sigmaint, 2);
-  ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 200);
+  ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 300);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result;//in unit GeV^-2
