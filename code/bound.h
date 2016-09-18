@@ -65,7 +65,7 @@ ROOT::Math::Interpolator ip2(_MAX2_, ROOT::Math::Interpolation::kCSPLINE);
 ROOT::Math::Interpolator ip3(_MAX3_, ROOT::Math::Interpolation::kCSPLINE);
 
 int readgrid(const char * fwf = "wf.dat", const char * fVeff = "Veff.dat"){
-  double tmp;
+  //double tmp;
   //wave function
   std::ifstream f1(fwf);
   if (!f1.is_open()){
@@ -191,46 +191,76 @@ double wfC12(double p, void * par = 0){//p in unit GeV
 }
 
 //Total transition amplitude 
-double Tk(TLorentzVector pf[3]){//4-momentum of k, p, pd in unit GeV
-  TLorentzVector k = pf[0];//4-momentum of intermediate phi
-  TLorentzVector p = pf[1];//4-momentum of final nucleon
-  TLorentzVector pd = pf[2];//4-momentum of bound state d
+double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//4-momentum of k, p, pd in unit GeV
+  //kk: theta_k, phi_k
   TLorentzVector q(0.0, 0.0, Ebeam, Ebeam);//4-momentum of photon beam
-  TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
-  p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
-  TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
-  p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
-  TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
-  double s = kp2.M2();//invariant mass square of phi-N system
-  double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
-  if (Q2 <= 0)
-    return 0;
-  double Q = sqrt(Q2);
-  double Fvalue = FQ(Q);
-  double tvalue = tQ(Q);
-  double Edenominator = Ebeam + NA * MN - sqrt(pow(p1.P(), 2) + pow((NA-1)*MN, 2)) - k.E() - p.E();//Energy denominator of intermediate state
-  if (Edenominator + k.E() > k.M()) std::cout << "Pole" << std::endl;
-  double result = wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue / Edenominator;
-  return result;
+  double Es = Ebeam + NA * MN - p.E();//Remaining Energy for phi and A-1
+  if (Es < (NA - 1) * MN + Mphi) return 0;//below phi production threshold
+  TLorentzVector l = p - q;//4-momentum p1 - k
+  double CA0 = cos(kk[0]) * cos(l.Theta()) + sin(kk[0]) * sin(l.Theta()) * cos(kk[1] - l.Phi());
+  double bb = pow((NA - 1) * MN, 2) + pow(l.P(), 2);
+  double dcm = bb*bb - 2.0*bb*(Es*Es+Mphi*Mphi) + pow(Es, 4) - 2.0*Es*Es*Mphi*Mphi + 4.0*CA0*CA0*pow(l.P(), 2)*Mphi*Mphi + pow(Mphi, 4);
+  if (dcm <= 0) return 0;//no match k value
+  double k1 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
+  double k2 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
+  double result1, result2;
+  if (!(k1 > 0)) result1 = 0;
+  else {
+    double res = 1.0 / (- (k1 + l.P() * CA0) / sqrt(k1*k1 + 2.0*k1*l.P()*CA0 + bb) - k1 / sqrt(k1*k1 + Mphi*Mphi));
+    TLorentzVector k;
+    k.SetXYZM(k1 * sin(kk[0]) * cos(kk[1]), k1 * sin(kk[0]) * sin(kk[1]), k1 * cos(kk[0]), Mphi);
+    TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
+    p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
+    TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
+    p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
+    TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
+    double s = kp2.M2();//invariant mass square of phi-N system
+    double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
+    if (Q2 <= 0) result1 = 0;
+    else{
+      double Q = sqrt(Q2);
+      double Fvalue = FQ(Q);
+      double tvalue = tQ(Q);
+      result1 = 2.0 * M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k1 * k1;
+    }
+  }
+  if (!(k2 > 0)) result2 = 0;
+  else {
+    double res = 1.0 / (- (k2 + l.P() * CA0) / sqrt(k2*k2 + 2.0*k2*l.P()*CA0 + bb) - k2 / sqrt(k2*k2 + Mphi*Mphi));
+    TLorentzVector k;
+    k.SetXYZM(k2 * sin(kk[0]) * cos(kk[1]), k2 * sin(kk[0]) * sin(kk[1]), k2 * cos(kk[0]), Mphi);
+    TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
+    p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
+    TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
+    p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
+    TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
+    double s = kp2.M2();//invariant mass square of phi-N system
+    double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
+    if (Q2 <= 0) result2 = 0;
+    else{
+      double Q = sqrt(Q2);
+      double Fvalue = FQ(Q);
+      double tvalue = tQ(Q);
+      result2 = 2.0 * M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k2 * k2;
+    }
+  }
+  return result1 + result2;
 }
   
-double Tint(const double * kk, const double * par){
-  //kk: k, theta, phi
+double Tint(const double * kk, const double * par){//kk: theta, phi
   //par (every 3): p, pd
-  TLorentzVector pf[3];
-  pf[0].SetXYZM(kk[0] * sin(kk[1]) * cos(kk[2]), kk[0] * sin(kk[1]) * sin(kk[2]), kk[0] * cos(kk[1]), Mphi);//set 4-momentum of intermediate phi meson
-  pf[1].SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), MN);//set 4-momentum of final nucleon
-  pf[2].SetXYZM(par[3] * sin(par[4]) * cos(par[5]), par[3] * sin(par[4]) * sin(par[5]), par[3] * cos(par[4]), Md);//set 4-momentum of final bound state
-  double result = Tk(pf) * kk[0] * kk[0] * sin(kk[1]);
-  if (isnan(result)) return 0;
+  TLorentzVector p, pd;
+  p.SetXYZM(par[0] * sin(par[1]) * cos(par[2]), par[0] * sin(par[1]) * sin(par[2]), par[0] * cos(par[1]), MN);
+  pd.SetXYZM(par[3] * sin(par[4]) * cos(par[5]), par[3] * sin(par[4]) * sin(par[5]), par[3] * cos(par[4]), Md);
+  double result = Tk(kk, p, pd) * sin(kk[0]);
   return result;
 }
 
 double Tfi(TLorentzVector p, TLorentzVector pd){
   double par[6] = {p.P(), p.Theta(), p.Phi(), pd.P(), pd.Theta(), pd.Phi()};
-  double xl[3] = {0, 0, -M_PI};//integration lower bound
-  double xu[3] = {2.0, M_PI, M_PI};//integration upper bound
-  ROOT::Math::WrappedParamFunction<> wf(&Tint, 3, 6);
+  double xl[3] = {0, -M_PI};//integration lower bound
+  double xu[3] = {M_PI, M_PI};//integration upper bound
+  ROOT::Math::WrappedParamFunction<> wf(&Tint, 2, 6);
   wf.SetParameters(par);
   ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001, 100000);
   ig.SetFunction(wf);
@@ -248,7 +278,6 @@ double T2(const double * omega, const double * par){
   TLorentzVector p;
   p.SetXYZM(pp * sin(omega[0]) * cos(omega[1]), pp * sin(omega[0]) * sin(omega[1]), pp * cos(omega[0]), MN);//set 4-momentum of final nucleon
   double result = pow(Tfi(p, pd), 2) * sin(omega[0]) * p.P() * p.E();
-  if (isnan(result)) return 0;
   return result;
 }
 
@@ -272,7 +301,6 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
 
 double sigmaint(const double * Pd){
   double result = dsigma(Pd) * sin(Pd[1]);
-  std::cout << "... " << std::endl;
   return result;
 }
 
