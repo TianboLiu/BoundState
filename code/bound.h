@@ -50,6 +50,8 @@ double Lambda = 3.0 * GeVfm;//cut off parameter
 double Md = MN + Mphi - 0.0077;//bound state mass
 double Ebeam = 1.45;//photon beam energy
 double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
+int L1 = 1;
+int L2 = 1; 
 /************* End of Parameters *********/
 
 //Wave function and effective potential
@@ -181,13 +183,27 @@ double tQ(double Q = 0, void * par = 0){
 }
 
 //C12 nuclear wave function
-double wfC12(double p, void * par = 0){//p in unit GeV
+double wfC12s(double p, void * par = 0){//p in unit GeV
+  //Normalization: int wfC12^2 p^2 sin(theta) dp dtheta dphi = 1
+  double Normalization = sqrt(4.0 * pow(b, 3.0) / sqrt(M_PI));
+  double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * exp(-b*b*p*p/2.0);
+  return result;
+}
+
+double wfC12p(double p, void * par = 0){//p in unit GeV
   //Normalization: int wfC12^2 p^2 sin(theta) dp dtheta dphi = 1
   double Normalization = sqrt(8.0 * pow(b, 3.0) / 3.0 / sqrt(M_PI));
-  //double Normalization = sqrt(4.0 * pow(b, 3.0) / sqrt(M_PI));
   double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * b * p * exp(-b*b*p*p/2.0);
-  //double result = 1.0 / sqrt(4.0 * M_PI) * Normalization * exp(-b*b*p*p/2.0);
   return result;
+}
+
+double wfC12(double p, int L){
+  if (L == 0)
+    return wfC12s(p);
+  else if (L == 1)
+    return wfC12p(p);
+  else
+    return 0;
 }
 
 //Total transition amplitude 
@@ -203,6 +219,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
   if (dcm <= 0) return 0;//no match k value
   double k1 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
   double k2 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
+  //std::cout << k1 << " " << k2 << std::endl; 
   double result1, result2;
   if (!(k1 > 0)) result1 = 0;
   else {
@@ -210,9 +227,8 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
     TLorentzVector k;
     k.SetXYZM(k1 * sin(kk[0]) * cos(kk[1]), k1 * sin(kk[0]) * sin(kk[1]), k1 * cos(kk[0]), Mphi);
     TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
-    p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
     TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
-    p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
+    p2.SetE(sqrt(p2.P()*p2.P() + MN*MN));//set p2 on-shell energy
     TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
     double s = kp2.M2();//invariant mass square of phi-N system
     double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
@@ -220,8 +236,10 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
     else{
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
+      //std::cout << Q << std::endl;
       double tvalue = tQ(Q);
-      result1 = M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k1 * k1;
+      double wave = wfC12(p1.P(), L1) * wfC12(p2.P(), L2);
+      result1 = M_PI * wave * Fvalue * tvalue * res * k1 * k1;
     }
   }
   if (!(k2 > 0)) result2 = 0;
@@ -230,9 +248,8 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
     TLorentzVector k;
     k.SetXYZM(k2 * sin(kk[0]) * cos(kk[1]), k2 * sin(kk[0]) * sin(kk[1]), k2 * cos(kk[0]), Mphi);
     TLorentzVector p1 = p + k - q;//4-momentum of struck nucleon
-    p1.SetE(sqrt(pow(p1.P(), 2) + MN*MN));//set energy on-shell
     TLorentzVector p2 = pd - k;//4-momentum of reaction nucleon
-    p2.SetE(sqrt(pow(p2.P(), 2) + MN*MN));//set energy on-shell
+    p2.SetE(sqrt(p2.P()*p2.P() + MN*MN));//set p2 on-shell energy
     TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
     double s = kp2.M2();//invariant mass square of phi-N system
     double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
@@ -241,7 +258,8 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
       double tvalue = tQ(Q);
-      result2 = M_PI * wfC12(p1.P()) * wfC12(p2.P()) * Fvalue * tvalue * res * k2 * k2;
+      double wave = wfC12(p1.P(), L1) * wfC12(p2.P(), L2);
+      result2 = M_PI * wave * Fvalue * tvalue * res * k2 * k2;
     }
   }
   return result1 + result2;
@@ -299,8 +317,22 @@ double dsigma(const double * Pd){//ds / dpd dcostheta
   return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2);
 }
 
+double dsigmaT(const double * Pd){//combine ss sp ps pp
+  double ss, sp, ps, pp;
+  L1 = 0; L2 = 0;
+  ss = dsigma(Pd);
+  L1 = 0; L2 = 1;
+  sp = dsigma(Pd);
+  L1 = 1; L2 = 0;
+  ps = dsigma(Pd);
+  L1 = 1; L2 = 1;
+  pp = dsigma(Pd);
+  return 12.0*ss + 32.0*sp + 32.0*ps + 56.0*pp;
+}
+
 double sigmaint(const double * Pd){
   double result = dsigma(Pd) * sin(Pd[1]);
+  if (result < 0.0) std::cout << "Warning" << Pd[0] << " " << Pd[1] << std::endl;
   return result;
 }
 
@@ -308,8 +340,8 @@ double sigma(){//Total cross section
   double xl[2] = {0.0, 0.0};//integration lower boundary
   double xu[2] = {1.0, M_PI};//integration upper boundary
   ROOT::Math::Functor wf(&sigmaint, 2);
-  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.01, 1000);
-  //ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 300);
+  //ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.01, 1000);
+  ROOT::Math::GSLMCIntegrator ig(ROOT::Math::IntegrationMultiDim::kVEGAS, 0.0, 0.01, 500);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
   return result;//in unit GeV^-2
@@ -322,9 +354,9 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
   double Pd[2];
   double ds;
   std::cout << "Generating dsigma grid ..." << std::endl;
-  for (Pd[0] = 0.0; Pd[0] < 1.4; Pd[0] += 0.02){
-    for (Pd[1] = 0.0; Pd[1] <= 0.501 * M_PI; Pd[1] += 0.01 * M_PI){
-      ds = dsigma(Pd);
+  for (Pd[0] = 0.0; Pd[0] < 1.0; Pd[0] += 0.01){
+    for (Pd[1] = 0.0; Pd[1] <= M_PI; Pd[1] += 0.005 * M_PI){
+      ds = dsigmaT(Pd);
       std::cout  << Ebeam << "---" << Pd[0] << "   " << Pd[1] << "  " << cos(Pd[1]) << "   " << ds << std::endl;
       fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[0], cos(Pd[1]), ds);
     }
@@ -336,14 +368,14 @@ int makeDS(const char * filename = "ds.dat"){//pd in GeV, costheta, dsigma / dpd
 int makeDS_Parallel(const char * filename = "ds.dat"){//same as makeDS but parallel
   FILE * fp;
   fp = fopen(filename, "w");
-  double Pd[100][101][2];
-  double ds[100][101];
+  double Pd[100][201][2];
+  double ds[100][201];
   std::cout << "Generating dsigma grid Parallel..." << std::endl;
   #pragma omp parallel
   {
     #pragma omp for schedule(dynamic) collapse(2)
     for (int i = 0; i < 100; i++){
-      for (int j = 0; j <= 100; j++){
+      for (int j = 0; j <= 200; j++){
 	Pd[i][j][0] = 0.01 * i;
 	Pd[i][j][1] = 0.005 * M_PI * j;
 	ds[i][j] = dsigma(Pd[i][j]);
@@ -353,14 +385,13 @@ int makeDS_Parallel(const char * filename = "ds.dat"){//same as makeDS but paral
   }
   std::cout << "Writing File ..." << std::endl;
   for (int i = 0; i < 100; i++){
-    for (int j = 0; j <= 100; j++){
+    for (int j = 0; j <= 200; j++){
       fprintf(fp, "%.6E  %.6E  %.6E\n", Pd[i][j][0], cos(Pd[i][j][1]), ds[i][j]);
     }
   }   
   fclose(fp);
   return 0;
 }
-  
 
 //decay events generator
 int decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel
@@ -431,8 +462,8 @@ double ds(const double * pd){//interpolation of ds/dpd dcostheta
 }
   
 double sigmatotal(){//total cross section of bound state production in GeV^-2
-  double xl[2] = {0.0, -1.0};//set lower integration boundary
-  double xu[2] = {1.4, 1.0};//set upper integration boundary
+  double xl[2] = {0.0, 0.0};//set lower integration boundary
+  double xu[2] = {1.0, 1.0};//set upper integration boundary
   ROOT::Math::Functor wf(&ds, 2);
   ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001);
   ig.SetFunction(wf);
@@ -441,6 +472,40 @@ double sigmatotal(){//total cross section of bound state production in GeV^-2
 }
 
 //generator
+int genData0(const char * datafile, const Long64_t Nsim = 10){
+  TFile * fs = new TFile(datafile, "RECREATE");
+  TTree * Ts = new TTree("data", "data");
+  Ts->SetDirectory(fs);
+  double pd[2];//pd, theta
+  double phi;
+  TLorentzVector Pd;//4-momentum of Pd
+  TLorentzVector AP[3];//4-momenta of final particle from NKK channel
+  TLorentzVector BP[3];//4-momenta of final particle from LambdaK channel
+  double xs;//ds / dPd dcostheta in unit GeV^-3
+  Ts->Branch("Ebeam", &Ebeam, "Ebeam/D");
+  Ts->Branch("ds", &xs, "ds/D");
+  Ts->Branch("Pd", "TLorentzVector", &Pd);
+  Ts->Branch("AP0", "TLorentzVector", &AP[0]);
+  Ts->Branch("AP1", "TLorentzVector", &AP[1]);
+  Ts->Branch("AP2", "TLorentzVector", &AP[2]);
+  Ts->Branch("BP0", "TLorentzVector", &BP[0]);
+  Ts->Branch("BP1", "TLorentzVector", &BP[1]);
+  Ts->Branch("BP2", "TLorentzVector", &BP[2]);
+  for (Long64_t i = 0; i < Nsim; i++){
+    pd[0] = gRandom->Uniform(0.0, 1.4);//Generate pd
+    pd[1] = acos(gRandom->Uniform(0.0, 1.0));//Generate costheta
+    phi = gRandom->Uniform(-M_PI, M_PI);//Generate phi
+    xs = dsigma(pd);//Calculate ds / dpd dcostheta
+    Pd.SetXYZM(pd[0] * sin(pd[1]) * cos(phi), pd[0] * sin(pd[1]) * sin(phi), pd[0] * cos(pd[1]), Md);//Set 4-momentum of bound state
+    decay0(Pd, AP);//Generate decay from NKK channel
+    decay1(Pd, BP);//Generate decay from LambdaK channel
+    Ts->Fill();
+  }
+  fs->Write();
+  return 0;
+}
+
+
 int genData(const char * dsfile, const char * datafile, const Long64_t Nsim = 10){
   LoadDS(dsfile);//Load ds grid
   TFile * fs = new TFile(datafile, "RECREATE");

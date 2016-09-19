@@ -4,12 +4,16 @@ using namespace std;
 
 int main(int argc, char * argv[]){
   cout << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << " " << argv[5] << endl;
+  //Lambda = 3.0 * GeVfm;
 
   Ebeam = atof(argv[1]);//Set beam energy
-  char * fwf = argv[2];//Set wf.dat file
-  char * fVeff = argv[3];//Set Veff.dat file
+  L1 = atoi(argv[2]);//L1
+  L2 = atoi(argv[3]);//L2
   char * fFQ = argv[4];//Set FQ.dat file
   char * fds = argv[5];//Set ds.dat file
+
+  char fwf[] = "wf.dat";
+  char fVeff[] = "Veff.dat";
 
   bool Prepare = true;
   if (Prepare){
@@ -26,13 +30,14 @@ int main(int argc, char * argv[]){
   if (Parallel){
     makeDS_Parallel(fds);
   }
-  else if (false){
-    makeDS(fds);
+  else if (true){
+    makeDS("DS/ds1450t.dat");
   }
 
-  bool Total = true;
+  bool Total = false;
   if (Total){
-    cout << Ebeam << "    " << sigma()*3.89379e5*132.0 << "  nb"  << endl;
+    double Pd[2] = {0.3, M_PI/6};
+    cout << Ebeam << "    " << sigma()*3.89379e5 << "  nb"  << endl;
   }
   return 0;
 }

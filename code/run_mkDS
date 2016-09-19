@@ -1,9 +1,0 @@
-./main 1.25 wf.dat Veff.dat FQ.dat DS/ds1250.dat
-./main 1.30 wf.dat Veff.dat FQ.dat DS/ds1300.dat
-./main 1.35 wf.dat Veff.dat FQ.dat DS/ds1350.dat
-./main 1.40 wf.dat Veff.dat FQ.dat DS/ds1400.dat
-./main 1.45 wf.dat Veff.dat FQ.dat DS/ds1450.dat
-./main 1.50 wf.dat Veff.dat FQ.dat DS/ds1500.dat
-./main 1.55 wf.dat Veff.dat FQ.dat DS/ds1550.dat
-./main 1.60 wf.dat Veff.dat FQ.dat DS/ds1600.dat
-./main 1.65 wf.dat Veff.dat FQ.dat DS/ds1650.dat
