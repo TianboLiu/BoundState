@@ -218,11 +218,11 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
   double dcm = bb*bb - 2.0*bb*(Es*Es+Mphi*Mphi) + pow(Es, 4) - 2.0*Es*Es*Mphi*Mphi + 4.0*CA0*CA0*pow(l.P(), 2)*Mphi*Mphi + pow(Mphi, 4);
   if (dcm <= 0) return 0;//no match k value
   double k1 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
-  double k2 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) + Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
+  double k2 = (l.P() * CA0 * (bb - Es*Es - Mphi*Mphi) - Es * sqrt(dcm)) / (2.0 * (Es*Es - CA0*CA0*l.P()*l.P()));
   //std::cout << k1 << " " << k2 << std::endl; 
-  double result1, result2;
-  if (!(k1 > 0)) result1 = 0;
-  else {
+  double result1 = 0.0;
+  double result2 = 0.0;
+  if (k1 > 0){
     double res = 1.0 / (- (k1 + l.P() * CA0) / sqrt(k1*k1 + 2.0*k1*l.P()*CA0 + bb) - k1 / sqrt(k1*k1 + Mphi*Mphi));
     TLorentzVector k;
     k.SetXYZM(k1 * sin(kk[0]) * cos(kk[1]), k1 * sin(kk[0]) * sin(kk[1]), k1 * cos(kk[0]), Mphi);
@@ -232,8 +232,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
     TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
     double s = kp2.M2();//invariant mass square of phi-N system
     double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
-    if (Q2 <= 0) result1 = 0;
-    else{
+    if (Q2 > 0){
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
       //std::cout << Q << std::endl;
@@ -242,8 +241,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
       result1 = M_PI * wave * Fvalue * tvalue * res * k1 * k1;
     }
   }
-  if (!(k2 > 0)) result2 = 0;
-  else {
+  if (k2 > 0){
     double res = 1.0 / (- (k2 + l.P() * CA0) / sqrt(k2*k2 + 2.0*k2*l.P()*CA0 + bb) - k2 / sqrt(k2*k2 + Mphi*Mphi));
     TLorentzVector k;
     k.SetXYZM(k2 * sin(kk[0]) * cos(kk[1]), k2 * sin(kk[0]) * sin(kk[1]), k2 * cos(kk[0]), Mphi);
@@ -253,8 +251,7 @@ double Tk(const double * kk, const TLorentzVector p, const TLorentzVector pd){//
     TLorentzVector kp2 = k + p2;//4-momentum of phi-N system
     double s = kp2.M2();//invariant mass square of phi-N system
     double Q2 = (pow(s-Mphi*Mphi-MN*MN, 2) - 4.0*Mphi*Mphi*MN*MN) / (4.0 * s);
-    if (Q2 <= 0) result2 = 0;
-    else{
+    if (Q2 > 0){
       double Q = sqrt(Q2);
       double Fvalue = FQ(Q);
       double tvalue = tQ(Q);
@@ -296,6 +293,10 @@ double T2(const double * omega, const double * par){
   TLorentzVector p;
   p.SetXYZM(pp * sin(omega[0]) * cos(omega[1]), pp * sin(omega[0]) * sin(omega[1]), pp * cos(omega[0]), MN);//set 4-momentum of final nucleon
   double result = pow(Tfi(p, pd), 2) * sin(omega[0]) * p.P() * p.E();
+  if (isnan(result)){
+    std::cout << "Warning: " << omega[0] << " " << omega[1] << std::endl;
+    return 0;
+  }
   return result;
 }
 
@@ -332,7 +333,10 @@ double dsigmaT(const double * Pd){//combine ss sp ps pp
 
 double sigmaint(const double * Pd){
   double result = dsigma(Pd) * sin(Pd[1]);
-  if (result < 0.0) std::cout << "Warning" << Pd[0] << " " << Pd[1] << std::endl;
+  if (result < 0.0){
+    //std::cout << "Warning" << Pd[0] << " " << Pd[1] << " " << result << std::endl;
+    result = 0;
+  }
   return result;
 }
 
