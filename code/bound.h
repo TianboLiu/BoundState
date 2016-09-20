@@ -297,6 +297,9 @@ double T2(const double * omega, const double * par){
     std::cout << "Warning: " << omega[0] << " " << omega[1] << std::endl;
     return 0;
   }
+  TLorentzVector q(0, 0, Ebeam, Ebeam);
+  TLorentzVector l = q- p - pd;
+  //return result * exp(-pow(l.P()/(NA-2)/MN, 2));
   return result;
 }
 
