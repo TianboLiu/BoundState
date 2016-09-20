@@ -32,10 +32,10 @@ int main(){
   if (true){
     LoadDS("DS/ds1450t.dat");
     cout << sigmatotal()*3.89379e5 << endl;
-    TCanvas * c1 = new TCanvas("", "", 800, 600);
+    TCanvas * c1 = new TCanvas("ds", "ds", 800, 600);
     ds2D.Draw("surf1");
     
-    c1->Print("c1.pdf");
+    c1->Print("ct.root");
   }
   return 0;
 }

@@ -5,6 +5,7 @@ using namespace std;
 int main(int argc, char * argv[]){
   cout << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << " " << argv[5] << endl;
   //Lambda = 3.0 * GeVfm;
+  //b = 1.64;
 
   Ebeam = atof(argv[1]);//Set beam energy
   L1 = atoi(argv[2]);//L1
@@ -36,7 +37,7 @@ int main(int argc, char * argv[]){
 
   bool Total = false;
   if (Total){
-    double Pd[2] = {0.3, M_PI/6};
+    //double Pd[2] = {0.3, M_PI/6};
     cout << Ebeam << "    " << sigma()*3.89379e5 << "  nb"  << endl;
   }
   return 0;
