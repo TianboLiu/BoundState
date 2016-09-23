@@ -23,7 +23,7 @@
 #include "Math/GSLMCIntegrator.h"
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
-#include "TH2D.h"
+#include "TH1D.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TGraph2D.h"
@@ -401,11 +401,11 @@ int makeDS_Parallel(const char * filename = "ds.dat"){//same as makeDS but paral
 }
 
 //decay events generator
-int decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel
+double decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel
   double masses[3] = {Mp, Mkaon, Mkaon};
   TGenPhaseSpace event;
   event.SetDecay(pd, 3, masses);
-  event.Generate();
+  double weight = event.Generate();
   TLorentzVector * p;
   p = event.GetDecay(0);
   pfs[0].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//p
@@ -413,15 +413,15 @@ int decay0(TLorentzVector pd, TLorentzVector * pfs){//NKK decay channel
   pfs[1].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K+
   p = event.GetDecay(2);
   pfs[2].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K-
-  return 0;
+  return weight;
 }
 
-int decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
+double decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
   TLorentzVector * p;
   double mass1[2] = {MLambda, Mkaon};
   TGenPhaseSpace step1;
   step1.SetDecay(pd, 2, mass1);
-  step1.Generate();
+  double weight1 = step1.Generate();
   p = step1.GetDecay(1);
   pfs[2].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//K+
   p = step1.GetDecay(0);
@@ -429,12 +429,12 @@ int decay1(TLorentzVector pd, TLorentzVector * pfs){//LambdaK decay channel
   double mass2[2] = {Mp, Mpion};
   TGenPhaseSpace step2;
   step2.SetDecay(pL, 2, mass2);
-  step2.Generate();
+  double weight2 = step2.Generate();
   p = step2.GetDecay(0);
   pfs[0].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//p
   p = step2.GetDecay(1);
   pfs[1].SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->E());//pi-
-  return 0;
+  return weight1 * weight2;
 }
 
 //grid for dsigma interpolation
@@ -479,42 +479,11 @@ double sigmatotal(){//total cross section of bound state production in GeV^-2
 }
 
 //generator
-int genData0(const char * datafile, const Long64_t Nsim = 10){
-  TFile * fs = new TFile(datafile, "RECREATE");
-  TTree * Ts = new TTree("data", "data");
-  Ts->SetDirectory(fs);
-  double pd[2];//pd, theta
-  double phi;
-  TLorentzVector Pd;//4-momentum of Pd
-  TLorentzVector AP[3];//4-momenta of final particle from NKK channel
-  TLorentzVector BP[3];//4-momenta of final particle from LambdaK channel
-  double xs;//ds / dPd dcostheta in unit GeV^-3
-  Ts->Branch("Ebeam", &Ebeam, "Ebeam/D");
-  Ts->Branch("ds", &xs, "ds/D");
-  Ts->Branch("Pd", "TLorentzVector", &Pd);
-  Ts->Branch("AP0", "TLorentzVector", &AP[0]);
-  Ts->Branch("AP1", "TLorentzVector", &AP[1]);
-  Ts->Branch("AP2", "TLorentzVector", &AP[2]);
-  Ts->Branch("BP0", "TLorentzVector", &BP[0]);
-  Ts->Branch("BP1", "TLorentzVector", &BP[1]);
-  Ts->Branch("BP2", "TLorentzVector", &BP[2]);
-  for (Long64_t i = 0; i < Nsim; i++){
-    pd[0] = gRandom->Uniform(0.0, 1.4);//Generate pd
-    pd[1] = acos(gRandom->Uniform(0.0, 1.0));//Generate costheta
-    phi = gRandom->Uniform(-M_PI, M_PI);//Generate phi
-    xs = dsigma(pd);//Calculate ds / dpd dcostheta
-    Pd.SetXYZM(pd[0] * sin(pd[1]) * cos(phi), pd[0] * sin(pd[1]) * sin(phi), pd[0] * cos(pd[1]), Md);//Set 4-momentum of bound state
-    decay0(Pd, AP);//Generate decay from NKK channel
-    decay1(Pd, BP);//Generate decay from LambdaK channel
-    Ts->Fill();
+int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS before genData
+  if (ds2D.GetN() < 10){
+    std::cerr << "No ds2D loaded for interpolation!" << std::endl;
+    return 1;
   }
-  fs->Write();
-  return 0;
-}
-
-
-int genData(const char * dsfile, const char * datafile, const Long64_t Nsim = 10){
-  LoadDS(dsfile);//Load ds grid
   TFile * fs = new TFile(datafile, "RECREATE");
   TTree * Ts = new TTree("data", "data");
   Ts->SetDirectory(fs);
@@ -523,26 +492,38 @@ int genData(const char * dsfile, const char * datafile, const Long64_t Nsim = 10
   TLorentzVector Pd;//4-momentum of Pd
   TLorentzVector AP[3];//4-momenta of final particle from NKK channel
   TLorentzVector BP[3];//4-momenta of final particle from LambdaK channel
+  double Aw, Bw;//non-normalized weight factors
   double xs;//ds / dPd dcostheta
   Ts->Branch("ds", &xs, "ds/D");
   Ts->Branch("Pd", "TLorentzVector", &Pd);
-  Ts->Branch("AP0", "TLorentzVector", &AP[0]);
-  Ts->Branch("AP1", "TLorentzVector", &AP[1]);
-  Ts->Branch("AP2", "TLorentzVector", &AP[2]);
-  Ts->Branch("BP0", "TLorentzVector", &BP[0]);
-  Ts->Branch("BP1", "TLorentzVector", &BP[1]);
-  Ts->Branch("BP2", "TLorentzVector", &BP[2]);
+  Ts->Branch("Aw", &Aw, "Aw/D");
+  Ts->Branch("AP0", "TLorentzVector", &AP[0]);//p
+  Ts->Branch("AP1", "TLorentzVector", &AP[1]);//K+
+  Ts->Branch("AP2", "TLorentzVector", &AP[2]);//K-
+  Ts->Branch("Bw", &Bw, "Bw/D");
+  Ts->Branch("BP0", "TLorentzVector", &BP[0]);//p
+  Ts->Branch("BP1", "TLorentzVector", &BP[1]);//pi-
+  Ts->Branch("BP2", "TLorentzVector", &BP[2]);//K+
+  TH1D * hw = new TH1D("hw", "hw", 2, 0.0, 2.0);
   for (Long64_t i = 0; i < Nsim; i++){
-    pd[0] = gRandom->Uniform(0.0, 1.4);//Generate pd
+    if (i%10000 == 9999) std::cout << i + 1 << " in " << Nsim << std::endl;
+    pd[0] = gRandom->Uniform(0.0, 1.0);//Generate pd
     pd[1] = gRandom->Uniform(0.0, 1.0);//Generate costheta
     phi = gRandom->Uniform(-M_PI, M_PI);//Generate phi
     xs = ds(pd);//Calculate ds / dpd dcostheta
     Pd.SetXYZM(pd[0] * sqrt(1.0 - pd[1]*pd[1]) * cos(phi), pd[0] * sqrt(1.0 - pd[1]*pd[1]) * sin(phi), pd[0] * pd[1], Md);//Set 4-momentum of bound state
-    decay0(Pd, AP);//Generate decay from NKK channel
-    decay1(Pd, BP);//Generate decay from LambdaK channel
+    Aw = decay0(Pd, AP);//Generate decay from NKK channel
+    Bw = decay1(Pd, BP);//Generate decay from LambdaK channel
+    hw->Fill(0.5, Aw);
+    hw->Fill(1.5, Bw);
     Ts->Fill();
   }
   fs->Write();
+  std::cout << "====================================" << std::endl;
+  std::cout << "Nsim = " << Nsim << std::endl;
+  std::cout << "Volume = [Pd] * [cos theta] = " << (1.0 - 0.0) * (1.0 - 0.0) << std::endl;
+  std::cout << "Weight normalization: W(A) = " << hw->Integral(1,1)/Nsim << "  W(B) = " << hw->Integral(2,2)/Nsim << std::endl;
+  std::cout << "====================================" << std::endl;
   return 0;
 }
   

@@ -31,11 +31,11 @@ int main(int argc, char * argv[]){
   if (Parallel){
     makeDS_Parallel(fds);
   }
-  else if (true){
+  else if (false){
     makeDS("DS/ds1450t.dat");
   }
 
-  bool Total = false;
+  bool Total = true;
   if (Total){
     //double Pd[2] = {0.3, M_PI/6};
     cout << Ebeam << "    " << sigma()*3.89379e5 << "  nb"  << endl;
