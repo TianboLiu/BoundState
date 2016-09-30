@@ -26,7 +26,7 @@ int main(int argc, char * argv[]){
     LoadFQ(fFQ);
   }
 
-  bool Parallel = true;
+  bool Parallel = false;
   if (Parallel){
     makeDS_Parallel(fds);
   }
@@ -34,10 +34,10 @@ int main(int argc, char * argv[]){
     makeDS(fds);
   }
 
-  bool Total = false;
+  bool Total = true;
   if (Total){
     //double Pd[2] = {0.3, M_PI/6};
-    cout << Ebeam << "    " << sigmaT()*3.89379e5 << "  nb"  << endl;
+    printf("%.3f     %.6f  nb\n", Ebeam, sigmaT()*3.89379e5);
   }
   return 0;
 }
