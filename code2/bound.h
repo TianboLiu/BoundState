@@ -29,7 +29,7 @@
 #include "TGraph2D.h"
 #include "TRandom.h"
 #include "TRandom3.h"
-
+#include "TF1.h"
 
 /************* Constants *****************/
 const double GeVfm = 1.0 / 0.1973269718;//GeV * fm
@@ -293,7 +293,7 @@ double dsigma(const double * Pd, const double L1, const double L2){//ds / dpd dc
     std::cout << "Warning: " << Pd[0] << " " << Pd[1] << std::endl;
     return 0;
   }
-  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2);
+  return result * pow(2.0 * M_PI, 5) * pow(pd.P(), 2);//in unit GeV^-3
 }
 
 double dsigmaT(const double * Pd){//combine ss sp ps pp
@@ -301,7 +301,15 @@ double dsigmaT(const double * Pd){//combine ss sp ps pp
   double sp = dsigma(Pd, 0, 1);
   double ps = dsigma(Pd, 1, 0);
   double pp = dsigma(Pd, 1, 1);
-  return C00*ss + C01*sp + C10*ps + C11*pp;
+  return C00*ss + C01*sp + C10*ps + C11*pp;//in unit GeV^-3
+}
+
+double dsTE(const double * Pd, const double E0){
+  double tmp = Ebeam;//same the global Ebeam value
+  Ebeam = E0;//change Ebeam to a chosen E0
+  double result = dsigmaT(Pd);//calculate the ds with E0
+  Ebeam = tmp;//change the global Ebeam value back
+  return result;
 }
 
 double sigmaTint(const double * Pd){
@@ -432,15 +440,15 @@ int LoadDS(const char * datfile = "ds.dat"){
 }
 
 //ds
-double ds(const double * pd){//interpolation of ds/dpd dcostheta
+double ds_inter(const double * pd){//interpolation of ds/dpd dcostheta
   //pd: pd in GeV, costheta
   return ds2D.Interpolate(pd[0], pd[1]);
 }
   
-double sigmatotal(){//total cross section of bound state production in GeV^-2
+double sigmaT_inter(){//total cross section of bound state production in GeV^-2
   double xl[2] = {0.0, 0.0};//set lower integration boundary
   double xu[2] = {1.0, 1.0};//set upper integration boundary
-  ROOT::Math::Functor wf(&ds, 2);
+  ROOT::Math::Functor wf(&ds_inter, 2);
   ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001);
   ig.SetFunction(wf);
   double result = ig.Integral(xl, xu);
@@ -449,20 +457,25 @@ double sigmatotal(){//total cross section of bound state production in GeV^-2
 
 //generator
 int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS before genData
-  if (ds2D.GetN() < 10){
-    std::cerr << "No ds2D loaded for interpolation!" << std::endl;
-    return 1;
-  }
+  double kmin = 1.20;
+  double kmax = 1.80;
+  double Ee = 11.0;//Electron beam energy
+  TRandom3 r3(4357);//fixed seed
+  TF1 * fk = new TF1("fk", "4.0/(3.0*x)-4.0/(3.0*[0])+x/([0]*[0])", kmin, kmax);
+  fk->SetParameter(0, Ee);
+  fk->SetNpx(500);//Set better resolution for random generator
   TFile * fs = new TFile(datafile, "RECREATE");
   TTree * Ts = new TTree("data", "data");
   Ts->SetDirectory(fs);
-  double pd[2];//pd, costheta
+  double E0;//photon energy
+  double pd[2];//pd, theta
   double phi;
   TLorentzVector Pd;//4-momentum of Pd
   TLorentzVector AP[3];//4-momenta of final particle from NKK channel
   TLorentzVector BP[3];//4-momenta of final particle from LambdaK channel
   double Aw, Bw;//non-normalized weight factors
   double xs;//ds / dPd dcostheta
+  Ts->Branch("E0", &E0, "E0/D");
   Ts->Branch("ds", &xs, "ds/D");
   Ts->Branch("Pd", "TLorentzVector", &Pd);
   Ts->Branch("Aw", &Aw, "Aw/D");
@@ -474,23 +487,30 @@ int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS befor
   Ts->Branch("BP1", "TLorentzVector", &BP[1]);//pi-
   Ts->Branch("BP2", "TLorentzVector", &BP[2]);//K+
   TH1D * hw = new TH1D("hw", "hw", 2, 0.0, 2.0);
+  double Pd_min = 0.0;
+  double Pd_max = 1.5;
+  double cos_min = 0.0;
+  double cos_max = 1.0;
+  double volume = (Pd_max - Pd_min) * (cos_max - cos_min);
   for (Long64_t i = 0; i < Nsim; i++){
     if (i%10000 == 9999) std::cout << i + 1 << " in " << Nsim << std::endl;
-    pd[0] = gRandom->Uniform(0.0, 1.0);//Generate pd
-    pd[1] = gRandom->Uniform(0.0, 1.0);//Generate costheta
+    E0 = fk->GetRandom();
+    pd[0] = gRandom->Uniform(Pd_min, Pd_max);//Generate pd
+    pd[1] = acos(gRandom->Uniform(cos_min, cos_max));//Generate theta
     phi = gRandom->Uniform(-M_PI, M_PI);//Generate phi
-    xs = ds(pd);//Calculate ds / dpd dcostheta
-    Pd.SetXYZM(pd[0] * sqrt(1.0 - pd[1]*pd[1]) * cos(phi), pd[0] * sqrt(1.0 - pd[1]*pd[1]) * sin(phi), pd[0] * pd[1], Md);//Set 4-momentum of bound state
+    xs = dsTE(pd, E0);//Calculate ds / dpd dcostheta
+    Pd.SetXYZM(pd[0] * sin(pd[1]) * cos(phi), pd[0] * sin(pd[1]) * sin(phi), pd[0] * cos(pd[1]), Md);//Set 4-momentum of bound state
     Aw = decay0(Pd, AP);//Generate decay from NKK channel
     Bw = decay1(Pd, BP);//Generate decay from LambdaK channel
     hw->Fill(0.5, Aw);
     hw->Fill(1.5, Bw);
+    if (xs < 1.0e-9) continue;//skip event with too small ds
     Ts->Fill();
   }
   fs->Write();
   std::cout << "====================================" << std::endl;
   std::cout << "Nsim = " << Nsim << std::endl;
-  std::cout << "Volume = [Pd] * [cos theta] = " << (1.0 - 0.0) * (1.0 - 0.0) << std::endl;
+  std::cout << "Volume = [Pd] * [cos theta] = " << volume << std::endl;
   std::cout << "Weight normalization: W(A) = " << hw->Integral(1,1)/Nsim << "  W(B) = " << hw->Integral(2,2)/Nsim << std::endl;
   std::cout << "====================================" << std::endl;
   return 0;
