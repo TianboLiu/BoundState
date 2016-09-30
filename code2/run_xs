@@ -1,0 +1,18 @@
+./main 1.10 FQ.dat tmp.dat
+./main 1.15 FQ.dat tmp.dat
+./main 1.20 FQ.dat tmp.dat
+./main 1.25 FQ.dat tmp.dat
+./main 1.30 FQ.dat tmp.dat
+./main 1.35 FQ.dat tmp.dat
+./main 1.40 FQ.dat tmp.dat
+./main 1.45 FQ.dat tmp.dat
+./main 1.50 FQ.dat tmp.dat
+./main 1.55 FQ.dat tmp.dat
+./main 1.60 FQ.dat tmp.dat
+./main 1.65 FQ.dat tmp.dat
+./main 1.70 FQ.dat tmp.dat
+./main 1.75 FQ.dat tmp.dat
+./main 1.80 FQ.dat tmp.dat
+./main 1.85 FQ.dat tmp.dat
+
+
