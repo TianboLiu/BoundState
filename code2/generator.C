@@ -8,7 +8,7 @@ int main(int argc, char * argv[]){
     //Get wave function and potential grid, and setup interpolation
     readgrid("wf.dat", "Veff.dat");
     //Wave function renormalization
-    urone();
+    //urone();
     //cout << urone() << endl;
     //Generate or load FQ grid
     //makeFQ(fFQ);
