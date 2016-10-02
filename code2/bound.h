@@ -487,8 +487,8 @@ double sigmaT_inter(){//total cross section of bound state production in GeV^-2
 //generator
 int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS before genData
   TString name = datafile;
-  double kmin = 1.45;
-  double kmax = 1.50;
+  double kmin = 1.2;
+  double kmax = 1.8;
   double Ee = 11.0;//Electron beam energy
   TRandom3 r3(4357);//fixed seed
   TF1 * fk = new TF1("fk", "4.0/(3.0*x)-4.0/(3.0*[0])+x/([0]*[0])", kmin, kmax);
@@ -519,7 +519,7 @@ int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS befor
   TH1D * hw = new TH1D("hw", "hw", 2, 0.0, 2.0);
   double Pd_min = 0.0;
   double Pd_max = 1.5;
-  double cos_min = -1.0;
+  double cos_min = 0.0;
   double cos_max = 1.0;
   double volume = (Pd_max - Pd_min) * (cos_max - cos_min);
   for (Long64_t i = 0; i < Nsim; i++){
