@@ -30,6 +30,7 @@
 #include "TRandom.h"
 #include "TRandom3.h"
 #include "TF1.h"
+#include "TString.h"
 
 /************* Constants *****************/
 const double GeVfm = 1.0 / 0.1973269718;//GeV * fm
@@ -46,12 +47,12 @@ const double MLambda = 1.115683;
 
 /************* Parameters ****************/
 double NA = 12.0;//nucleon number
-double Lambda = 3.0 * GeVfm;//cut off parameter
+double Lambda = 2.56 * GeVfm;//cut off parameter
 double Md = MN + Mphi - 0.0077;//bound state mass
 double Ebeam = 1.45;//photon beam energy
 double b = 1.64 * GeVfm;//C12 shell model harmonic oscillator length
-//int C00 = 12; int C01 = 32; int C10 = 32; int C11 = 56;
-int C00 = 00; int C01 = 00; int C10 = 00; int C11 = 132;
+int C00 = 12; int C01 = 32; int C10 = 32; int C11 = 56;
+//int C00 = 00; int C01 = 00; int C10 = 00; int C11 = 132;
 /************* End of Parameters *********/
 
 //Wave function and effective potential
@@ -92,7 +93,7 @@ int readgrid(const char * fwf = "wf.dat", const char * fVeff = "Veff.dat"){
 }
 
 //wave function u(r) with normalization int u(r)^2 dr = 1
-double _Nur_ = 1.0;//wave function renormalization
+double _Nur_ = 26.568;//wave function renormalization
 double ur(double r, void * par = 0){//r in unit GeV^-1
   double rfm = r / GeVfm;//trans to fm unit
   double result = 0.0;
@@ -113,9 +114,32 @@ double urone(){//check ur normalization
   ig.SetRelTolerance(0.001);
   double su = ig.Integral(0.0, 18.20 * GeVfm) / pow(_Nur_, 2);
   _Nur_ = 1.0 / sqrt(su);
-  //std::cout << _Nur_ << std::endl;
+  std::cout << _Nur_ << std::endl;
   return ig.Integral(0.0, 8.5 * GeVfm);
 }
+
+double rur2(double r, void * par = 0){//r in unit GeV^-1
+  double result = r * pow(ur(r), 2);
+  return result;//in unit GeV
+}
+
+double r0(){//check ur normalization
+  ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
+  ig.SetFunction(&rur2);
+  ig.SetRelTolerance(0.001);
+  double result = ig.Integral(0.0, 18.20 * GeVfm);
+  std::cout << result / GeVfm << std::endl;
+  return ig.Integral(0.0, 8.5 * GeVfm);
+}
+
+double Pr(double rmax){//r in unit fm
+  //Probability of r < rmax
+  ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
+  ig.SetFunction(&ur2);
+  ig.SetRelTolerance(0.001);
+  return ig.Integral(0.0, rmax * GeVfm);
+}
+
 
 //Effective potential
 double Veff(double r, void * par = 0){//r in unit GeV^-1
@@ -297,10 +321,15 @@ double dsigma(const double * Pd, const double L1, const double L2){//ds / dpd dc
 }
 
 double dsigmaT(const double * Pd){//combine ss sp ps pp
-  double ss = dsigma(Pd, 0, 0);
-  double sp = dsigma(Pd, 0, 1);
-  double ps = dsigma(Pd, 1, 0);
-  double pp = dsigma(Pd, 1, 1);
+  double ss, sp, ps, pp;
+  if (C00 != 0) ss = dsigma(Pd, 0, 0);
+  else ss = 0.0;
+  if (C01 != 0) sp = dsigma(Pd, 0, 1);
+  else sp = 0.0;
+  if (C10 != 0) ps = dsigma(Pd, 1, 0);
+  else ps = 0.0;
+  if (C11 != 0) pp = dsigma(Pd, 1, 1);
+  else pp = 0.0;
   return C00*ss + C01*sp + C10*ps + C11*pp;//in unit GeV^-3
 }
 
@@ -457,14 +486,15 @@ double sigmaT_inter(){//total cross section of bound state production in GeV^-2
 
 //generator
 int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS before genData
-  double kmin = 1.20;
-  double kmax = 1.80;
+  TString name = datafile;
+  double kmin = 1.45;
+  double kmax = 1.50;
   double Ee = 11.0;//Electron beam energy
   TRandom3 r3(4357);//fixed seed
   TF1 * fk = new TF1("fk", "4.0/(3.0*x)-4.0/(3.0*[0])+x/([0]*[0])", kmin, kmax);
   fk->SetParameter(0, Ee);
   fk->SetNpx(500);//Set better resolution for random generator
-  TFile * fs = new TFile(datafile, "RECREATE");
+  TFile * fs = new TFile(name+".root", "RECREATE");
   TTree * Ts = new TTree("data", "data");
   Ts->SetDirectory(fs);
   double E0;//photon energy
@@ -489,7 +519,7 @@ int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS befor
   TH1D * hw = new TH1D("hw", "hw", 2, 0.0, 2.0);
   double Pd_min = 0.0;
   double Pd_max = 1.5;
-  double cos_min = 0.0;
+  double cos_min = -1.0;
   double cos_max = 1.0;
   double volume = (Pd_max - Pd_min) * (cos_max - cos_min);
   for (Long64_t i = 0; i < Nsim; i++){
@@ -508,6 +538,16 @@ int genData(const char * datafile, const Long64_t Nsim = 10){//Must LoadDS befor
     Ts->Fill();
   }
   fs->Write();
+  FILE * flog;
+  TString logname = name+".log";
+  flog = fopen(logname.Data(), "w");
+  fprintf(flog, "%d  %.4f  %.1f  %.3f  %.3f  %.6f  %.6f", Nsim, volume, Ee, kmin, kmax, hw->Integral(1,1)/Nsim, hw->Integral(2,2)/Nsim);
+  fprintf(flog, "Nsim = %d\n", Nsim);
+  fprintf(flog, "Volume = [Pd] * [cos theta] = %.4f GeV\n", volume);
+  fprintf(flog, "Electron beam energy = %.1f GeV\n", Ee);
+  fprintf(flog, "Photon energy range [kmin, kmax] = [%.3f, %.3f] GeV\n", kmin, kmax);
+  fprintf(flog, "Weight normalization W(A) = %.6f, W(B) = %.6f\n", hw->Integral(1,1)/Nsim, hw->Integral(2,2)/Nsim);
+  fclose(flog);
   std::cout << "====================================" << std::endl;
   std::cout << "Nsim = " << Nsim << std::endl;
   std::cout << "Volume = [Pd] * [cos theta] = " << volume << std::endl;

@@ -14,8 +14,8 @@ int main(int argc, char * argv[]){
     //makeFQ(fFQ);
     LoadFQ("FQ.dat");
   }
-
-  genData(argv[1], 10000000);//create root file, Nsim
+  Long64_t Nsim = (Long64_t) atof(argv[2]);
+  genData(argv[1], Nsim);//create root file, Nsim
 
   return 0;
 }

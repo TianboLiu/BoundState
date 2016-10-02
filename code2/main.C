@@ -19,11 +19,12 @@ int main(int argc, char * argv[]){
     //Get wave function and potential grid, and setup interpolation
     readgrid(fwf, fVeff);
     //Wave function renormalization
-    urone();
+    //urone();
+    //cout << Pr(2.5) << endl;
     //cout << urone() << endl;
     //Generate or load FQ grid
-    //makeFQ(fFQ);
-    LoadFQ(fFQ);
+    makeFQ(fFQ);
+    //LoadFQ(fFQ);
   }
 
   bool Parallel = false;
