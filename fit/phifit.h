@@ -25,20 +25,24 @@ int makeset(const char * savefile, const double * Eslimit){
   }
   double Es, cth, ds, err;
   FILE * fp;
+  int Nt = 0;
   fp = fopen(savefile, "w");
   while (!infile1.eof()){
     infile1 >> Es >> cth >> ds >> err;
     if (Es < Eslimit[0] || Es > Eslimit[1]) continue;
     fprintf(fp, "%.3f  %.2f  %.4f  %.4f\n", Es, cth, ds, err);
+    Nt++;
   }
   infile1.close();
   while (!infile2.eof()){
     infile2 >> Es >> cth >> ds >> err;
     if (Es < Eslimit[0] || Es > Eslimit[1]) continue;
     fprintf(fp, "%.3f  %.2f  %.4f  %.4f\n", Es, cth, ds, err);
+    Nt++;
   }
   infile2.close();
   fclose(fp);
+  std::cout << Es << "  " << Nt << std::endl;
   return 0;
 }
 
@@ -63,7 +67,7 @@ int plotdata(const char * datafile, const double * Eslimit){
     i++;
   }
   TF1 f0("f0", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x))", -1, 1);
-  g0->Fit(&f0, "Q");
+  g0->Fit(&f0);
   g0->SetMarkerStyle(8);
   g0->SetMarkerSize(0.5);
   g0->SetMarkerColor(2);
@@ -75,7 +79,34 @@ int plotdata(const char * datafile, const double * Eslimit){
   return 0;
 }
 
+double f0(const double * par){
+  std::ifstream infile("dataset.dat");
+  double sum = 0.0;
+  double Es, cth, ds, err;
+  while (!infile.eof()){
+    infile >> Es >> cth >> ds >> err;
+    sum += pow((par[0] * exp(-par[1]*(1.0-cth)-par[2]*pow(1.0-cth, 2))) - ds, 2) / (err * err);
+  }
+  infile.close();
+  return sum;
+}
 
+int f0Fit(const char * minName = "Minuit2", const char * algoName = "Migrad"){
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer(minName, algoName);
+  min->SetMaxFunctionCalls(100000);
+  min->SetTolerance(1.0e-6);
+  min->SetPrintLevel(0);
+  ROOT::Math::Functor f(&f0, 3);
+  min->SetFunction(f);
+  min->SetVariable(0, "A", 0.12, 1.0e-3);
+  min->SetVariable(1, "B", 1.03, 1.0e-3);
+  min->SetVariable(2, "C", -0.455, 1.0e-3);
+  min->Minimize();
+  const double * xs = min->X();
+  const double chi2 = min->MinValue();
+  std::cout << xs[0] << "   " << xs[1] << "   " << xs[2] << "   " << chi2 << std::endl;
+  return 0;
+}
 
 
 
