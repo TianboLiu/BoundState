@@ -10,6 +10,8 @@
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 #include "Math/Functor.h"
+#include "TF1.h"
+#include "TH1D.h"
 #include "TGraphErrors.h"
 #include "TCanvas.h"
 
@@ -50,6 +52,8 @@ int plotdata(const char * datafile, const double * Eslimit){
   }
   infile.clear();
   infile.seekg(0, std::ios::beg);
+  TH1D * h0 = new TH1D("", "", 1, -1.0, 1.0);
+  h0->GetYaxis()->SetRangeUser(0.0, 0.15);
   TGraphErrors * g0 = new TGraphErrors(Nt);
   for (int i = 0; i < Nt; ){
     infile >> Es >> cth >> ds >> err;
@@ -58,12 +62,15 @@ int plotdata(const char * datafile, const double * Eslimit){
     g0->SetPointError(i, 0, err);
     i++;
   }
+  TF1 f0("f0", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x))", -1, 1);
+  g0->Fit(&f0, "Q");
   g0->SetMarkerStyle(8);
-  g0->SetMarkerSize(0.3);
+  g0->SetMarkerSize(0.5);
   g0->SetMarkerColor(2);
   g0->SetLineWidth(0.02);
   TCanvas * c0 = new TCanvas("", "", 800, 600);
-  g0->Draw("ape");
+  //h0->Draw();
+  g0->Draw("0apesame");
   c0->Print("points.pdf");
   return 0;
 }
