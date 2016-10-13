@@ -9,6 +9,7 @@
 #include <cstring>
 
 #include "TROOT.h"
+#include "TStyle.h"
 #include "TSystem.h"
 #include "TRandom.h"
 #include "TRandom3.h"
@@ -120,8 +121,8 @@ double ProbabilityBoundState(const double * mom, const double * par = 0){//Proba
 TF1 TF_fq("fq", Bremsstrahlung, 1.2, 1.8, 1);//set photon energy distri
 TF1 TF_fp("fp", CarbonMomentum, 0.0, 0.5, 0);//set bound N momentum distri
 TF1 TF_fE("fE", CarbonEnergy, 0.0, 0.1, 0);//set bound N missing energy distri
-TF1 TF_BWPhi("BWPhi", BreitWigner, 0.819, 1.219, 2);//set phi mass distri
-TF1 TF_BWd("BWd", BreitWigner, 1.750, 2.150, 2);//set bound state mass distri
+TF1 TF_BWPhi("BWPhi", BreitWigner, 0.987354, 1.219, 2);//set phi mass distri
+TF1 TF_BWd("BWd", BreitWigner, 1.925626, 2.150, 2);//set bound state mass distri
 TGenPhaseSpace Lphase;//A global variable to generate final state
 /*** End of Functions for random sampling  ***/
 
@@ -175,7 +176,7 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
   return sigma;//return total cross section with particular p1 and Mphi, in unit GeV^-2
 }
 
-double GenerateBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event
+double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event
   TLorentzVector k = ki[0];//4-momentum of phi
   TLorentzVector p2 = ki[1];//4-momentum of bound Nucleon in carbon
   TLorentzVector Pout = k + p2;//Total 4-momentum
@@ -193,7 +194,7 @@ double GenerateBoundState(const TLorentzVector * ki, TLorentzVector * kf, double
   return weight[0] * weight[1];//in unit GeV^-2
 }
 
-double GenerateEventBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator an event of bound photoproduction
+double GenerateBoundStateProduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator an event of bound photoproduction
   TLorentzVector q = ki[0];//4-momentum of photon
   TLorentzVector p1, p2;
   GenerateNucleonInCarbon(&p1);//Generate first bound N in carbon
@@ -207,7 +208,7 @@ double GenerateEventBoundState(const TLorentzVector * ki, TLorentzVector * kf, d
   TLorentzVector ki2[2] = {k, p2};//Set incoming particles in step 2
   TLorentzVector Pd;//4-momentum of bound state
   double weight2[2];
-  GenerateBoundState(ki2, &Pd, weight2);//Generate step 2
+  GenerateBoundStateFormation(ki2, &Pd, weight2);//Generate step 2
   kf[1] = Pd;//Get bound state 4-momentum
   weight[0] = weight1 * weight2[0] * weight2[1];
   weight[1] = weight1;
@@ -215,10 +216,75 @@ double GenerateEventBoundState(const TLorentzVector * ki, TLorentzVector * kf, d
   weight[3] = weight2[1];
   return weight[0];
 }
-  
-  
 
+double Decay2(const TLorentzVector * ki, TLorentzVector * kf, const double * mass){//Generate two body decay event
+  double masses[2] = {mass[0], mass[1]};
+  TLorentzVector P0 = ki[0];//initial state
+  Lphase.SetDecay(P0, 2, masses);
+  Lphase.Generate();
+  TLorentzVector * tm;//tmp 4-momentum pointer
+  tm = Lphase.GetDecay(0);//Get 1st particle
+  kf[0].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 1st particle
+  tm = Lphase.GetDecay(1);//Get 2nd particle
+  kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 2nd particle
+  return 1;
+}
 
+double Decay3(const TLorentzVector * ki, TLorentzVector * kf, const double * mass){//Generate three body decay event
+  double masses[3] = {mass[0], mass[1], mass[2]};
+  TLorentzVector P0 = ki[0];//initial state
+  Lphase.SetDecay(P0, 3, masses);
+  double weight = Lphase.Generate();
+  TLorentzVector * tm;//tmp 4-momentum pointer
+  tm = Lphase.GetDecay(0);//Get 1st particle
+  kf[0].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 1st particle
+  tm = Lphase.GetDecay(1);//Get 2nd particle
+  kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 2nd particle
+  tm = Lphase.GetDecay(2);//Get 3rd particle
+  kf[2].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 3rd particle
+  return weight / 0.39;
+}
+
+double GenerateEventNNKKwithBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NNKK with bound state production
+  TLorentzVector kf1[2];
+  double weight1[4];
+  GenerateBoundStateProduction(ki, kf1, weight1);
+  kf[0] = kf1[0];//recoil proton
+  TLorentzVector Pd = kf1[1];//4-momentum of bound state
+  if (weight1[0] == 0.0) {
+    weight[0] = 0.0;
+    return 0.0;
+  }
+  double mass[3] = {0.938272, 0.493677, 0.493677};
+  TLorentzVector kf2[3];
+  double weight2 = Decay3(&Pd, kf2, mass);
+  //std::cout << weight2 << std::endl;
+  kf[1] = kf2[0];//decayed proton
+  kf[2] = kf2[1];//decayed K+
+  kf[3] = kf2[2];//decayed K-
+  double Br = 0.904 * 0.489;//Branching ratio of NKK channel
+  weight[0] = weight1[0] * weight2 * Br;
+  return weight[0];
+}
+
+double GenerateEventNKKwithoutBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NKK without bound state production
+  TLorentzVector p1;
+  GenerateNucleonInCarbon(&p1);//Get a nucleon in carbon
+  TLorentzVector ki1[2] = {ki[0], p1};//Set incoming particles for phi production
+  TLorentzVector kf1[2];
+  double weight1;
+  GeneratePhiProduction(ki1, kf1, &weight1);
+  kf[0] = kf1[1];//recoil proton
+  TLorentzVector kphi = kf1[0];//produced phi meson
+  double mass[2] = {0.493677, 0.493677};
+  TLorentzVector kf2[2];
+  Decay2(&kphi, kf2, mass);
+  kf[1] = kf2[0];//decayed K+
+  kf[2] = kf2[1];//decayed K-
+  double Br = 0.489;//Branch ratio of phi -> K+K- channel
+  weight[0] = weight1 * Br;
+  return weight[0];
+}
 
 
 
