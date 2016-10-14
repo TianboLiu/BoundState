@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cmath>
 
+#include "TStyle.h"
 #include "TString.h"
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
@@ -15,67 +16,100 @@
 #include "TGraphErrors.h"
 #include "TCanvas.h"
 
-int makeset(const char * savefile, const double * Eslimit){
-  std::ifstream infile1("clasdb_E63M1.txt");
-  std::ifstream infile2("clasdb_E63M2.txt");
+int creatset(const char * savefile, const char * datafile, const double Emin, const double Emax = 0){
+  double Erange[2] = {Emin, Emax};
+  if (Emax < Emin){
+    Erange[0] = Emin - 1.0e-9;
+    Erange[1] = Emin + 1.0e-9;
+  }
+  std::ifstream infile(datafile);//Load datafile
   char tmp[256];
-  for (int i = 0; i < 8; i++){
-    infile1.getline(tmp, 256);
-    infile2.getline(tmp, 256);
+  for (int i = 0; i < 8; i++){//Pass the header
+    infile.getline(tmp, 256);
   }
   double Es, cth, ds, err;
   FILE * fp;
   int Nt = 0;
   fp = fopen(savefile, "w");
-  while (!infile1.eof()){
-    infile1 >> Es >> cth >> ds >> err;
-    if (Es < Eslimit[0] || Es > Eslimit[1]) continue;
+  while (infile >> Es >> cth >> ds >> err){
+    if (Es < Erange[0] || Es > Erange[1]) continue;
+    if (err < 1.0e-9) continue;
     fprintf(fp, "%.3f  %.2f  %.4f  %.4f\n", Es, cth, ds, err);
     Nt++;
   }
-  infile1.close();
-  while (!infile2.eof()){
-    infile2 >> Es >> cth >> ds >> err;
-    if (Es < Eslimit[0] || Es > Eslimit[1]) continue;
-    fprintf(fp, "%.3f  %.2f  %.4f  %.4f\n", Es, cth, ds, err);
-    Nt++;
-  }
-  infile2.close();
+  infile.close();
   fclose(fp);
   std::cout << Es << "  " << Nt << std::endl;
   return 0;
 }
 
-int plotdata(const char * datafile, const double * Eslimit){
+int addset(const char * savefile, const char * datafile, const double Emin, const double Emax = 0){
+  double Erange[2] = {Emin, Emax};
+  if (Emax == 0){
+    Erange[0] = Emin - 1e-9;
+    Erange[1] = Emin + 1e-9;
+  }
+  std::ifstream infile(datafile);//Load datafile
+  char tmp[256];
+  for (int i = 0; i < 8; i++){//Pass the header
+    infile.getline(tmp, 256);
+  }
+  double Es, cth, ds, err;
+  FILE * fp;
+  int Nt = 0;
+  fp = fopen(savefile, "a");
+  while (infile >> Es >> cth >> ds >> err){
+    if (Es < Erange[0] || Es > Erange[1]) continue;
+    if (err == 0) continue;
+    fprintf(fp, "%.3f  %.2f  %.4f  %.4f\n", Es, cth, ds, err);
+    Nt++;
+  }
+  infile.close();
+  fclose(fp);
+  std::cout << Es << "  " << Nt << std::endl;
+  return 0;
+}
+
+int plotdata(const char * datafile){
   int Nt = 0;
   double Es, cth, ds, err;
   std::ifstream infile(datafile);
-  while (!infile.eof()){
-    infile >> Es >> cth >> ds >> err;
-    if (Es > Eslimit[0] && Es < Eslimit[1]) Nt++;
-  }
+  while (infile >> Es >> cth >> ds >> err) Nt++;//count data points
+  std::cout << Nt << std::endl;
   infile.clear();
-  infile.seekg(0, std::ios::beg);
-  TH1D * h0 = new TH1D("", "", 1, -1.0, 1.0);
-  h0->GetYaxis()->SetRangeUser(0.0, 0.15);
+  infile.seekg(0, std::ios::beg);//go back to the beginning of the datafile
   TGraphErrors * g0 = new TGraphErrors(Nt);
-  for (int i = 0; i < Nt; ){
+  double upper, lower;
+  for (int i = 0; i < Nt; i++){
     infile >> Es >> cth >> ds >> err;
-    if (Es > Eslimit[0] && Es < Eslimit[1]);
     g0->SetPoint(i, cth, ds);
     g0->SetPointError(i, 0, err);
-    i++;
+    if (i == 0) {upper = ds + err; lower = ds - err;}
+    if (upper < ds + err) upper = ds + err;
+    if (lower > ds - err) lower = ds - err;
   }
-  TF1 f0("f0", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x))", -1, 1);
+  infile.close();
+  TH1D * h0 = new TH1D("h0", "", 1, -1.0, 1.0);
+  h0->GetYaxis()->SetRangeUser(0.0, lower+upper);
+  h0->GetXaxis()->SetTitle("cos#theta_{c.m.}");
+  h0->GetXaxis()->CenterTitle();
+  h0->GetYaxis()->SetTitle("d#sigma / dcos#theta_{c.m.} (#mub)");
+  h0->GetYaxis()->CenterTitle();
+  h0->GetYaxis()->SetTitleOffset(1.5);
+  TF1 f0("f0", "[0]", -1, 1); 
+  f0.SetParameter(0, (lower+upper)/2.0);
   g0->Fit(&f0);
   g0->SetMarkerStyle(8);
-  g0->SetMarkerSize(0.5);
-  g0->SetMarkerColor(2);
-  g0->SetLineWidth(0.02);
+  g0->SetMarkerSize(0.6);
+  g0->SetMarkerColor(4);
+  g0->SetLineWidth(0.5);
+  g0->GetFunction("f0")->SetLineWidth(1);
+  g0->GetFunction("f0")->SetLineColor(2);
   TCanvas * c0 = new TCanvas("", "", 800, 600);
-  //h0->Draw();
-  g0->Draw("0apesame");
-  c0->Print("points.pdf");
+  gStyle->SetOptStat(0);
+  h0->Draw();
+  g0->Draw("pesame");
+  c0->Print("plotdata.pdf");
   return 0;
 }
 
