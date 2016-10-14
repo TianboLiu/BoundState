@@ -180,6 +180,7 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
   TLorentzVector Pout = q + p1;//Total 4-momentum
   const double s = Pout.M2();//mandelstem variable s
   if (s <= pow(Mp + Mphi, 2)){
+    weight[0] = 0.0;
     return 0.0;//below the threshold
   }
   double mom[2];
@@ -196,6 +197,31 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
   kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set recoil proton 4-momentum
   weight[0] = sigma;
   return sigma;//return total cross section with particular p1 and Mphi, in unit GeV^-2
+}
+
+double GenerateL1520Production(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate a Lambda 1520 photoproduction event
+  TLorentzVector q = ki[0];//4-momentum of incoming photon
+  TLorentzVector p1 = ki[1];//4-momentum of incoming bound nucleon
+  //unfinished
+  return 0;
+}
+
+
+double GenerateKKProduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate a direct KK photoproduction event
+  TLorentzVector q = ki[0];//4-momentum of incoming photon
+  TLorentzVector p1 = ki[1];//4-momentum of incoming bound nucleon
+  const double Mp = 0.938272;//proton mass
+  const double Mkaon = 0.493677;//K meson mass
+  TLorentzVector Pout = q + p1;//Total 4-momentum
+  double s = Pout.M2();//Total invariant mass
+  if (s <= pow(Mp + 2.0 * Mkaon, 2)){
+    weight[0] = 0.0;
+    return 0.0;
+  }
+  double mass[3] = {Mp, Mkaon, Mkaon};//Set final particle masses
+  Lphase.SetDecay(Pout, 3, mass);//
+  //unfinished
+  return 0;
 }
 
 double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event
