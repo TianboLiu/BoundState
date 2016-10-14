@@ -1,0 +1,17 @@
+CLAS physics database search results
+Measurement E57M1
+Differential Photoproduction Cross Sections of the &Lambda;(1520)
+R. A. Schumacher
+2013
+
+W	Egamma	sigma	Data errors
+GeV	GeV	mcbn	mcbn
+2	1.662	0	0
+2.1	1.881	0.557	0.065
+2.2	2.11	0.729	0.029
+2.3	2.35	0.625	0.015
+2.4	2.6	0.549	0.014
+2.5	2.862	0.46	0.015
+2.6	3.133	0.383	0.017
+2.7	3.416	0.299	0.016
+2.8	3.709	0.297	0.032
