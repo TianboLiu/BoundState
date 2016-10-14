@@ -20,6 +20,11 @@
 #include "TF1.h"
 #include "Math/WrappedTF1.h"
 #include "Math/GSLIntegrator.h"
+#include "TCanvas.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TGraph.h"
+#include "TGraph2D.h"
 
 double Bremsstrahlung(const double * k, const double * par){//non-normalized
   //E0: electron beam energy, k: photon energy
@@ -117,6 +122,17 @@ double ProbabilityBoundState(const double * mom, const double * par = 0){//Proba
   return result;//in unit GeV^-1
 }
 
+int DetectorResolutionSmear(TLorentzVector * P, double * res){//Smearing the three momentum with gaussian, fixed mass
+  double M = P->M();
+  double p = P->P() * (1.0 + gRandom->Gaus(0.0, res[0]));//smear p
+  if (p < 0.0) p = 0.0;//Set negative p to 0
+  double theta = P->Theta() + gRandom->Gaus(0.0, res[1]);//smear theta
+  double phi = P->Phi() + gRandom->Gaus(0.0, res[2]);//smear phi
+  P[0].SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), M);//Set smeared three momentum with fixed mass
+  //P[0].SetRho(p); P[0].SetTheta(theta); P[0].SetPhi(phi);
+  return 0;
+} 
+
 /******* Functions for random sampling *******/
 TF1 TF_fq("fq", Bremsstrahlung, 1.2, 1.8, 1);//set photon energy distri
 TF1 TF_fp("fp", CarbonMomentum, 0.0, 0.5, 0);//set bound N momentum distri
@@ -135,9 +151,15 @@ int SetFunctions(){
   TF_BWPhi.SetParameter(1, 0.00426);
   TF_BWPhi.SetNpx(2000);
   TF_BWd.SetParameter(0, 1.950027);
-  TF_BWd.SetParameter(1, 0.001789);
+  TF_BWd.SetParameter(1, 0.002118);
   TF_BWd.SetNpx(4000);
   return 0;
+}
+
+double GenerateBremsstrahlungPhoton(TLorentzVector * q){//Generate a photon from Bremsstrahlung
+  double E0 = TF_fq.GetRandom();
+  q[0].SetXYZT(0.0, 0.0, E0, E0);
+  return 1.0;
 }
 
 double GenerateNucleonInCarbon(TLorentzVector * P){//Generate a bound nucleon in the carbon nucleus
@@ -186,7 +208,7 @@ double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * k
   if (Md < Mmin || Md >= Mmax)
     weight[0] = 0.0;
   else
-    weight[0] = TF_BWd.Eval(Md) / TF_BWd.Integral(Mmin, Mmax);
+    weight[0] = TF_BWd.Eval(Md) / TF_BWd.Integral(Mmin, Mmax) * Pout.E() / Pout.M();
   double s = Pout.M2();
   double Q = sqrt( (s - pow(k.M() + p2.M(), 2)) * (s - pow(k.M() - p2.M(), 2)) / (4.0 * s));
   weight[1] = ProbabilityBoundState(&Q);
@@ -230,6 +252,35 @@ double Decay2(const TLorentzVector * ki, TLorentzVector * kf, const double * mas
   return 1;
 }
 
+double WeightDistribution3(const double * x, const double * par){//Weight distribution in TGenPhaseSpace
+  double E0 = par[0];
+  double m0 = par[1];
+  double m1 = par[2];
+  double m2 = par[3];
+  double M0, M1, M2;
+  M0 = E0 - m2; M1 = m0; M2 = m1;
+  double PMAX0 = sqrt( (M0*M0 - pow(M1+M2, 2)) * (M0*M0 - pow(M1-M2, 2)) ) / (2.0 * M0);
+  M0 = E0; M1 = m0 + m1; M2 = m2;
+  double PMAX1 = sqrt( (M0*M0 - pow(M1+M2, 2)) * (M0*M0 - pow(M1-M2, 2)) ) / (2.0 * M0);
+  M0 = m0 + m1 + x[0] * (E0 - m0 - m1 - m2); M1 = m0; M2 = m1;
+  double P0 = sqrt( (M0*M0 - pow(M1+M2, 2)) * (M0*M0 - pow(M1-M2, 2)) ) / (2.0 * M0);
+  M0 = E0; M1 = m0 + m1 + x[0] * (E0 - m0 - m1 - m2); M2 = m2;
+  double P1 = sqrt( (M0*M0 - pow(M1+M2, 2)) * (M0*M0 - pow(M1-M2, 2)) ) / (2.0 * M0);
+  double result = (P0 * P1) / (PMAX0 * PMAX1);
+  return result;
+} 
+
+double WeightNormalization3(const double M0, const double * mass){//Calculate the weight normalization factor for 3-body decay from TGenPhaseSpace
+  double par[4] = {M0, mass[0], mass[1], mass[2]};
+  TF1 f0("Weight-3", WeightDistribution3, 0.0, 1.0, 4);
+  f0.SetParameters(par);
+  ROOT::Math::WrappedTF1 wf0(f0);
+  ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, 0.0, 1.0e-4, 1000);
+  ig.SetFunction(wf0);
+  double result = ig.Integral(0.0, 1.0);
+  return result;
+}
+
 double Decay3(const TLorentzVector * ki, TLorentzVector * kf, const double * mass){//Generate three body decay event
   double masses[3] = {mass[0], mass[1], mass[2]};
   TLorentzVector P0 = ki[0];//initial state
@@ -242,7 +293,8 @@ double Decay3(const TLorentzVector * ki, TLorentzVector * kf, const double * mas
   kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 2nd particle
   tm = Lphase.GetDecay(2);//Get 3rd particle
   kf[2].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set 3rd particle
-  return weight / 0.39;
+  double Nweight = WeightNormalization3(P0.M(), mass);
+  return weight / Nweight;
 }
 
 double GenerateEventNNKKwithBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NNKK with bound state production
@@ -262,7 +314,7 @@ double GenerateEventNNKKwithBoundState(const TLorentzVector * ki, TLorentzVector
   kf[1] = kf2[0];//decayed proton
   kf[2] = kf2[1];//decayed K+
   kf[3] = kf2[2];//decayed K-
-  double Br = 0.904 * 0.489;//Branching ratio of NKK channel
+  double Br = 0.919 * 0.489;//Branching ratio of NKK channel
   weight[0] = weight1[0] * weight2 * Br;
   return weight[0];
 }
