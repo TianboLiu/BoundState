@@ -39,7 +39,7 @@ int creatset(const char * savefile, const char * datafile, const double Emin, co
   }
   infile.close();
   fclose(fp);
-  std::cout << Es << "  " << Nt << std::endl;
+  //std::cout << Es << "  " << Nt << std::endl;
   return 0;
 }
 
@@ -66,7 +66,7 @@ int addset(const char * savefile, const char * datafile, const double Emin, cons
   }
   infile.close();
   fclose(fp);
-  std::cout << Es << "  " << Nt << std::endl;
+  //std::cout << Es << "  " << Nt << std::endl;
   return 0;
 }
 
@@ -114,17 +114,18 @@ int plotdata(const char * datafile){
 }
 
 TF1 sigma0("sigma", "[0]", -1, 1);
-TF1 sigma("sigma", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x)", -1, 1);
+TF1 sigma("sigma", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x))", -1, 1);
+TF1 sigma1("sigma", "[0]+[1]*(1-x)+[2]*(1-x)*(1-x)", -1, 1);
 
 
 double f0(const double * par){
   std::ifstream infile("dataset.dat");
   double sum = 0.0;
-  sigma0.SetParameters(par);
+  sigma1.SetParameters(par);
   double Es, cth, ds, err;
   while (!infile.eof()){
     infile >> Es >> cth >> ds >> err;
-    sum += pow(sigma0.Eval(cth) - ds, 2) / (err * err);
+    sum += pow(sigma1.Eval(cth) - ds, 2) / (err * err);
   }
   infile.close();
   return sum;
@@ -136,16 +137,16 @@ int f0Fit(const char * minName = "Minuit2", const char * algoName = "Migrad"){
   min->SetMaxFunctionCalls(100000);
   min->SetTolerance(1.0e-6);
   min->SetPrintLevel(0);
-  ROOT::Math::Functor f(&f0, 1);
+  ROOT::Math::Functor f(&f0, 3);
   min->SetFunction(f);
   min->SetVariable(0, "A", 0.1, 1.0e-3);
-  //min->SetVariable(1, "B", 0.0, 1.0e-3);
-  //min->SetVariable(2, "C", 0.0, 1.0e-3);
+  min->SetVariable(1, "B", 0.0, 1.0e-3);
+  min->SetVariable(2, "C", 0.0, 1.0e-3);
   min->Minimize();
   const double * xs = min->X();
   const double chi2 = min->MinValue();
-  sigma.SetParameters(xs);
-  double total = sigma.Integral(-1,1);
+  sigma1.SetParameters(xs);
+  double total = sigma1.Integral(-1,1);
   std::cout << total << " " << chi2 << " " << xs[0] << "   " << xs[1] << "   " << xs[2] << std::endl;
   return 0;
 }
