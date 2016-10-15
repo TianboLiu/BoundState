@@ -1,11 +1,14 @@
-#include "Phifit.h"
+#include "phifit.h"
 
 using namespace std;
 
-int main(){
-  double Eslimit[2] = {1.98, 1.99};
-  makeset("dataset.dat", Eslimit);
-  plotdata("dataset.dat", Eslimit);
+int main(int argc, char * argv[]){
+  double s = atof(argv[1]);
+  creatset("dataset.dat", "clasdb_E63M1.txt", s);
+  addset("dataset.dat", "clasdb_E63M2.txt", s);
+
+  //plotdata("dataset.dat");
+  f0Fit();
 
   return 0;
 }
