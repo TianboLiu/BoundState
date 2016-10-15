@@ -25,6 +25,7 @@
 #include "TH2D.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include "TLegend.h"
 
 double Bremsstrahlung(const double * k, const double * par){//non-normalized
   //E0: electron beam energy, k: photon energy
@@ -36,6 +37,17 @@ double Bremsstrahlung(const double * k, const double * par){//non-normalized
   }
   double result = 1.0 / (y * E0) * (4.0 / 3.0 - 4.0 / 3.0 * y + y * y);
   return result;//non-normalized probability density
+}
+
+double BremsstrahlungPhotonLumi(const double * k, const double * par){//Calculate the ratio of effective gamma A lumi to eN lumi
+  double E0 = k[0];//Beam energy
+  double kmin = k[1];//photon energy minimum
+  double kmax = k[2];//photon energy maximum
+  double fL = par[0];//radiation length fraction
+  double A = par[1];//nucleon number
+  double Y = 4.0 / 3.0 * log(kmax / kmin) - 4.0 / (3.0 * E0) * (kmax - kmin) + 1.0 / (2.0 * E0 * E0) * (kmax * kmax - kmin * kmin);
+  double result = Y * fL / (2.0 * A);
+  return result;
 }
 
 double BreitWigner(const double * M, const double * par){//non-normalized 
@@ -98,9 +110,19 @@ double SigmaPhiProduction(const double * mom, const double * par){//total cross 
   double scalar = mom[0];//scalar product of income p1 and p2
   double Q = mom[1];//relative momentum of produced phi meson in c.m. frame
   double Mphi = par[0];//phi meson mass
-  const double Amp = 0.59405;//invariant amplitude
+  const double Amp = 0.594054;//invariant amplitude
   const double Mp = 0.938272;//proton mass
   double result = Amp * Amp / (16.0 * M_PI * scalar) * Q / (sqrt(Q*Q+Mphi*Mphi) + sqrt(Q*Q+Mp*Mp));
+  return result;//cross section in unit GeV^-2
+}
+
+double SigmaLambda1520Production(const double * mom, const double * par){//total cross section of Lambda 1520 + K photoproduction
+  double scalar = mom[0];//scalar product of income p1 and p2
+  double Q = mom[1];//relative momentum of produced K meson in c.m. frame
+  double MLambda = par[0];//Lambda 1520 mass
+  const double Amp = 0.801197;//invariant amplitude
+  const double Mkaon = 0.493677;//kaon mass
+  double result = Amp * Amp / (16.0 * M_PI * scalar) * Q / (sqrt(Q*Q+MLambda*MLambda) + sqrt(Q*Q+Mkaon*Mkaon));
   return result;//cross section in unit GeV^-2
 }
 
@@ -113,8 +135,9 @@ double AmplitudeBoundState(const double * mom, const double * par = 0){//Amplitu
   double A0 = 0.112356;//Fit to FQ0.dat with poly*gaussian
   double A2 = 0.609078;
   double B2 = 2.75841;
-  double result = (A0 + A2 * Q * Q) * exp(-B2 * Q * Q);
-  return result;//amplitude in unit GeV^-1/2;
+  double result1 = (A0 + A2 * Q * Q) * exp(-B2 * Q * Q);
+  double result2 = 0.114843 * exp(-5.15 * Q * Q);
+  return result1;//amplitude in unit GeV^-1/2;
 }
 
 double ProbabilityBoundState(const double * mom, const double * par = 0){//Probability density w.r.t Q
@@ -134,10 +157,11 @@ int DetectorResolutionSmear(TLorentzVector * P, double * res){//Smearing the thr
 } 
 
 /******* Functions for random sampling *******/
-TF1 TF_fq("fq", Bremsstrahlung, 1.2, 1.8, 1);//set photon energy distri
+TF1 TF_fq("fq", Bremsstrahlung, 1.1, 1.8, 1);//set photon energy distri
 TF1 TF_fp("fp", CarbonMomentum, 0.0, 0.5, 0);//set bound N momentum distri
 TF1 TF_fE("fE", CarbonEnergy, 0.0, 0.1, 0);//set bound N missing energy distri
 TF1 TF_BWPhi("BWPhi", BreitWigner, 0.987354, 1.219, 2);//set phi mass distri
+TF1 TF_BWL1520("BWL1520", BreitWigner, 1.43195, 1.600, 2);//set Lambda1520 mass distri
 TF1 TF_BWd("BWd", BreitWigner, 1.925626, 2.150, 2);//set bound state mass distri
 TGenPhaseSpace Lphase;//A global variable to generate final state
 /*** End of Functions for random sampling  ***/
@@ -150,14 +174,17 @@ int SetFunctions(){
   TF_BWPhi.SetParameter(0, 1.019455);
   TF_BWPhi.SetParameter(1, 0.00426);
   TF_BWPhi.SetNpx(2000);
+  TF_BWL1520.SetParameter(0, 1.5195);
+  TF_BWL1520.SetParameter(1, 0.0156);
+  TF_BWL1520.SetNpx(2000);
   TF_BWd.SetParameter(0, 1.950027);
   TF_BWd.SetParameter(1, 0.002118);
   TF_BWd.SetNpx(4000);
   return 0;
 }
 
-double GenerateBremsstrahlungPhoton(TLorentzVector * q){//Generate a photon from Bremsstrahlung
-  double E0 = TF_fq.GetRandom();
+double GenerateBremsstrahlungPhoton(TLorentzVector * q, const double * k){//Generate a photon from Bremsstrahlung
+  double E0 = TF_fq.GetRandom(k[0], k[1]);
   q[0].SetXYZT(0.0, 0.0, E0, E0);
   return 1.0;
 }
@@ -184,7 +211,7 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
     return 0.0;//below the threshold
   }
   double mom[2];
-  mom[0] = q * p1;//scalar product of incoming 2 particles
+  mom[0] = std::abs(q * p1);//scalar product of incoming 2 particles
   mom[1] = sqrt( (s - pow(Mp + Mphi, 2)) * (s - pow(Mphi - Mp, 2)) / (4.0 * s) );//Relative momentum Q
   double sigma = SigmaPhiProduction(mom, &Mphi);//total cross section
   double mass[2] = {Mphi, Mp};//Set final particle masses
@@ -199,29 +226,75 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
   return sigma;//return total cross section with particular p1 and Mphi, in unit GeV^-2
 }
 
-double GenerateL1520Production(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate a Lambda 1520 photoproduction event
+double GenerateLambda1520Production(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate a Lambda 1520 photoproduction event
   TLorentzVector q = ki[0];//4-momentum of incoming photon
   TLorentzVector p1 = ki[1];//4-momentum of incoming bound nucleon
-  //unfinished
-  return 0;
+  const double Mkaon = 0.493677;
+  const double MLambda = TF_BWL1520.GetRandom();
+  TLorentzVector Pout = q + p1;//Total 4-momentum
+  const double s = Pout.M2();//mandelstem variable s
+  if (s <= pow(Mkaon + MLambda, 2)){
+    weight[0] = 0.0;
+    return 0.0;//below the threshold
+  }
+  double mom[2];
+  mom[0] = q * p1;//scalar product of incoming 2 particles
+  mom[1] = sqrt( (s - pow(Mkaon + MLambda, 2)) * (s - pow(Mkaon - MLambda, 2)) / (4.0 * s) );//Relative momentum Q
+  double sigma = SigmaLambda1520Production(mom, &MLambda);//total cross section
+  double mass[2] = {Mkaon, MLambda};//Set final particle masses
+  Lphase.SetDecay(Pout, 2, mass);//Set kinematics
+  Lphase.Generate();
+  TLorentzVector * tm;//tmp 4-momentum pointer
+  tm = Lphase.GetDecay(0);//Get phi 4-momentum
+  kf[0].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set kaon 4-momentum
+  tm = Lphase.GetDecay(1);//Get recoil proton 4-momentum
+  kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set Lambda1520 4-momentum
+  weight[0] = sigma;
+  return sigma;//return total cross section with particular kaon and Lambda1520, in unit GeV^-2
 }
-
 
 double GenerateKKProduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate a direct KK photoproduction event
   TLorentzVector q = ki[0];//4-momentum of incoming photon
   TLorentzVector p1 = ki[1];//4-momentum of incoming bound nucleon
+  double scalar = std::abs(q * p1);//scalar product of incoming paricles
   const double Mp = 0.938272;//proton mass
   const double Mkaon = 0.493677;//K meson mass
   TLorentzVector Pout = q + p1;//Total 4-momentum
   double s = Pout.M2();//Total invariant mass
   if (s <= pow(Mp + 2.0 * Mkaon, 2)){
     weight[0] = 0.0;
+    weight[1] = 0.0;
+    weight[2] = 0.0;
+    weight[3] = 0.0;
     return 0.0;
   }
   double mass[3] = {Mp, Mkaon, Mkaon};//Set final particle masses
   Lphase.SetDecay(Pout, 3, mass);//
-  //unfinished
-  return 0;
+  Lphase.Generate();
+  TLorentzVector * tm;
+  tm = Lphase.GetDecay(0);//Get p 4-momentum
+  kf[0].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set p 4-momentum
+  tm = Lphase.GetDecay(1);//Get K+ 4-momentum
+  kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set p 4-momentum
+  tm = Lphase.GetDecay(2);//Get K- 4-momentum
+  kf[2].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set p 4-momentum
+  TLorentzVector Ptoy;//virtual intermediate
+  double Mtoy;
+  double mom[2] = {scalar, 0.0};
+  Ptoy = kf[1] + kf[2];//4-momentum of (K+K-)
+  Mtoy = Ptoy.M();//virtual "phi"(K+K-) mass
+  mom[1] = sqrt( (s - pow(Mp + Mtoy, 2)) * (s - pow(Mp - Mtoy, 2)) / (4.0 * s) );//Relative momentum Q
+  weight[1] = SigmaPhiProduction(mom, &Mtoy);
+  Ptoy = kf[0] + kf[1];//4-momentum of (pK+)
+  Mtoy = Ptoy.M();//virtual (pK+)
+  mom[1] = sqrt( (s - pow(Mkaon + Mtoy, 2)) * (s - pow(Mkaon - Mtoy, 2)) / (4.0 * s) );//Relative momentum Q
+  weight[2] = SigmaLambda1520Production(mom, &Mtoy);
+  Ptoy = kf[0] + kf[2];//4-momentum of (pK-)
+  Mtoy = Ptoy.M();//virtual (pK-)
+  mom[1] = sqrt( (s - pow(Mkaon + Mtoy, 2)) * (s - pow(Mkaon - Mtoy, 2)) / (4.0 * s) );//Relative momentum Q
+  weight[3] = SigmaLambda1520Production(mom, &Mtoy);
+  weight[0] = (weight[1] + weight[2] + weight[3]) / 3.0;
+  return weight[0];
 }
 
 double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event
@@ -231,10 +304,11 @@ double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * k
   double Md = Pout.M();
   const double Mmin = TF_BWd.GetXmin();
   const double Mmax = TF_BWd.GetXmax();
-  if (Md < Mmin || Md >= Mmax)
+  if (Md < Mmin || Md >= 100 * Mmax)
     weight[0] = 0.0;
   else
-    weight[0] = TF_BWd.Eval(Md) / TF_BWd.Integral(Mmin, Mmax) * Pout.E() / Pout.M();
+    weight[0] = 1.0;
+  //weight[0] = TF_BWd.Eval(Md) / TF_BWd.Integral(Mmin, Mmax) * Pout.E() / Pout.M();
   double s = Pout.M2();
   double Q = sqrt( (s - pow(k.M() + p2.M(), 2)) * (s - pow(k.M() - p2.M(), 2)) / (4.0 * s));
   weight[1] = ProbabilityBoundState(&Q);
@@ -345,7 +419,7 @@ double GenerateEventNNKKwithBoundState(const TLorentzVector * ki, TLorentzVector
   return weight[0];
 }
 
-double GenerateEventNKKwithoutBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NKK without bound state production
+double GenerateEventNKKwithPhi(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NKK with phi production
   TLorentzVector p1;
   GenerateNucleonInCarbon(&p1);//Get a nucleon in carbon
   TLorentzVector ki1[2] = {ki[0], p1};//Set incoming particles for phi production
@@ -364,7 +438,36 @@ double GenerateEventNKKwithoutBoundState(const TLorentzVector * ki, TLorentzVect
   return weight[0];
 }
 
+double GenerateEventNKKwithLambda1520(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NKK with Lambda1520 production
+  TLorentzVector p1;
+  GenerateNucleonInCarbon(&p1);//Get a nucleon in carbon
+  TLorentzVector ki1[2] = {ki[0], p1};//Set incoming particles for Lambda1520 production
+  TLorentzVector kf1[2];
+  double weight1;
+  GenerateLambda1520Production(ki1, kf1, &weight1);
+  kf[1] = kf1[0];//produced K+
+  TLorentzVector kLambda = kf1[1];//produced Lambda1520
+  double mass[2] = {0.938272, 0.493677};
+  TLorentzVector kf2[2];
+  Decay2(&kLambda, kf2, mass);
+  kf[0] = kf2[0];//decayed p
+  kf[2] = kf2[1];//decayed K-
+  double Br = 0.45 / 2.0;//Branch ratio of Lambda1520 -> NK channel divided by 2 to select pK- only
+  weight[0] = weight1 * Br;
+  return weight[0];
+}
 
+double GenerateEventNKKwithout(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generate an event of NKK direct production
+  TLorentzVector p1;
+  GenerateNucleonInCarbon(&p1);//Get a nucleon in carbon
+  TLorentzVector ki1[2] = {ki[0], p1};//Set incoming particles
+  double weight1[4];
+  GenerateKKProduction(ki1, kf, weight1);
+  weight[0] = weight1[1] * 0.489;
+  //weight[0] = (weight1[1] * 0.489 + weight1[2] * 0.45 + weight1[2] * 0.45) / 3.0;
+  //weight[0] = weight[0] * 0.5;
+  return weight[0];
+}
 
 
 
