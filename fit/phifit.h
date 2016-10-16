@@ -113,9 +113,13 @@ int plotdata(const char * datafile){
   return 0;
 }
 
-TF1 sigma0("sigma", "[0]", -1, 1);
+TF1 sigma0("sigma0", "[0]", -1, 1);
 TF1 sigma("sigma", "[0]*exp(-[1]*(1-x)-[2]*(1-x)*(1-x))", -1, 1);
-TF1 sigma1("sigma", "[0]+[1]*(1-x)+[2]*(1-x)*(1-x)", -1, 1);
+TF1 sigma2("sigma2", "[0]*(1+[1]*x+[2]*x*(x + abs(x)))", -1, 1);
+TF1 sigma3("sigma3", "[0]+x*[1]*exp(-[2]*(1.0-x))", -1, 1);
+TF1 sigma1("sigma1", "([0] + [1] * x) * exp([2] * x)", -1, 1);
+
+
 
 
 double f0(const double * par){

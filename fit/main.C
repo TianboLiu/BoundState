@@ -10,7 +10,7 @@ int main(int argc, char * argv[]){
     creatset("dataset.dat", "clasdb_E63M1.txt", s);
     addset("dataset.dat", "clasdb_E63M2.txt", s);
     f0Fit();
-    if (s > 2.835) break;
+    if (s > 2.175) break;
   }
 
   //plotdata("dataset.dat");
