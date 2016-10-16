@@ -87,7 +87,7 @@ double CarbonMomentum(const double * p0, const double * par){//non-normalized
   double A2 = 32.3105;
   double B2 = 8.43226;
   double result = (A0 + pow(A2 * p, 2)) * exp(-pow(B2 * p, 2));
-  return result;//non-normalized momentum distribution
+  return result / 1.89142;//Normalized momentum distribution
 }
 
 double CarbonEnergy(const double * E0, const double * par){
@@ -103,7 +103,7 @@ double CarbonEnergy(const double * E0, const double * par){
   double a2 = 0.0369238;
   double b2 = 0.0173035;
   double result = A1 * exp(-pow((E - a1) / b1, 2)) + A2 * exp(-pow((E - a2) / b2, 2));
-  return result;//non-normalized missing energy distribution
+  return result / 0.00724478;//Normalized missing energy distribution
 }
 
 double SigmaPhiProduction(const double * mom, const double * par){//total cross section of phi meson photoproduction from a bound nucleon
@@ -113,7 +113,42 @@ double SigmaPhiProduction(const double * mom, const double * par){//total cross 
   const double Amp = 0.594054;//invariant amplitude
   const double Mp = 0.938272;//proton mass
   double result = Amp * Amp / (16.0 * M_PI * scalar) * Q / (sqrt(Q*Q+Mphi*Mphi) + sqrt(Q*Q+Mp*Mp));
-  return result;//cross section in unit GeV^-2
+  return 0.17/0.389379e3;//cross section in unit GeV^-2
+}
+
+double GetRelativeMomentum(const TLorentzVector * ki){//Get relative momentum of two particles in c.m. frame
+  TLorentzVector P = ki[0] + ki[1];//total 4-momentum
+  double m1 = ki[0].M();//mass of particle 1
+  double m2 = ki[1].M();//mass of particle 2
+  double s = P.M2();//Mandelstem variable
+  double Q2 = (s - pow(m1 + m2, 2)) * (s - pow(m1 - m2, 2)) / (4.0 * s);
+  double Q;
+  if (Q2 >= 0.0)
+    Q = sqrt(Q2);
+  else
+    Q = - sqrt(-Q2);
+  return Q;
+}
+
+double GetTheta0(const TLorentzVector * ki, const TLorentzVector * kf){//Get the polar angle of the produced particle kf[0] in c.m. frame
+  TLorentzVector P = ki[0] + ki[1];//total 4-momentum
+  double s = P.M2();//Mandelstem variable
+  TLorentzVector T = ki[0] - kf[0];//4-momentum transfer
+  double t = T.M2();//Mandelstem variable
+  double m1 = ki[0].M();//mass of particle 1
+  double m2 = ki[1].M();//mass of particle 2
+  double p = sqrt( (s - pow(m1 + m2, 2)) * (s - pow(m1 - m2, 2)) / (4.0 * s));//relative momentum of initial state
+  double m3 = kf[0].M();//mass of particle 3
+  double m4 = kf[1].M();//mass of particle 4
+  double Q = sqrt( (s - pow(m3 + m4, 2)) * (s - pow(m3 - m4, 2)) / (4.0 * s));//relative momentum of final state
+  double cth = (t - m1*m1 - m3*m3 + 2.0 * sqrt(m1*m1 + p*p) * sqrt(m3*m3 + Q*Q)) / (2.0 * p * Q);//cos theta between p1 and p3 in c.m. frame
+  return cth;
+}
+
+double dSigmaPhiProduction(const TLorentzVector * ki, const TLorentzVector * kf){//differential cross section of phi photoproduction in c.m. frame
+  double cth = GetTheta0(ki, kf);
+  double result = exp(cth);
+  return result;
 }
 
 double SigmaLambda1520Production(const double * mom, const double * par){//total cross section of Lambda 1520 + K photoproduction
@@ -136,7 +171,7 @@ double AmplitudeBoundState(const double * mom, const double * par = 0){//Amplitu
   double A2 = 0.609078;
   double B2 = 2.75841;
   double result1 = (A0 + A2 * Q * Q) * exp(-B2 * Q * Q);
-  double result2 = 0.114843 * exp(-5.15 * Q * Q);
+  double result2 = 0.114843 * exp(-100.15 * Q * Q);
   return result1;//amplitude in unit GeV^-1/2;
 }
 
@@ -222,6 +257,7 @@ double GeneratePhiProduction(const TLorentzVector * ki, TLorentzVector * kf, dou
   kf[0].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set phi 4-momentum
   tm = Lphase.GetDecay(1);//Get recoil proton 4-momentum
   kf[1].SetXYZT(tm->X(), tm->Y(), tm->Z(), tm->T());//Set recoil proton 4-momentum
+  sigma = dSigmaPhiProduction(ki, kf) * 2.0;//test
   weight[0] = sigma;
   return sigma;//return total cross section with particular p1 and Mphi, in unit GeV^-2
 }
@@ -297,23 +333,15 @@ double GenerateKKProduction(const TLorentzVector * ki, TLorentzVector * kf, doub
   return weight[0];
 }
 
-double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event
+double GenerateBoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator a bound state event with 4-momentum matching
   TLorentzVector k = ki[0];//4-momentum of phi
   TLorentzVector p2 = ki[1];//4-momentum of bound Nucleon in carbon
   TLorentzVector Pout = k + p2;//Total 4-momentum
-  double Md = Pout.M();
-  const double Mmin = TF_BWd.GetXmin();
-  const double Mmax = TF_BWd.GetXmax();
-  if (Md < Mmin || Md >= 100 * Mmax)
-    weight[0] = 0.0;
-  else
-    weight[0] = 1.0;
-  //weight[0] = TF_BWd.Eval(Md) / TF_BWd.Integral(Mmin, Mmax) * Pout.E() / Pout.M();
   double s = Pout.M2();
   double Q = sqrt( (s - pow(k.M() + p2.M(), 2)) * (s - pow(k.M() - p2.M(), 2)) / (4.0 * s));
-  weight[1] = ProbabilityBoundState(&Q);
+  weight[0] = ProbabilityBoundState(&Q);
   kf[0] = Pout;
-  return weight[0] * weight[1];//in unit GeV^-2
+  return weight[0];//in unit GeV^-2
 }
 
 double GenerateBoundStateProduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight){//Generator an event of bound photoproduction
@@ -327,15 +355,26 @@ double GenerateBoundStateProduction(const TLorentzVector * ki, TLorentzVector * 
   GeneratePhiProduction(ki1, kf1, &weight1);//Generate step 1
   TLorentzVector k = kf1[0];//Get produced phi
   kf[0] = kf1[1];//Get recoil proton
+  double Md = TF_BWd.GetRandom();//Get bound state mass according to B-W
+  TLorentzVector Pout = k + p2;//Get total momentum
+  Pout.SetE(sqrt(Md * Md + Pout.P() * Pout.P()));//Set on-shell energy
+  const double Mp = 0.938272;
+  p2.SetE(Pout.E() - k.E());//Set required nucleon energy
+  double Em = sqrt(Mp * Mp + p2.P() * p2.P()) - p2.E();//Calculate missing energy
+  double weight2;//energy match weight
+  if (Em < TF_fE.GetXmin() || Em >= TF_fE.GetXmax()){
+    weight2 = 0.0;
+    weight[0] = 0.0;
+    return 0.0;
+  }
+  else
+    weight2 = 1.0;//TF_fE.Eval(Em);//Get the probability of find such nucleon
   TLorentzVector ki2[2] = {k, p2};//Set incoming particles in step 2
   TLorentzVector Pd;//4-momentum of bound state
-  double weight2[2];
-  GenerateBoundStateFormation(ki2, &Pd, weight2);//Generate step 2
+  double weight3;//momentum match weight
+  GenerateBoundStateFormation(ki2, &Pd, &weight3);//Generate step 2
   kf[1] = Pd;//Get bound state 4-momentum
-  weight[0] = weight1 * weight2[0] * weight2[1];
-  weight[1] = weight1;
-  weight[2] = weight2[0];
-  weight[3] = weight2[1];
+  weight[0] = weight1 * weight2 * weight3;
   return weight[0];
 }
 
