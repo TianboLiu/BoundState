@@ -50,6 +50,18 @@ int main(int argc, char * argv[]){
   }
 
   if (true){
+    double globalpar[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
+    sigma2.SetParameters(globalpar);
+    TString filename;
+    double ss = 1.985;
+    while (ss <= 2.45){
+      filename = Form("gallery/low_ds_phi_%.4d.pdf", (int) (ss * 1000 + 1.0e-3));
+      printplot2(filename.Data(), &ss);
+      ss += 0.01;
+    }
+  }
+
+  if (false){
     double globalpar[5] = {0.224538, 2.00410, 3.75802, 1.38555, 0.908769};
     sigma2.SetParameters(globalpar);
     TString filename;
@@ -63,8 +75,8 @@ int main(int argc, char * argv[]){
 
   if (false){
     double Chi2 = 0.0;
-    creatset("dataset.dat", "clasdb_E63M1.txt", 1.9, 2.9);
-    addset("dataset.dat", "clasdb_E63M2.txt", 1.9, 2.9);
+    creatset("dataset.dat", "clasdb_E63M1.txt", 1.9, 2.45);
+    addset("dataset.dat", "clasdb_E63M2.txt", 1.9, 2.45);
     Chi2 = f1Fit(par);
     cout << Chi2 << endl;
   }
