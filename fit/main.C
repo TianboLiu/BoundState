@@ -37,14 +37,26 @@ int main(int argc, char * argv[]){
     infile.close();
   }
 
-  if (true){
-    double globalpar[5] = {0.224551, 2.00386, 3.75764, 1.38537, 0.909071};
+  if (false){
+    double globalpar[5] = {0.224538, 2.00410, 3.75802, 1.38555, 0.908769};
     sigma2.SetParameters(globalpar);
     TString filename;
     double ss = 1.985;
     while (ss <= 2.835){
       filename = Form("gallery/global_ds_phi_%.4d.pdf", (int) (ss * 1000 + 1.0e-3));
       printplot2(filename.Data(), &ss);
+      ss += 0.01;
+    }
+  }
+
+  if (true){
+    double globalpar[5] = {0.224538, 2.00410, 3.75802, 1.38555, 0.908769};
+    sigma2.SetParameters(globalpar);
+    TString filename;
+    double ss = 1.985;
+    while (ss <= 2.835){
+      filename = Form("gallery/global_logds_phi_%.4d.pdf", (int) (ss * 1000 + 1.0e-3));
+      printplot2log(filename.Data(), &ss);
       ss += 0.01;
     }
   }
