@@ -39,17 +39,6 @@ double Bremsstrahlung(const double * k, const double * par){//non-normalized
   return result;//non-normalized probability density
 }
 
-double BremsstrahlungPhotonLumi(const double * k, const double * par){//Calculate the ratio of effective gamma A lumi to eN lumi
-  double E0 = k[0];//Beam energy
-  double kmin = k[1];//photon energy minimum
-  double kmax = k[2];//photon energy maximum
-  double fL = par[0];//radiation length fraction
-  double A = par[1];//nucleon number
-  double Y = 4.0 / 3.0 * log(kmax / kmin) - 4.0 / (3.0 * E0) * (kmax - kmin) + 1.0 / (2.0 * E0 * E0) * (kmax * kmax - kmin * kmin);
-  double result = Y * fL / (2.0 * A);
-  return result;
-}
-
 double BreitWigner(const double * M, const double * par){//non-normalized 
   double M0 = par[0];//center mass
   double Gamma = par[1];//decay width
@@ -202,17 +191,6 @@ double ProbabilityBoundState(const double * mom, const double * par = 0){//Proba
   return result;//in unit GeV^-1
 }
 
-int DetectorResolutionSmear(TLorentzVector * P, double * res){//Smearing the three momentum with gaussian, fixed mass
-  double M = P->M();
-  double p = P->P() * (1.0 + gRandom->Gaus(0.0, res[0]));//smear p
-  if (p < 0.0) p = 0.0;//Set negative p to 0
-  double theta = P->Theta() + gRandom->Gaus(0.0, res[1]);//smear theta
-  double phi = P->Phi() + gRandom->Gaus(0.0, res[2]);//smear phi
-  P[0].SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), M);//Set smeared three momentum with fixed mass
-  //P[0].SetRho(p); P[0].SetTheta(theta); P[0].SetPhi(phi);
-  return 0;
-} 
-
 /******* Functions for random sampling *******/
 TF1 TF_fq("fq", Bremsstrahlung, 1.1, 1.8, 1);//set photon energy distri
 TF1 TF_fp("fp", CarbonMomentum, 0.0, 1.0, 0);//set bound N momentum distri
@@ -223,19 +201,20 @@ TF1 TF_BWd("BWd", BreitWigner, 1.750, 2.150, 2);//set bound state mass distri
 TGenPhaseSpace Lphase;//A global variable to generate final state
 /*** End of Functions for random sampling  ***/
 
+/******* Generator part **********/
 int SetFunctions(){
-  TF_fq.SetParameter(0, 11.0);
+  TF_fq.SetParameter(0, 11.0);//Set electron beam energy
   TF_fq.SetNpx(500);
   TF_fp.SetNpx(500);
   TF_fE.SetNpx(500);
-  TF_BWPhi.SetParameter(0, 1.019455);
-  TF_BWPhi.SetParameter(1, 0.00426);
+  TF_BWPhi.SetParameter(0, 1.019455);//Set phi mass real part
+  TF_BWPhi.SetParameter(1, 0.00426);//Set phi width
   TF_BWPhi.SetNpx(2000);
-  TF_BWL1520.SetParameter(0, 1.5195);
-  TF_BWL1520.SetParameter(1, 0.0156);
+  TF_BWL1520.SetParameter(0, 1.5195);//Set Lambda1520 mass real part
+  TF_BWL1520.SetParameter(1, 0.0156);//Set Lambda1520 width
   TF_BWL1520.SetNpx(2000);
-  TF_BWd.SetParameter(0, 1.950027);
-  TF_BWd.SetParameter(1, 0.002118);
+  TF_BWd.SetParameter(0, 1.950027);//Set bound state mass real part
+  TF_BWd.SetParameter(1, 0.002118);//Set bound state width
   TF_BWd.SetNpx(4000);
   return 0;
 }
@@ -534,6 +513,64 @@ double GenerateEventNKKwithout(const TLorentzVector * ki, TLorentzVector * kf, d
   GenerateKKProduction(ki1, kf, &weight1);
   weight[0] = weight1;
   return weight[0];
+}
+/********** End of generator part ************/
+
+
+/********** Analysis part **********/
+int DetectorResolutionSmear(TLorentzVector * P, double * res){//Smearing the three momentum with gaussian, fixed mass
+  double M = P->M();
+  double p = P->P() * (1.0 + gRandom->Gaus(0.0, res[0]));//smear p
+  if (p < 0.0) p = 0.0;//Set negative p to 0
+  double theta = P->Theta() + gRandom->Gaus(0.0, res[1]);//smear theta
+  double phi = P->Phi() + gRandom->Gaus(0.0, res[2]);//smear phi
+  P[0].SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), M);//Set smeared three momentum with fixed mass
+  return 0;
+}
+
+double LongLifetimeDecayFactor(const TLorentzVector * P, const double ct, const double dis = 2.0){//Calculate the remaining factor when arriving at the detector due to decay
+  double beta = P->Beta();
+  double df = exp(- dis / beta / ct);
+  return df;
+}
+
+bool MomentumCut(const TLorentzVector * P, const double pmin, const double pmax){//check the momentum in a selected region
+  double p = P->P();//in unit GeV
+  if (p < pmin || p > pmax)
+    return false;
+  else
+    return true;
+}
+
+bool PolarAngleCut(const TLorentzVector * P, const double thmin, const double thmax, const char * unit = "deg"){//check the polar angle in a selected region
+  double th = P->Theta();
+  if (strcmp(unit, "deg") == 0)
+    th = th * 180.0 / M_PI;
+  if (th < thmin || th > thmax)
+    return false;
+  else
+    return true;
+}
+
+bool MassCut(const TLorentzVector * P, const double Mmin, const double Mmax){//check the invariant mass in a selected region
+  double M = P->M();//in unit GeV
+  if (M < Mmin || M > Mmax)
+    return false;
+  else
+    return true;
+}
+
+double BremsstrahlungYFactor(const double E0, const double * k){//Calculate the effective factor of photo from bremsstrahlung
+  double kmin = k[0];
+  double kmax = k[1];
+  if (kmin < 0.05 * E0){
+    std::cout << "Warning: too low energy range set for BremsstrahlungYFactor!" << std::endl;
+  }
+  if (kmax > 0.95 * E0){
+    std::cerr << "Error: too high energy range set for BremsstrahlungYFactor!" << std::endl;
+  }
+  double result = 4.0 / 3.0 * log(kmax/kmin) - 4.0 / (3.0 * E0) * (kmax - kmin) + 1.0 / (2.0 * E0 * E0) * (kmax * kmax - kmin * kmin);
+  return result;
 }
 
 
