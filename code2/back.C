@@ -19,7 +19,7 @@ int main(){
 
   TH1D * b1D = new TH1D("b1D", "", 1, 1.88, 2.32);
   TH2D * b2D = new TH2D("b2D", "", 1, 0.0, 1.0, 1, 0.0, 1.4);
-  TH2D * b3D = new TH2D("b3D", "", 1, 0.0, 0.5, 1, 0.0, M_PI/2.0);
+  TH2D * b3D = new TH2D("b3D", "", 1, 0.0, 0.6, 1, 0.0, M_PI/2.0);
   gStyle->SetOptStat(0);
   b1D->SetTitle("M(pK^{+}K^{-}) spectra");
   b1D->GetXaxis()->SetTitle("M(pK^{+}K^{-}) / GeV");
@@ -36,15 +36,15 @@ int main(){
   b2D->GetYaxis()->CenterTitle();
   b2D->GetYaxis()->SetTitleOffset(1.0);
   b2D->GetYaxis()->SetTitleSize(0.05);
-  b2D->SetTitle("Momentum : Angel distribution");
-  b2D->GetXaxis()->SetTitle("Momentum (GeV)");
-  b2D->GetXaxis()->CenterTitle();
-  b2D->GetXaxis()->SetTitleOffset(1.0);
-  b2D->GetXaxis()->SetTitleSize(0.05);
-  b2D->GetYaxis()->SetTitle("Polar angle (rad)");
-  b2D->GetYaxis()->CenterTitle();
-  b2D->GetYaxis()->SetTitleOffset(1.0);
-  b2D->GetYaxis()->SetTitleSize(0.05); 
+  b3D->SetTitle("Momentum : Angel distribution");
+  b3D->GetXaxis()->SetTitle("Momentum (GeV)");
+  b3D->GetXaxis()->CenterTitle();
+  b3D->GetXaxis()->SetTitleOffset(1.0);
+  b3D->GetXaxis()->SetTitleSize(0.05);
+  b3D->GetYaxis()->SetTitle("Polar angle (rad)");
+  b3D->GetYaxis()->CenterTitle();
+  b3D->GetYaxis()->SetTitleOffset(1.0);
+  b3D->GetYaxis()->SetTitleSize(0.05); 
 
   //invariant mass
   TH1D * h0 = new TH1D("h0", "", 1000, 1.88, 2.32);
@@ -94,9 +94,9 @@ int main(){
   g4->SetMarkerSize(0.2);
 
   //signal momentum angle distribution
-  TH2D * ap0 = new TH2D("ap0", "", 500, 0.0, 0.5, 500, 0.0, M_PI/2.0);
-  TH2D * ap1 = new TH2D("ap1", "", 500, 0.0, 0.5, 500, 0.0, M_PI/2.0);
-  TH2D * ap2 = new TH2D("ap2", "", 500, 0.0, 0.5, 500, 0.0, M_PI/2.0);
+  TH2D * ap0 = new TH2D("ap0", "", 500, 0.0, 0.6, 500, 0.0, M_PI/2.0);
+  TH2D * ap1 = new TH2D("ap1", "", 500, 0.0, 0.6, 500, 0.0, M_PI/2.0);
+  TH2D * ap2 = new TH2D("ap2", "", 500, 0.0, 0.6, 500, 0.0, M_PI/2.0);
   TGraph * ag0 = new TGraph(Npt);
   TGraph * ag1 = new TGraph(Npt);
   TGraph * ag2 = new TGraph(Npt);
