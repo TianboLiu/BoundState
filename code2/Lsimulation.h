@@ -445,7 +445,7 @@ double GenerateKKProduction(const TLorentzVector * ki, TLorentzVector * kf, doub
   double weight1 = Decay3(&Pout, kf, mass);//phase space weight
   TLorentzVector Ptoy = kf[1] + kf[2];;//virtual intermediate
   TLorentzVector Pf[2] = {Ptoy, kf[0]};//Set intermediate state
-  double ds = dSigmaVirtualPhiProduction(ki, Pf);
+  double ds = dSigmaPhiProduction(ki, Pf);
   double weight2 = ds * 2;//cross section weight
   double Br = 0.489;//Branch ratio to K+K-
   weight[0] = weight1 * weight2 * Br;
@@ -530,11 +530,9 @@ double GenerateEventNKKwithout(const TLorentzVector * ki, TLorentzVector * kf, d
   TLorentzVector p1;
   GenerateNucleonInCarbon(&p1);//Get a nucleon in carbon
   TLorentzVector ki1[2] = {ki[0], p1};//Set incoming particles
-  double weight1[4];
-  GenerateKKProduction(ki1, kf, weight1);
-  weight[0] = weight1[1] * 0.489;
-  //weight[0] = (weight1[1] * 0.489 + weight1[2] * 0.45 + weight1[2] * 0.45) / 3.0;
-  //weight[0] = weight[0] * 0.5;
+  double weight1;
+  GenerateKKProduction(ki1, kf, &weight1);
+  weight[0] = weight1;
   return weight[0];
 }
 
