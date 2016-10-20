@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <algorithm>
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -20,6 +21,7 @@
 #include "TF1.h"
 #include "Math/WrappedTF1.h"
 #include "Math/GSLIntegrator.h"
+#include "Math/Interpolator.h"
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -125,7 +127,7 @@ double GetTheta0(const TLorentzVector * ki, const TLorentzVector * kf){//Get the
 }
 
 double dSigmaPhiProduction(const TLorentzVector * ki, const TLorentzVector * kf){//differential cross section of phi photoproduction in c.m. frame
-  double par[5] = {0.224551, 2.00386, 3.75764, 1.38537, 0.909071};
+  double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
   double x = GetTheta0(ki, kf);//theta in c.m. frame
   double M = kf[0].M() + kf[1].M();//threshold
   TLorentzVector Pout = kf[0] + kf[1];//total 4-momentum
@@ -141,7 +143,7 @@ double dSigmaPhiProduction(const TLorentzVector * ki, const TLorentzVector * kf)
 }
 
 double dSigmaVirtualPhiProduction(const TLorentzVector * ki, const TLorentzVector * kf){//differential cross section of phi photoproduction in c.m. frame
-  double par[5] = {0.224551, 2.00386, 3.75764, 1.38537, 0.909071};
+  double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
   double x = GetTheta0(ki, kf);//theta in c.m. frame
   double M = kf[0].M() + kf[1].M();//threshold
   TLorentzVector Pout = kf[0] + kf[1];//total 4-momentum
@@ -149,7 +151,7 @@ double dSigmaVirtualPhiProduction(const TLorentzVector * ki, const TLorentzVecto
   if (sr < M) return 0.0;//below threshold
   double b1 = par[3] * pow(sr * sr - M * M, par[4]);
   double a2 = par[2] * (sr - M);
-  double a0 = 0.33;//constant total cross section in unit mb
+  double a0 = par[0] * M_PI / 2.0;//constant total cross section in unit mb
   double r0 = exp(b1 * x) * b1 / (2.0 * sinh(b1));
   double r2 = x * x * exp(b1 * x) * pow(b1, 3) / (2.0 * (b1 * b1 + 2.0) * sinh(b1) - 4.0 * b1 * cosh(b1));
   double result = a0 * (r0 + a2 * r2) / (1.0 + a2);//ds in unit mb
@@ -573,6 +575,156 @@ double BremsstrahlungYFactor(const double E0, const double * k){//Calculate the 
   return result;
 }
 
+TF1 TF_fvertex("fvertex", "x", 0.0, 1.0);//event vertex distribution
+double target_length = 0.06 * 19.32;//in unit cm
+double target_radius = 0.3;//in unit cm
+const int NPT_P_GRAPHITE = 132;
+double EK_P_GRAPHITE[132], dEK_P_GRAPHITE[132];
+ROOT::Math::Interpolator SP_P_GRAPHITE(NPT_P_GRAPHITE, ROOT::Math::Interpolation::kCSPLINE);
+const int NPT_K_GRAPHITE = 132;
+double EK_K_GRAPHITE[132], dEK_K_GRAPHITE[132];
+ROOT::Math::Interpolator SP_K_GRAPHITE(NPT_K_GRAPHITE, ROOT::Math::Interpolation::kCSPLINE);
+
+int SetStoppingPower(){
+  char tmp[256];
+  std::ifstream fpgraphite("stopping_power_p_graphite.dat");
+  for (int i = 0; i < 8; i++)
+    fpgraphite.getline(tmp, 256);
+  for (int i = 0; i < NPT_P_GRAPHITE; i++){
+    fpgraphite >> EK_P_GRAPHITE[i] >> dEK_P_GRAPHITE[i];
+    EK_P_GRAPHITE[i] = EK_P_GRAPHITE[i] / 1000.0;//convert to GeV
+    dEK_P_GRAPHITE[i] = dEK_P_GRAPHITE[i] * 1.7 / 1000.0;//GeV / cm
+  }
+  SP_P_GRAPHITE.SetData(NPT_P_GRAPHITE, EK_P_GRAPHITE, dEK_P_GRAPHITE);
+  fpgraphite.close();
+  std::ifstream fkgraphite("stopping_power_p_graphite.dat");
+  for (int i = 0; i < 8; i++)
+    fkgraphite.getline(tmp, 256);
+  for (int i = 0; i < NPT_K_GRAPHITE; i++){
+    fkgraphite >> EK_K_GRAPHITE[i] >> dEK_K_GRAPHITE[i];
+    EK_K_GRAPHITE[i] = EK_K_GRAPHITE[i] / 1000.0;//convert to GeV
+    dEK_K_GRAPHITE[i] = dEK_K_GRAPHITE[i] * 1.7 / 1000.0;//GeV / cm
+  }
+  SP_K_GRAPHITE.SetData(NPT_K_GRAPHITE, EK_K_GRAPHITE, dEK_K_GRAPHITE);
+  fkgraphite.close();
+  return 0;
+}
+
+double CheckKaonBONUS(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.06))//momentum below 60 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 20.0, 160.0, "deg"))//angle outside BONUS coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.06 || p > 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  return 1.0;
+}
+
+double CheckProtonBONUS(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.06))//momentum below 60 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 20.0, 160.0, "deg"))//angle outside BONUS coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.06 || p > 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  return 1.0;
+}
+
+double CheckKaonCLAS12FA(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 5.0, 35.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  double result = LongLifetimeDecayFactor(P, 3.712);
+  return result;
+}
+
+double CheckProtonCLAS12FA(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 5.0, 35.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  return 1.0;
+}
+
+double CheckKaonCLAS12LA(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 35.0, 125.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  double result = LongLifetimeDecayFactor(P, 3.712);
+  return result;
+}
+
+double CheckProtonCLAS12LA(const TLorentzVector * P, const double z = 2.0/3.0){
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 35.0, 125.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy in GeV
+  double dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  return 1.0;
+}
 
 
 #endif
