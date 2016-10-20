@@ -7,11 +7,11 @@ int main(int argc, char * argv[]){
   SetFunctions();
   SetStoppingPower();
   
-  Long64_t Nsim = 10000000;
+  Long64_t Nsim = 20000000;
   double Eq[2] = {1.37, 1.57};
   double A = 12.0;
   double lumi_e_limit = 1.0e35 * 1.0e-26 * pow(0.197327, 2);//GeV^2 / s
-  double rad_length_factor = 0.06;
+  double rad_length_factor = target_length / 19.32;
   double YFactor = BremsstrahlungYFactor(11.0, Eq);
   double lumi = lumi_e_limit * YFactor * rad_length_factor / (2.0 * A);
   double time = 3600;
@@ -170,15 +170,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	h0->Fill(P0_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	h0->Fill(P0_all.M(), weight0 * ftotal * A / 2.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.6) && MomentumCut(&P0_Kp, 0.0, 0.4) && MomentumCut(&P0_Km, 0.0, 0.4))
-	  h0p->Fill(P0_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	  h0p->Fill(P0_all.M(), weight0 * ftotal * A / 2.0);
 
-	h0s->Fill(P_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	h0s->Fill(P_all.M(), weight0 * ftotal * A / 2.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.6) && MomentumCut(&P_Kp, 0.0, 0.4) && MomentumCut(&P_Km, 0.0, 0.4))
-	  h0sp->Fill(P_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	  h0sp->Fill(P_all.M(), weight0 * ftotal * A / 2.0);
       }
     }
 
@@ -230,15 +230,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	hh0->Fill(P0_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	hh0->Fill(P0_all.M(), weight0 * ftotal * A / 2.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.6) && MomentumCut(&P0_Kp, 0.0, 0.4) && MomentumCut(&P0_Km, 0.0, 0.4))
-	  hh0p->Fill(P0_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	  hh0p->Fill(P0_all.M(), weight0 * ftotal * A / 2.0);
 
-	hh0s->Fill(P_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	hh0s->Fill(P_all.M(), weight0 * ftotal * A / 2.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.6) && MomentumCut(&P_Kp, 0.0, 0.4) && MomentumCut(&P_Km, 0.0, 0.4))
-	  hh0sp->Fill(P_all.M(), weight0 * ftotal * A * (A - 1.0) / 2.0);
+	  hh0sp->Fill(P_all.M(), weight0 * ftotal * A / 2.0);
       }
     }
 
@@ -432,28 +432,28 @@ int main(int argc, char * argv[]){
   gStyle->SetOptStat(0);  
 
   TCanvas * cc = new TCanvas("cc", "", 800, 600);
-  hmax = h4->GetMaximum();
-  hB->GetYaxis()->SetRangeUser(0.0, 1.2 * hmax);
+  hmax = h1->GetMaximum();
+  hB->GetYaxis()->SetRangeUser(0.0, 1.05 * hmax);
   TLegend * leg = new TLegend(0.62, 0.7, 0.9, 0.9);
   leg->AddEntry(h0, "with bound state", "l");
   leg->AddEntry(hh0, "with bound state", "l");
   leg->AddEntry(h1, "with #phi production", "l");
   leg->AddEntry(h2, "with #Lambda(1520) prod.", "l");
   leg->AddEntry(h3, "direct KK production", "l");
-  leg->AddEntry(h4, "total", "l");
+  //leg->AddEntry(h4, "total", "l");
   hB->Draw();
   h0->Draw("same");
   hh0->Draw("same");
   h1->Draw("same");
   h2->Draw("same");
   h3->Draw("same");
-  h4->Draw("same");
+  //h4->Draw("same");
   leg->Draw("same");
   cc->Print("signal_background_detected.pdf");
 
   TCanvas * ccp = new TCanvas("ccp", "", 800, 600);
   hmax = h4p->GetMaximum();
-  hBp->GetYaxis()->SetRangeUser(0.0, 1.2 * hmax);
+  hBp->GetYaxis()->SetRangeUser(0.0, 1.1 * hmax);
   TLegend * legp = new TLegend(0.62, 0.7, 0.9, 0.9);
   legp->AddEntry(h0p, "with bound state", "l");
   legp->AddEntry(hh0p, "with bound state", "l");
@@ -472,28 +472,28 @@ int main(int argc, char * argv[]){
   ccp->Print("signal_background_momentemcut_detected.pdf");
 
   TCanvas * ccs = new TCanvas("ccs", "", 800, 600);
-  hmax = h4s->GetMaximum();
-  hBs->GetYaxis()->SetRangeUser(0.0, 1.2 * hmax);
+  hmax = h1s->GetMaximum();
+  hBs->GetYaxis()->SetRangeUser(0.0, 1.05 * hmax);
   TLegend * legs = new TLegend(0.62, 0.7, 0.9, 0.9);
   legs->AddEntry(h0s, "with bound state", "l");
   legs->AddEntry(hh0s, "with bound state", "l");
   legs->AddEntry(h1s, "with #phi production", "l");
   legs->AddEntry(h2s, "with #Lambda(1520) prod.", "l");
   legs->AddEntry(h3s, "direct KK production", "l");
-  legs->AddEntry(h4s, "total", "l");
+  //legs->AddEntry(h4s, "total", "l");
   hBs->Draw();
   h0s->Draw("same");
   hh0s->Draw("same");
   h1s->Draw("same");
   h2s->Draw("same");
   h3s->Draw("same");
-  h4s->Draw("same");
+  //h4s->Draw("same");
   legs->Draw("same");
   ccs->Print("signal_background_smear_detected.pdf");
 
   TCanvas * ccsp = new TCanvas("ccsp", "", 800, 600);
   hmax = h4sp->GetMaximum();
-  hBsp->GetYaxis()->SetRangeUser(0.0, 1.2 * hmax);
+  hBsp->GetYaxis()->SetRangeUser(0.0, 1.1 * hmax);
   TLegend * legsp = new TLegend(0.62, 0.7, 0.9, 0.9);
   legsp->AddEntry(h0sp, "with bound state", "l");
   legsp->AddEntry(hh0sp, "with bound state", "l");
