@@ -32,6 +32,21 @@
 TGenPhaseSpace Lphase;//A global variable to generate final state
 double _weight_;
 
+/****** Forward tagger cuts ******/
+double _Emin_ = 0.5;
+double _Emax_ = 4.5;
+double _thmin_ = 2.5 / 180.0 * M_PI;
+double _thmax_ = 4.5 / 180.0 * M_PI;
+
+int SetTagger(const double Emin, const double Emax, const double thmin = 2.5 / 180.0 * M_PI, const double thmax = 4.5 / 180.0 * M_PI){//Set scattered electron kinematic range
+  _Emin_ = Emin;
+  _Emax_ = Emax;
+  _thmin_ = thmin;
+  _thmax_ = thmax;
+  return 0;
+}
+/****** End of tagger cuts ******/
+
 double BreitWigner(const double * M, const double * par){//non-normalized 
   double M0 = par[0];//center mass
   double Gamma = par[1];//decay width
@@ -206,10 +221,10 @@ double AmplitudeVirtualPhoton(const TLorentzVector * ki, const TLorentzVector * 
 }
 
 double GenerateScatteredElectron(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
-  double Emin = 0.5;//Set scattered electron energy range
-  double Emax = 4.5;
-  double thmin = 2.5 / 180.0 * M_PI;//Set scattered electron polar angle range
-  double thmax = 3.5 / 180.0 * M_PI;
+  double Emin = _Emin_;//Set scattered electron energy range
+  double Emax = _Emax_;
+  double thmin = _thmin_;//Set scattered electron polar angle range
+  double thmax = _thmax_;
   double Ee = gRandom->Uniform(Emin, Emax);//Get scattered electron energy
   double theta = acos(gRandom->Uniform(cos(thmax), cos(thmin)));//Get scattered electron polar angle
   double phi = gRandom->Uniform(-M_PI, M_PI);//Get scattered electron azimuthal angle

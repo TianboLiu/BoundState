@@ -4,13 +4,14 @@ using namespace std;
 
 int main(){
 
-  gRandom->SetSeed(1);
+  gRandom->SetSeed(0);
   SetFunctions();
+  SetTagger(3.5, 4.5, 0.0, M_PI-0.01);
 
-  Long64_t Nsim = 6000000;
+  Long64_t Nsim = 20000000;
 
   TLorentzVector ki[2];
-  ki[0].SetXYZT(0, 0, 1.7, 1.7);
+  ki[0].SetXYZT(0, 0, 5.5, 5.5);
   ki[1].SetXYZT(0, 0, 0, 0.938272);
   TLorentzVector Pout = ki[0] + ki[1];
   //cout << Pout.M() << endl;
@@ -21,6 +22,8 @@ int main(){
   TH1D * h0 = new TH1D("h0", "", 1, 0.0, 1.0);
 
   for (Long64_t i = 0; i < Nsim; i++){
+    if (i%1000000 == 0) cout << i << endl;
+    
     //w1 = GenerateScatteredElectron(ki, kf);
     //w2 = GeneratePhotoproductionPhiNucleon(ki, kf);
     weight = GenerateElectroproductionPhiNucleon(ki, kf);
