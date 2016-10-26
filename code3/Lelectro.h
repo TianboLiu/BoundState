@@ -199,6 +199,31 @@ double GetTheta0(const TLorentzVector * ki, const TLorentzVector * kf){//Get the
   return cth;
 }
 
+double AmplitudeVirtualPhoton(const TLorentzVector * ki, const TLorentzVector * kf){//Calculate electron to virtual photon amplitude square
+  double alpha_em = 1.0 / 137.0;//fine structure constant
+  double Amp2 = 16.0 * M_PI * alpha_em * (ki[0] * kf[0]);//16 pi a p.p'
+  return Amp2;
+}
+
+double GenerateScatteredElectron(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+  double Emin = 0.5;//Set scattered electron energy range
+  double Emax = 4.5;
+  double thmin = 2.5 / 180.0 * M_PI;//Set scattered electron polar angle range
+  double thmax = 3.5 / 180.0 * M_PI;
+  double Ee = gRandom->Uniform(Emin, Emax);//Get scattered electron energy
+  double theta = acos(gRandom->Uniform(cos(thmax), cos(thmin)));//Get scattered electron polar angle
+  double phi = gRandom->Uniform(-M_PI, M_PI);//Get scattered electron azimuthal angle
+  kf[0].SetXYZT(Ee * sin(theta) * cos(phi), Ee * sin(theta) * sin(phi), Ee * cos(theta), Ee);//Set scattered electron
+  kf[1] = ki[0] - kf[0];//Set virtual photon
+  if (kf[1].E() <= 0){//non-physical energy
+    weight[0] = 0;
+    return 0;
+  }
+  weight[0] = AmplitudeVirtualPhoton(ki, kf);//amplitude square of e->e'gamma
+  double Lips = Ee / (2.0 * pow(2.0 * M_PI, 3)) * (2.0 * M_PI * (cos(thmin) - cos(thmax)) * (Emax - Emin));//phase space factor in lab frame
+  return weight[0] * Lips;
+}
+
 double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVector * kf){//Calculate phi-meson photoproduction amplitude square
   double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
   double x = GetTheta0(ki, kf);//theta in c.m. frame
@@ -214,27 +239,69 @@ double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVect
   double ds = a0 * (r0 + a2 * r2) / (1.0 + a2) / (2.0 * M_PI) / 389.379;//ds/dOmega in unit GeV^-2
   double Q = GetRelativeMomentum(kf);//Relative momentum of final state in c.m.
   double Flux = 4.0 * (ki[0] * ki[1]);//Lorentz-invariant relative velosity
-  double Lips = Q / (16.0 * M_PI * M_PI * (kf[0].E() + kf[1].E()));
+  double Lips = Q / (16.0 * M_PI * M_PI * Pout.M());
   double Amp2 = ds * Flux / Lips;//invariant amplitude square in unit 1
   return Amp2;
 }
 
-double GeneratePhotoproductionPhi(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
+double GeneratePhotoproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
   TLorentzVector Pout = ki[0] + ki[1];//Total 4-momentum
   double Mp = 0.938272;//proton mass
   double Mphi = TF_BWPhi.GetRandom();//phi-meson mass
   if (Pout.M() < Mp + Mphi) {
-    weight[0] = 0.0;
-    return 0.0;
+    weight[0] = 0;
+    return 0;
   }
   double mass[2] = {Mphi, Mp};
   double w0 = Decay2(&Pout, kf, mass);//kf: phi, p
   double w1 = AmplitudePhotoproductionPhi(ki, kf);//Get amplitude weight
   double Flux = 4.0 * (ki[0] * ki[1]);//Lorentz-invariant relative velosity
   double Q = GetRelativeMomentum(kf);//Relative momentum of final state
-  double Lips = Q / (16.0 * M_PI * M_PI * (kf[0].E() + kf[1].E()));//phase space weight
-  weight[0] = w0 * w1 / Flux * Lips * (4.0 * M_PI);//total weight
-  return weight[0];
+  double Lips = Q / (16.0 * M_PI * M_PI * Pout.M()) * (4.0 * M_PI);//phase space weight
+  weight[0] = w0 * w1 * Lips;//total amplitude weight
+  return weight[0] / Flux;
+}
+
+double GenerateElectroproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
+  TLorentzVector kf1[2];
+  double w0 = GenerateScatteredElectron(ki, kf1);//Get amplitude * Lips weight
+  kf[0] = kf1[0];//Set final scattered electron
+  if (w0 == 0){
+    weight[0] = 0;
+    return 0;
+  }
+  //std::cout << kf1[1].E() << std::endl;
+  double w1 = 1.0 / (pow(kf1[1].M2(), 2));//photon propagator square
+  TLorentzVector ki2[2] = {kf1[1], ki[1]};//Set virtual photon, proton 4-momentum
+  double w2;//virtual photoproduction phi amplitude * Lips weight
+  GeneratePhotoproductionPhiNucleon(ki2, &kf[1], &w2);
+  double Flux = 4.0 * (ki[0] * ki[1]);
+  weight[0] = w0 * w1 * w2;
+  return weight[0] / Flux;
+}
+
+double GenerateNucleonInCarbon(TLorentzVector * P){//Generate a bound nucleon in the carbon nucleus
+  const double Mp = 0.938272;//proton mass
+  double p = TF_fp.GetRandom();//Generate momentum
+  double E = sqrt(Mp * Mp + p * p) - TF_fE.GetRandom();//Generate off-shell energy
+  double theta = acos(gRandom->Uniform(-1, 1));//Generate polar angle
+  double phi = gRandom->Uniform(-M_PI, M_PI);//Generate azimuthal angle
+  P[0].SetXYZT(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), E);//Set 4-momentum
+  return 1.0;
+}
+
+double GeneratePhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+  const double Mp = 0.938272;
+  const double MA = 12.0 * Mp;
+  TLorentzVector ki1[2];
+  ki1[0] = ki[0];//Set photon 4-momentum
+  GenerateNucleonInCarbon(&ki1[1]);//Set off-shell nucleon 4-momentum
+  double w0;//phi photoproduction amplitude weight
+  GeneratePhotoproductionPhiNucleon(ki1, kf, &w0);//Get final state phi and p, amplitude * Lips weight
+  double w1 = MA / Mp;//wave function normalization weight
+  double Flux = 4.0 * ki[0].E() * MA;
+  weight[0] = w0 * w1;//total weight
+  return weight[0] / Flux;
 }
 				  
 
