@@ -278,7 +278,7 @@ double GeneratePhotoproductionPhiNucleon(const TLorentzVector * ki, TLorentzVect
   return weight[0];
 }
 
-double GenerateElectroproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){ 
+double GenerateElectroproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
   TLorentzVector kf1[2];
   double w1 = GenerateScatteredElectron(ki, kf1);//Get amplitude2 * Lips weight
   kf[0] = kf1[0];//Set final scattered electron
@@ -346,7 +346,10 @@ double GeneratePhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVecto
   return weight[0];
 }
 				  
-
+double tt(const double * x){
+  //x[0] = 1;
+  return 0;
+}
 
 
 

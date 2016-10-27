@@ -10,12 +10,13 @@ int main(){
 
   Long64_t Nsim = 10000000;
 
-  TLorentzVector ki[4];
+  TLorentzVector ki[2];
   ki[0].SetXYZT(0, 0, 5.5, 5.5);
   ki[1].SetXYZT(0, 0, 0, 0.938272);
   TLorentzVector Pout = ki[0] + ki[1];
   //cout << Pout.M() << endl;
-  TLorentzVector kf[2];
+  TLorentzVector kf[5];
+
   double weight;
   double w1, w2;
   
