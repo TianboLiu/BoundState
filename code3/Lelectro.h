@@ -32,21 +32,6 @@
 TGenPhaseSpace Lphase;//A global variable to generate final state
 double _weight_;
 
-/****** Forward tagger cuts ******/
-double _Emin_ = 0.5;
-double _Emax_ = 4.5;
-double _thmin_ = 2.5 / 180.0 * M_PI;
-double _thmax_ = 4.5 / 180.0 * M_PI;
-
-int SetTagger(const double Emin, const double Emax, const double thmin = 2.5 / 180.0 * M_PI, const double thmax = 4.5 / 180.0 * M_PI){//Set scattered electron kinematic range
-  _Emin_ = Emin;
-  _Emax_ = Emax;
-  _thmin_ = thmin;
-  _thmax_ = thmax;
-  return 0;
-}
-/****** End of tagger cuts ******/
-
 double BreitWigner(const double * M, const double * par){//non-normalized 
   double M0 = par[0];//center mass
   double Gamma = par[1];//decay width
@@ -221,10 +206,10 @@ double AmplitudeVirtualPhoton(const TLorentzVector * ki, const TLorentzVector * 
 }
 
 double GenerateScatteredElectron(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
-  double Emin = _Emin_;//Set scattered electron energy range
-  double Emax = _Emax_;
-  double thmin = _thmin_;//Set scattered electron polar angle range
-  double thmax = _thmax_;
+  double Emin = 0.5;//Set scattered electron energy range
+  double Emax = 4.5;
+  double thmin = 2.5 / 180.0 * M_PI;//Set scattered electron polar angle range
+  double thmax = 3.5 / 180.0 * M_PI;
   double Ee = gRandom->Uniform(Emin, Emax);//Get scattered electron energy
   double theta = acos(gRandom->Uniform(cos(thmax), cos(thmin)));//Get scattered electron polar angle
   double phi = gRandom->Uniform(-M_PI, M_PI);//Get scattered electron azimuthal angle
@@ -268,13 +253,17 @@ double GeneratePhotoproductionPhiNucleon(const TLorentzVector * ki, TLorentzVect
     return 0;
   }
   double mass[2] = {Mphi, Mp};
-  double w0 = Decay2(&Pout, kf, mass);//kf: phi, p
-  double w1 = AmplitudePhotoproductionPhi(ki, kf);//Get amplitude weight
+  Lphase.SetDecay(Pout, 2, mass);
+  Lphase.Generate();//Generate event uniform in Omega_k(c.m.)
+  kf[0] = *Lphase.GetDecay(0);//Get phi 4-momentum
+  kf[1] = *Lphase.GetDecay(1);//Get proton 4-momentum
+  double Amp = AmplitudePhotoproductionPhi(ki, kf);//Get invariant amplitude square
   double Flux = 4.0 * (ki[0] * ki[1]);//Lorentz-invariant relative velosity
-  double Q = GetRelativeMomentum(kf);//Relative momentum of final state
-  double Lips = Q / (16.0 * M_PI * M_PI * Pout.M()) * (4.0 * M_PI);//phase space weight
-  weight[0] = w0 * w1 * Lips;//total amplitude weight
-  return weight[0] / Flux;
+  double Q = GetRelativeMomentum(kf);
+  double Lips = Q / (4.0 * Pout.M() * pow(2.0 * M_PI, 2));
+  double vol = 4.0 * M_PI;
+  weight[0] = Amp * Lips * vol / Flux;//total amplitude weight
+  return weight[0];
 }
 
 double GenerateElectroproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
@@ -311,12 +300,25 @@ double GeneratePhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVecto
   TLorentzVector ki1[2];
   ki1[0] = ki[0];//Set photon 4-momentum
   GenerateNucleonInCarbon(&ki1[1]);//Set off-shell nucleon 4-momentum
-  double w0;//phi photoproduction amplitude weight
-  GeneratePhotoproductionPhiNucleon(ki1, kf, &w0);//Get final state phi and p, amplitude * Lips weight
-  double w1 = MA / Mp;//wave function normalization weight
+  double Normal = MA / ki1[1].E();//invariant wave function normalization
+  TLorentzVector Pout = ki1[0] + ki1[1];//total 4-momentum of phi proton final state
+  double Mphi = TF_BWPhi.GetRandom();//Get phi meson mass
+  if (Pout.M() < Mp + Mphi){//below threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[2] = {Mphi, Mp};//Set final state masses
+  Lphase.SetDecay(Pout, 2, mass);
+  Lphase.Generate();//Generate phi p uniform in Omega_k(c.m.)
+  kf[0] = *Lphase.GetDecay(0);//Get phi 4-momentum
+  kf[1] = *Lphase.GetDecay(1);//Get proton 4-momentum
+  double Amp = AmplitudePhotoproductionPhi(ki1, kf);//Get invariant amplitude square
+  double Q = GetRelativeMomentum(kf);
+  double vol = 4.0 * M_PI;
+  double Lips = Q / (4.0 * Pout.M() * pow(2.0 * M_PI, 2));
   double Flux = 4.0 * ki[0].E() * MA;
-  weight[0] = w0 * w1;//total weight
-  return weight[0] / Flux;
+  weight[0] = Normal * Amp * Lips * vol / Flux;//total weight
+  return weight[0];
 }
 				  
 
