@@ -411,6 +411,40 @@ double NucleonWaveInCarbon(const TLorentzVector * P){//nucleon wave function in 
   return sqrt(result / (4.0 * M_PI));
 }
 
+double AmplitudePhotoproductionBoundState_int(const double * var, const double * par){//bound state production amplitude integrand
+  //var: p1, cos theta1, azi1
+  //par: px, py, pz, pE; Pdx, Pdy, Pdz, PdE; Em1, Em2
+  TLorentzVector q, p, Pd;
+  q.SetXYZT(par[0], par[1], par[2], par[3]);//Set photon 4-momentum
+  p.SetXYZT(par[4], par[5], par[6], par[7]);//Set final proton 4-momentum
+  Pd.SetXYZT(par[8], par[9], par[10], par[11]);//Set final bound state 4-momentum
+  double Em1 = par[12];//Get missing energy of nucleon 1
+  double Em2 = par[13];//Get missing energy of nucleon 2
+  const double Mp = 0.938272;//proton mass
+  TLorentzVector p1(var[0] * sqrt(1.0 - var[1]*var[1]) * cos(var[2]), var[0] * sqrt(1.0 - var[1]*var[1]) * sin(var[2]), var[0] * var[1], sqrt(var[0] * var[0] + Mp * Mp) - Em1);//Set nucleon-1 4-momentum
+  TLorentzVector k = q + p1 - p;//Set virtual phi-meson 4-momentum
+  if (k.E() < 0){//unphysical energy
+    return 0;
+  }
+  TLorentzVector p2 = Pd - k;//Set nucleon-2 4-momentum
+  if (p2.E() > sqrt(Mp * Mp + p2.P() * p2.P()) - Em2){//below threshold
+    return 0;
+  }
+  p2.SetE(sqrt(Mp * Mp + p2.P() * p2.P()) - Em2);//Set nucleon-2 energy
+  const double Mphi0 = 1.019455;//phi meson central mass
+  const double Wphi = 0.00426;//phi meson width
+  double prop = 1.0 / sqrt( pow(k.M2() - Mphi0 * Mphi0, 2) + Mphi0 * Mphi0 * Wphi * Wphi);//phi meson propagator
+  TLorentzVector ki1[2] = {q, p1};
+  TLorentzVector kf1[2] = {k, p};
+  double Amp1 = sqrt(AmplitudePhotoproductionPhi(ki1, kf1));//Get amplitude of phi production part
+  TLorentzVector ki2[2] = {k, p2};
+  TLorentzVector kf2 = Pd;
+  double Amp2 = AmplitudeBoundStateFormation(ki2, &kf2);//Get amplitude of bound state formation
+  double wave = NucleonWaveInCarbon(&p1) * NucleonWaveInCarbon(&p2);//Get nucleon wave functions
+  const double MA = 12.0 * Mp;
+  double Normal = sqrt(MA / (2.0 * p1.E() * p2.E()));//invariant normalization factor with 2E(A-2) phase space factor canceled
+  return var[0] * var[0] * Normal * wave * Amp1 * prop * Amp2;
+}
 
 
 
