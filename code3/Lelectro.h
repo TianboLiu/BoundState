@@ -47,6 +47,7 @@ int SetTagger(const double Emin, const double Emax, const double thmin = 2.5 / 1
 }
 /****** End of tagger cuts ******/
 
+/******* Functions for random sampling *******/
 double BreitWigner(const double * M, const double * par){//non-normalized 
   double M0 = par[0];//center mass
   double Gamma = par[1];//decay width
@@ -103,15 +104,12 @@ double CarbonEnergy(const double * E0, const double * par){
   return result / 0.00724478;//Normalized missing energy distribution
 }
 
-/******* Functions for random sampling *******/
 TF1 TF_fp("fp", CarbonMomentum, 0.0, 1.0, 0);//set bound N momentum distri
 TF1 TF_fE("fE", CarbonEnergy, 0.0, 0.1, 0);//set bound N missing energy distri
 TF1 TF_BWPhi("BWPhi", BreitWigner, 0.819, 1.219, 2);//set phi mass distri
 TF1 TF_BWL1520("BWL1520", BreitWigner, 1.43195, 1.600, 2);//set Lambda1520 mass distri
 TF1 TF_BWd("BWd", BreitWigner, 1.750, 2.150, 2);//set bound state mass distri
-/*** End of Functions for random sampling  ***/
 
-/******* Generator part **********/
 int SetFunctions(){
   TF_fp.SetNpx(500);
   TF_fE.SetNpx(500);
@@ -126,7 +124,9 @@ int SetFunctions(){
   TF_BWd.SetNpx(4000);
   return 0;
 }
+/*** End of Functions for random sampling  ***/
 
+/****** Functions for general use ******/
 double Decay2(const TLorentzVector * ki, TLorentzVector * kf, const double * mass){//Generate two body decay event
   double masses[2] = {mass[0], mass[1]};
   TLorentzVector P0 = ki[0];//initial state
@@ -236,6 +236,7 @@ double GenerateScatteredElectron(const TLorentzVector * ki, TLorentzVector * kf,
   return weight[0];
 }
 
+//phi meson production part
 double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVector * kf){//Calculate phi-meson photoproduction amplitude square
   double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
   double x = GetTheta0(ki, kf);//theta in c.m. frame
@@ -257,6 +258,7 @@ double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVect
 }
 
 double GeneratePhotoproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
+  //ki: photon, p;  kf: phi, p
   TLorentzVector Pout = ki[0] + ki[1];//Total 4-momentum
   double Mp = 0.938272;//proton mass
   double Mphi = TF_BWPhi.GetRandom();//phi-meson mass
@@ -279,6 +281,7 @@ double GeneratePhotoproductionPhiNucleon(const TLorentzVector * ki, TLorentzVect
 }
 
 double GenerateElectroproductionPhiNucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
+  //ki: e, p;  kf: e', phi, p
   TLorentzVector kf1[2];
   double w1 = GenerateScatteredElectron(ki, kf1);//Get amplitude2 * Lips weight
   kf[0] = kf1[0];//Set final scattered electron
@@ -320,6 +323,7 @@ double GenerateNucleonInCarbon(TLorentzVector * P){//Generate a bound nucleon in
 }
 
 double GeneratePhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+  //ki: photon;  kf: phi, p
   const double Mp = 0.938272;
   const double MA = 12.0 * Mp;
   TLorentzVector ki1[2];
@@ -345,11 +349,68 @@ double GeneratePhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVecto
   weight[0] = Normal * Amp * Lips * vol / Flux;//total weight
   return weight[0];
 }
-				  
-double tt(const double * x){
-  //x[0] = 1;
-  return 0;
+
+double GenerateElectroproductionPhiCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){
+  //ki: e;  kf: e', phi, p
+  TLorentzVector kf1[2];
+  double w1 = GenerateScatteredElectron(ki, kf1);//Get amplitude2 * Lips weight
+  kf[0] = kf1[0];//Set final scattered electron
+  if (w1 == 0){//unphysical virtual photon energy
+    weight[0] = 0;
+    return 0;
+  }
+  double prop = 1.0 / pow(kf1[1].M2(), 2);//virtual photon propagator square
+  TLorentzVector ki2[2];
+  ki2[0] = kf1[1];//Set intial virtual photon for phi-production step
+  GenerateNucleonInCarbon(&ki2[1]);//Set off-shell nucleon 4-momentum
+  const double Mp = 0.938272;//proton mass
+  const double Mphi = TF_BWPhi.GetRandom();//Get phi meson mass
+  TLorentzVector Pout = ki2[0] + ki2[1];//total 4-momentum of phi proton final state
+  if (Pout.M() < Mphi + Mp){//below threshold
+    weight[0] = 0;
+    return 0;
+  }
+  const double MA = 12.0 * Mp;
+  double Normal = MA / ki2[1].E();//invariant wave function normalization
+  double mass[2] = {Mphi, Mp};
+  Lphase.SetDecay(Pout, 2, mass);
+  Lphase.Generate();//Generate phi proton uniform in Omega_k(c.m.);
+  kf[1] = *Lphase.GetDecay(0);//Set phi meson 4-momentum
+  kf[2] = *Lphase.GetDecay(1);//Set proton 4-momentum
+  double Amp2 = AmplitudePhotoproductionPhi(ki2, &kf[1]);//Get amplitude square of phi production part
+  double Q = GetRelativeMomentum(&kf[1]);//Get relative momentum of phi proton in c.m. frame
+  double vol2 = 4.0 * M_PI;
+  double Lips2 = Q / (4.0 * Pout.M() * pow(2.0 * M_PI, 2));
+  double Flux = 4.0 * ki[0].E() * MA;
+  weight[0] = Normal * w1 * prop * Amp2 * Lips2 * vol2 / Flux;//total weight
+  return weight[0];
 }
+
+//Bound state production part
+double AmplitudeBoundStateFormation(const TLorentzVector * ki, const TLorentzVector * kf){//phi M -> d invariant amplitude (not square)
+  //ki: phi, p;  kf: d
+  double Q = GetRelativeMomentum(ki);//Get phi N relative momentum in c.m. frame
+  if (Q < 0){//unphysical momentum
+    return 0;
+  }
+  double A0 = 0.112356;//Fit to FQ0.dat with poly*gaussian
+  double A2 = 0.609078;
+  double B2 = 2.75841;
+  double FQ = (A0 + A2 * Q * Q) * exp(-B2 * Q * Q);//without cutoff
+  double Ep = sqrt(ki[1].M2() + Q*Q);
+  double Normal = pow(2.0 * M_PI, 9.0/2.0) * 2.0 * Ep * sqrt(2.0 * kf[0].M());
+  return Normal * FQ;//invariant amplitude in unit GeV
+}
+
+double NucleonWaveInCarbon(const TLorentzVector * P){//nucleon wave function in carbon
+  double p = P[0].P();//Get momentum
+  double A0 = 10.6552;
+  double A2 = 32.3105;
+  double B2 = 8.43226;
+  double result = (A0 + pow(A2 * p, 2)) * exp(-pow(B2 * p, 2)) / 0.0241519;//R9p)^2
+  return sqrt(result / (4.0 * M_PI));
+}
+
 
 
 
