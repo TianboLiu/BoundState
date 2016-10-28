@@ -22,6 +22,10 @@
 #include "Math/WrappedTF1.h"
 #include "Math/GSLIntegrator.h"
 #include "Math/Interpolator.h"
+#include "Math/WrappedParamFunction.h"
+#include "Math/Integrator.h"
+#include "Math/IntegratorMultiDim.h"
+#include "Math/AllIntegrationTypes.h"
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -243,7 +247,7 @@ double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVect
   double M = kf[0].M() + kf[1].M();//threshold
   TLorentzVector Pout = kf[0] + kf[1];//total 4-momentum
   double sr = Pout.M();//energy in c.m. frame
-  if (sr < M) return 0.0;//below threshold
+  if (sr < M) return 0;//below threshold
   double b1 = par[3] * pow(sr * sr - M * M, par[4]);
   double a2 = par[2] * (sr - M);
   double a0 = par[0] * atan(par[1] * par[1]* (sr * sr - M * M));
@@ -251,6 +255,7 @@ double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVect
   double r2 = x * x * exp(b1 * x) * pow(b1, 3) / (2.0 * (b1 * b1 + 2.0) * sinh(b1) - 4.0 * b1 * cosh(b1));
   double ds = a0 * (r0 + a2 * r2) / (1.0 + a2) / (2.0 * M_PI) / 389.379;//ds/dOmega in unit GeV^-2
   double Q = GetRelativeMomentum(kf);//Relative momentum of final state in c.m.
+  if (Q < 1.0e-30) return 0;
   double Flux = 4.0 * (ki[0] * ki[1]);//Lorentz-invariant relative velosity
   double Lips = Q / (16.0 * M_PI * M_PI * Pout.M());
   double Amp2 = ds * Flux / Lips;//invariant amplitude square in unit 1
@@ -430,7 +435,10 @@ double AmplitudePhotoproductionBoundState_int(const double * var, const double *
   if (p2.E() > sqrt(Mp * Mp + p2.P() * p2.P()) - Em2){//below threshold
     return 0;
   }
-  p2.SetE(sqrt(Mp * Mp + p2.P() * p2.P()) - Em2);//Set nucleon-2 energy
+  if (p2.M() <= 0){//unphysical mass
+    return 0;
+  }
+  //p2.SetE(sqrt(Mp * Mp + p2.P() * p2.P()) - Em2);//Set nucleon-2 energy
   const double Mphi0 = 1.019455;//phi meson central mass
   const double Wphi = 0.00426;//phi meson width
   double prop = 1.0 / sqrt( pow(k.M2() - Mphi0 * Mphi0, 2) + Mphi0 * Mphi0 * Wphi * Wphi);//phi meson propagator
@@ -443,8 +451,77 @@ double AmplitudePhotoproductionBoundState_int(const double * var, const double *
   double wave = NucleonWaveInCarbon(&p1) * NucleonWaveInCarbon(&p2);//Get nucleon wave functions
   const double MA = 12.0 * Mp;
   double Normal = sqrt(MA / (2.0 * p1.E() * p2.E()));//invariant normalization factor with 2E(A-2) phase space factor canceled
-  return var[0] * var[0] * Normal * wave * Amp1 * prop * Amp2;
+  double result = var[0] * var[0] * Normal * wave * Amp1 * prop * Amp2;
+  //std::cout << Normal << " " << wave << " " << Amp1 << " " << prop << " " << Amp2 << std::endl;
+  return result;
 }
+
+double AmplitudePhotoproductionBoundState(const TLorentzVector * ki, const TLorentzVector * kf){//amplitude of bound state photoproduction
+  double Em1 = TF_fE.GetRandom();//Get missing energy of nucleon-1
+  double Em2 = TF_fE.GetRandom();//Get missing energy of nucleon-2
+  double par[14] = {ki[0].X(), ki[0].Y(), ki[0].Z(), ki[0].T(), //q
+		    kf[0].X(), kf[0].Y(), kf[0].Z(), kf[0].T(), //p
+		    kf[1].X(), kf[1].Y(), kf[1].Z(), kf[1].T(), //Pd
+		    Em1, Em2};//missing energy
+  ROOT::Math::WrappedParamFunction<> wf(&AmplitudePhotoproductionBoundState_int, 3, 14);
+  wf.SetParameters(par);
+  ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE, 0.0, 0.001, 100000);
+  ig.SetFunction(wf);
+  double xl[3] = {0.0, -1, -M_PI};//limit: p, cos th, azi
+  double xu[3] = {1.0, 1, M_PI};
+  double result = ig.Integral(xl, xu);
+  return result;
+}
+
+double GeneratePhotoproductionBoundStateCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+  const double Md = TF_BWd.GetRandom();//Get bound state mass
+  double Pdrange[2] = {0.0, 1.5};
+  double Polrange[2] = {0.0, 1.0};//polar angle range
+  double Pd = gRandom->Uniform(Pdrange[0], Pdrange[1]);
+  double theta_d = acos(gRandom->Uniform(Polrange[0], Polrange[1]));
+  double phi_d = gRandom->Uniform(-M_PI, M_PI);
+  kf[1].SetXYZM(Pd * sin(theta_d) * cos(phi_d), Pd * sin(theta_d) * sin(phi_d), Pd * cos(theta_d), Md);//Set final bound state 4-momentum
+  const double Mp = 0.938272;
+  double Ep = ki[0].E() + 2.0 * Mp - kf[1].E();//Get proton energy
+  if (Ep < Mp){//below threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double p = sqrt(Ep * Ep - Mp * Mp);
+  double theta_p = acos(gRandom->Uniform(Polrange[0], Polrange[1]));
+  double phi_p = gRandom->Uniform(-M_PI, M_PI);
+  kf[0].SetXYZM(p * sin(theta_p) * cos(phi_p), p * sin(theta_p) * sin(phi_p), p * cos(theta_p), Mp);//Set final proton 4-momentum
+  TLorentzVector Premain = ki[0] - kf[0] - kf[1];//Get total momentum of two reaction nucleons
+  if (Premain.P() > 1.0){//too high momentum suppressed
+    weight[0] = 0;
+    return 0;
+  }
+  double Amp = pow(AmplitudePhotoproductionBoundState(ki, kf), 2);//Get reduced amplitude square
+  //std::cout << Amp << std::endl;
+  if (Amp == 0){//
+    weight[0] = 0;
+    return 0;
+  }
+  double Lips = kf[0].P() * kf[1].P() * kf[1].P() / (4.0 * kf[1].E() * pow(2.0 * M_PI, 5));
+  double vol = (Pdrange[1] - Pdrange[0]) * (Polrange[1] - Polrange[0]) * (Polrange[1] - Polrange[0]) * (2.0 * M_PI * 2.0 * M_PI);
+  const double MA = 12.0 * Mp;
+  double Flux = 4.0 * ki[0].E() * MA;
+  weight[0] = Amp * Lips * vol / Flux;//total weight
+  //if (1) std::cout << Amp << " " << Lips << " " << vol << " " << Flux << std::endl;
+  return weight[0];
+}
+
+double GeneratePhotoproductionBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+  TLorentzVector p1;
+  GenerateNucleonInCarbon(&p1);//Get reaction nucleon-1
+  TLorentzVector ki1[2] = {ki[0], p1};//Set phi production part initial state
+  TLorentzVector kf1[2];
+  const double Mp = 0.938272;
+  //unfinished
+  return 0;
+}
+  
+
 
 
 
