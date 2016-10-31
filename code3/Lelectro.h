@@ -250,6 +250,8 @@ double GenerateNucleonInCarbon(TLorentzVector * P){//Generate a bound nucleon in
   return 1.0;
 }
 
+/****** Production channels ******/
+
 //phi meson production part
 double AmplitudePhotoproductionPhi(const TLorentzVector * ki, const TLorentzVector * kf){//Calculate phi-meson photoproduction amplitude square
   double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
@@ -473,7 +475,7 @@ double GeneratePhotoproductionKKCarbon(const TLorentzVector * ki, TLorentzVector
 }
 
 double GenerateElectroproductionKKCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
-  //ki: e, p1;  kf: e', p, K+, K-
+  //ki: e;  kf: e', p, K+, K-
   const double Mp = 0.938272;//proton mass
   const double Mkaon = 0.493677;//kaon mass
   const double MA = 12.0 * Mp;
@@ -667,7 +669,7 @@ double AmplitudeBoundStateFormation(const TLorentzVector * ki, const TLorentzVec
   return Normal * FQ;//invariant amplitude in unit GeV
 }
 
-double GeneratePhotoproductionBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+double GeneratePhotoproductionBoundStateCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
   //ki: q; kf: p, d
   const double Mp = 0.938272;
   const double MA = 12.0 * Mp;
@@ -719,7 +721,7 @@ double GeneratePhotoproductionBoundState(const TLorentzVector * ki, TLorentzVect
   return weight[0];
 }
   
-double GenerateElectroproductionBoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
+double GenerateElectroproductionBoundStateCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//
   //ki: e;  kf: e', p, d
   const double Mp = 0.938272;
   const double MA = 12.0 * Mp;
@@ -778,6 +780,334 @@ double GenerateElectroproductionBoundState(const TLorentzVector * ki, TLorentzVe
   double Flux = 4.0 * ki[0].E() * MA;
   weight[0] = Nor * w0 * prop * w1 * w2 * vol / Flux;//total weight
   return weight[0];
+}
+
+
+/****** Event generator part ******/
+double GenerateEvent_NKK_withPhotoproductionPhiCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with NKK in final state with phi-meson production channel
+  //ki: q; kf: N, K+, K-
+  const double Mkaon = 0.493677;//kaon mass
+  const double scale = 12.0;//nucleon number scale
+  TLorentzVector kf1[2];//intermediate state: phi, N
+  double w1 = GeneratePhotoproductionPhiCarbon(ki, kf1);//Get phi-meson electroproduction weight
+  if (kf1[0].M() < Mkaon + Mkaon){//below K+K- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[2] = {Mkaon, Mkaon};
+  TLorentzVector kf2[2];
+  double w2 = Decay2(&kf1[0], kf2, mass);//Get K+K- decayed from phi-meson
+  kf[0] = kf1[1];//Set proton
+  kf[1] = kf2[0];//Set K+
+  kf[2] = kf2[1];//Set K-
+  double Br = 0.489;//Branch ratio of phi to K+K-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+
+double GenerateEvent_NKK_withPhotoproductionKKCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with NKK in final state with direct K+K- production channel
+  //ki: q; kf: N, K+, K-
+  const double scale = 12.0;//nucleon number scale
+  double w1 = GeneratePhotoproductionKKCarbon(ki, kf);//Get electroproduction KK weight
+  weight[0] = scale * w1;
+  return weight[0];
+}
+
+double GenerateEvent_NKK_withPhotoproductionLambda1520Carbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with NKK in final state with Lambda1520 production channel
+  //ki: q; kf: N, K+, K-
+  const double scale = 12.0;//nucleon number scale
+  const double Mkaon = 0.493677;//kaon mass
+  const double Mp = 0.938272;//proton mass
+  TLorentzVector kf1[2];//intermediate state: K+, Lambda1520
+  double w1 = GeneratePhotoproductionLambda1520Carbon(ki, kf1);//Get electroproduction Lambda1520 weight
+  if (kf1[1].M() < Mkaon + Mp){//below pK- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[2] = {Mp, Mkaon};
+  TLorentzVector kf2[2];
+  double w2 = Decay2(&kf1[1], kf2, mass);//Get p K- decayed from Lambda1520
+  kf[0] = kf2[0];//Set proton
+  kf[1] = kf1[0];//Set K+
+  kf[2] = kf2[1];//Set K-
+  double Br = 0.45 / 2.0;//Branch ratio of Lambda1520 to pK-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+
+double GenerateEvent_NKKN_withPhotoproductionBoundStateCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with NKKN in final state with bound state production channel
+  //ki: 1; kf: N, (K+, K-, N)
+  const double scale = 12.0 * 11.0;//nucleon number scale
+  const double Mp = 0.938272;//proton mass
+  const double Mkaon = 0.493677;//kaon mass
+  TLorentzVector kf1[2];//intermediate state: p, d
+  double w1 = GeneratePhotoproductionBoundStateCarbon(ki, kf1);//Get electroproduction bound state weight
+  if (kf1[1].M() < Mp + Mkaon + Mkaon){//below N K+ K- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[3] = {Mp, Mkaon, Mkaon};
+  TLorentzVector kf2[3];
+  double w2 = Decay3(&kf1[1], kf2, mass);//Get N K+ K- decayed from bound state
+  kf[0] = kf1[0];//Set produced proton
+  kf[1] = kf2[1];//Set K+
+  kf[2] = kf2[2];//Set K-
+  kf[3] = kf2[0];//Set proton decayed from bound state
+  double Br = 0.919 * 0.489;//Branch ratio of bound state to NK+K-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+
+double GenerateEvent_eNKK_withElectroproductionPhiCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with eNKK in final state with phi-meson production channel
+  //ki: e; kf: e', N, K+, K-
+  const double Mkaon = 0.493677;//kaon mass
+  const double scale = 12.0;//nucleon number scale
+  TLorentzVector kf1[3];//intermediate state: e', phi, N
+  double w1 = GenerateElectroproductionPhiCarbon(ki, kf1);//Get phi-meson electroproduction weight
+  if (kf1[1].M() < Mkaon + Mkaon){//below K+K- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[2] = {Mkaon, Mkaon};
+  TLorentzVector kf2[2];
+  double w2 = Decay2(&kf1[1], kf2, mass);//Get K+K- decayed from phi-meson
+  kf[0] = kf1[0];//Set scattered electron
+  kf[1] = kf1[2];//Set proton
+  kf[2] = kf2[0];//Set K+
+  kf[3] = kf2[1];//Set K-
+  double Br = 0.489;//Branch ratio of phi to K+K-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+
+double GenerateEvent_eNKK_withElectroproductionKKCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with eNKK in final state with direct K+K- production channel
+  //ki: e; kf: e', N, K+, K-
+  const double scale = 12.0;//nucleon number scale
+  double w1 = GenerateElectroproductionKKCarbon(ki, kf);//Get electroproduction KK weight
+  weight[0] = scale * w1;
+  return weight[0];
+}
+
+double GenerateEvent_eNKK_withElectroproductionLambda1520Carbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with eNKK in final state with Lambda1520 production channel
+  //ki: e; kf: e', N, K+, K-
+  const double scale = 12.0;//nucleon number scale
+  const double Mkaon = 0.493677;//kaon mass
+  const double Mp = 0.938272;//proton mass
+  TLorentzVector kf1[3];//intermediate state: e', K+, Lambda1520
+  double w1 = GenerateElectroproductionLambda1520Carbon(ki, kf1);//Get electroproduction Lambda1520 weight
+  if (kf1[2].M() < Mkaon + Mp){//below pK- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[2] = {Mp, Mkaon};
+  TLorentzVector kf2[2];
+  double w2 = Decay2(&kf1[2], kf2, mass);//Get p K- decayed from Lambda1520
+  kf[0] = kf1[0];//Set scattered electron
+  kf[1] = kf2[0];//Set proton
+  kf[2] = kf1[1];//Set K+
+  kf[3] = kf2[1];//Set K-
+  double Br = 0.45 / 2.0;//Branch ratio of Lambda1520 to pK-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+
+double GenerateEvent_eNKKN_withElectroproductionBoundStateCarbon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &_weight_){//Generate an event with eNKKN in final state with bound state production channel
+  //ki: e; kf: e', N, (K+, K-, N)
+  const double scale = 12.0 * 11.0;//nucleon number scale
+  const double Mp = 0.938272;//proton mass
+  const double Mkaon = 0.493677;//kaon mass
+  TLorentzVector kf1[3];//intermediate state: e', p, d
+  double w1 = GenerateElectroproductionBoundStateCarbon(ki, kf1);//Get electroproduction bound state weight
+  if (kf1[2].M() < Mp + Mkaon + Mkaon){//below N K+ K- threshold
+    weight[0] = 0;
+    return 0;
+  }
+  double mass[3] = {Mp, Mkaon, Mkaon};
+  TLorentzVector kf2[3];
+  double w2 = Decay3(&kf1[2], kf2, mass);//Get N K+ K- decayed from bound state
+  kf[0] = kf1[0];//Set scattered electron
+  kf[1] = kf1[1];//Set produced proton
+  kf[2] = kf2[1];//Set K+
+  kf[3] = kf2[2];//Set K-
+  kf[4] = kf2[0];//Set proton decayed from bound state
+  double Br = 0.919 * 0.489;//Branch ratio of bound state to NK+K-
+  weight[0] = scale * w1 * w2 * Br;
+  return weight[0];
+}
+				    
+/****** detector part ******/
+int DetectorResolutionSmear(TLorentzVector * P, double * res){//Smearing the three momentum with gaussian, fixed mass
+  double M = P->M();
+  double p = P->P() * (1.0 + gRandom->Gaus(0.0, res[0]));//smear p
+  if (p < 0.0) p = 0.0;//Set negative p to 0
+  double theta = P->Theta() + gRandom->Gaus(0.0, res[1]);//smear theta
+  double phi = P->Phi() + gRandom->Gaus(0.0, res[2]);//smear phi
+  P[0].SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), M);//Set smeared three momentum with fixed mass
+  return 0;
+}
+
+double LongLifetimeDecayFactor(const TLorentzVector * P, const double ct, const double dis = 2.0){//Calculate the remaining factor when arriving at the detector due to decay
+  double beta = P->Beta();
+  double df = exp(- dis / beta / ct);
+  return df;
+}
+
+bool MomentumCut(const TLorentzVector * P, const double pmin, const double pmax){//check the momentum in a selected region
+  double p = P->P();//in unit GeV
+  if (p < pmin || p > pmax)
+    return false;
+  else
+    return true;
+}
+
+bool PolarAngleCut(const TLorentzVector * P, const double thmin, const double thmax, const char * unit = "deg"){//check the polar angle in a selected region
+  double th = P->Theta();
+  if (strcmp(unit, "deg") == 0)
+    th = th * 180.0 / M_PI;
+  if (th < thmin || th > thmax)
+    return false;
+  else
+    return true;
+}
+
+bool MassCut(const TLorentzVector * P, const double Mmin, const double Mmax){//check the invariant mass in a selected region
+  double M = P->M();//in unit GeV
+  if (M < Mmin || M > Mmax)
+    return false;
+  else
+    return true;
+}
+
+const double target_length = 0.0012;//in unit cm
+const double target_radius = 0.3;//in unit cm
+const int NPT_P_GRAPHITE = 132;
+double EK_P_GRAPHITE[132], dEK_P_GRAPHITE[132];
+ROOT::Math::Interpolator SP_P_GRAPHITE(NPT_P_GRAPHITE, ROOT::Math::Interpolation::kCSPLINE);
+const int NPT_K_GRAPHITE = 132;
+double EK_K_GRAPHITE[132], dEK_K_GRAPHITE[132];
+ROOT::Math::Interpolator SP_K_GRAPHITE(NPT_K_GRAPHITE, ROOT::Math::Interpolation::kCSPLINE);
+
+int SetStoppingPower(){
+  char tmp[256];
+  std::ifstream fpgraphite("stopping_power_p_graphite.dat");
+  for (int i = 0; i < 8; i++)
+    fpgraphite.getline(tmp, 256);
+  for (int i = 0; i < NPT_P_GRAPHITE; i++){
+    fpgraphite >> EK_P_GRAPHITE[i] >> dEK_P_GRAPHITE[i];
+    EK_P_GRAPHITE[i] = EK_P_GRAPHITE[i] / 1000.0;//convert to GeV
+    dEK_P_GRAPHITE[i] = dEK_P_GRAPHITE[i] * 1.7 / 1000.0;//GeV / cm
+  }
+  SP_P_GRAPHITE.SetData(NPT_P_GRAPHITE, EK_P_GRAPHITE, dEK_P_GRAPHITE);
+  fpgraphite.close();
+  std::ifstream fkgraphite("stopping_power_p_graphite.dat");
+  for (int i = 0; i < 8; i++)
+    fkgraphite.getline(tmp, 256);
+  for (int i = 0; i < NPT_K_GRAPHITE; i++){
+    fkgraphite >> EK_K_GRAPHITE[i] >> dEK_K_GRAPHITE[i];
+    EK_K_GRAPHITE[i] = EK_K_GRAPHITE[i] / 1000.0;//convert to GeV
+    dEK_K_GRAPHITE[i] = dEK_K_GRAPHITE[i] * 1.7 / 1000.0;//GeV / cm
+  }
+  SP_K_GRAPHITE.SetData(NPT_K_GRAPHITE, EK_K_GRAPHITE, dEK_K_GRAPHITE);
+  fkgraphite.close();
+  return 0;
+}
+
+double CheckBONUS(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by BONUS
+  if (MomentumCut(P, 0.0, 0.06))//momentum below 60 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 20.0, 160.0, "deg"))//angle outside BONUS coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy
+  double dEk = 0;
+  if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0)
+    dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else if (strcmp(particle, "p") == 0)
+    dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else {
+    std::cerr << "Unknown particle option in CheckBONUS!" << std::endl;
+    return 0;
+  }
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.06 || p > 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  double wd = 1.0;
+  return wd;
+}
+
+double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 forward detector
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 5.0, 35.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy
+  double dEk = 0;
+  if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0)
+    dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else if (strcmp(particle, "p") == 0)
+    dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else {
+    std::cerr << "Unknown particle option in CheckBONUS!" << std::endl;
+    return 0;
+  }
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  double wd = 1.0;
+  if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0){
+    double th = P->Theta();
+    double azi = P->Phi();
+    TLorentzVector PP;
+    PP.SetXYZM(p * sin(th) * cos(azi), p * sin(th) * sin(azi), p * cos(th), 0.493677);
+    wd = LongLifetimeDecayFactor(&PP, 3.712, 2.0);
+  }
+  return wd;
+}
+
+double CheckCLAS12LA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 central detector
+  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+    return 0.0;
+  if (!PolarAngleCut(P, 35.0, 125.0, "deg"))//angle outside CLAS12 FA coverage
+    return 0.0;
+  double Ek0 = P->E() - P->M();//Get kinematical energy
+  double dEk = 0;
+  if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0)
+    dEk = SP_K_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else if (strcmp(particle, "p") == 0)
+    dEk = SP_P_GRAPHITE.Eval(Ek0);//Get dE/dx in GeV/cm
+  else {
+    std::cerr << "Unknown particle option in CheckBONUS!" << std::endl;
+    return 0;
+  }
+  double dz = target_length * (1.0 - z) / cos(P->Theta());
+  if (dz < 0.0) dz = dz / (1.0 - z) * (-z);
+  double dx = std::min(dz, target_radius / sin(P->Theta()));//travel distance in target
+  double Ek = Ek0 - dEk * dx;//Kinematical energy outside target
+  if (Ek < 0.0)//fail to get out off target
+    return 0.0;
+  double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
+  if (p < 0.25)//momentum out off BONUS coverage
+    return 0.0;
+  double wd = 1.0;
+  if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0){
+    double th = P->Theta();
+    double azi = P->Phi();
+    TLorentzVector PP;
+    PP.SetXYZM(p * sin(th) * cos(azi), p * sin(th) * sin(azi), p * cos(th), 0.493677);
+    wd = LongLifetimeDecayFactor(&PP, 3.712, 2.0);
+  }
+  return wd;
 }
 
 
