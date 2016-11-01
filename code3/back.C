@@ -7,12 +7,12 @@ int main(int argc, char * argv[]){
   const double Eqmin = 1.0;//Set virtual photon energy minimum
   const double Eqmax = 4.0;//Set virtual photon energy maximum
 
-  gRandom->SetSeed(0);
+  gRandom->SetSeed(1);
   SetFunctions();
   //SetTagger(Ebeam - Eqmax, Ebeam - Eqmin);//Set scattered electron energy range
   SetTagger(0.5, 4.5);
 
-  const Long64_t Nsim = 1000000;
+  const Long64_t Nsim = 10000000;
   const int Npt = 1000;
 
   double lumi = 1.0e35 * 1.0e-26 * pow(0.197327, 2) / 12.0;//eA GeV^2 s^-1
@@ -36,6 +36,7 @@ int main(int argc, char * argv[]){
 
   TH1D * b1D = new TH1D("b1D", "", 1, 1.88, 2.32);
   TH2D * b2D = new TH2D("b2D", "", 1, 0.0, 1.0, 1, 0.0, 1.4);
+  TH2D * b2DL = new TH2D("b2DL", "", 1, 0.0, 2.0, 1, 0.0, 2.0);
   TH2D * b3D = new TH2D("b3D", "", 1, 0.0, 0.6, 1, 0.0, M_PI/2.0);
   gStyle->SetOptStat(0);
   b1D->SetTitle("M(pK^{+}K^{-}) spectra");
@@ -53,6 +54,15 @@ int main(int argc, char * argv[]){
   b2D->GetYaxis()->CenterTitle();
   b2D->GetYaxis()->SetTitleOffset(1.0);
   b2D->GetYaxis()->SetTitleSize(0.05);
+  b2DL->SetTitle("proton kaon momentum correlation");
+  b2DL->GetXaxis()->SetTitle("P(K) / GeV");
+  b2DL->GetXaxis()->CenterTitle();
+  b2DL->GetXaxis()->SetTitleOffset(1.0);
+  b2DL->GetXaxis()->SetTitleSize(0.05);
+  b2DL->GetYaxis()->SetTitle("P(p) / GeV");
+  b2DL->GetYaxis()->CenterTitle();
+  b2DL->GetYaxis()->SetTitleOffset(1.0);
+  b2DL->GetYaxis()->SetTitleSize(0.05);
   b3D->SetTitle("Momentum : Angel distribution");
   b3D->GetXaxis()->SetTitle("Momentum (GeV)");
   b3D->GetXaxis()->CenterTitle();
@@ -78,12 +88,12 @@ int main(int argc, char * argv[]){
   h5->SetLineColor(5);
 
   //momentum correlation
-  TH2D * d0 = new TH2D("d0", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
-  TH2D * d1 = new TH2D("d1", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
-  TH2D * d2 = new TH2D("d2", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
-  TH2D * d3 = new TH2D("d3", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
-  TH2D * d3p = new TH2D("d3p", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
-  TH2D * d4 = new TH2D("d4", "", 500, 0.0, 1.5, 500, 0.0, 1.5);
+  TH2D * d0 = new TH2D("d0", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
+  TH2D * d1 = new TH2D("d1", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
+  TH2D * d2 = new TH2D("d2", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
+  TH2D * d3 = new TH2D("d3", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
+  TH2D * d3p = new TH2D("d3p", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
+  TH2D * d4 = new TH2D("d4", "", 500, 0.0, 2.0, 500, 0.0, 2.0);
   //momentum correlation graph
   TGraph * g0 = new TGraph(Npt);
   TGraph * g1 = new TGraph(Npt);
@@ -202,33 +212,7 @@ int main(int argc, char * argv[]){
   h4->Draw("same");
   //h5->Draw("same");
   leg0->Draw("same");
-  c0->Print("background0.pdf");
-
-
-  hmax = h5->GetMaximum();
-  h0->Scale(0.85/hmax);
-  h1->Scale(0.85/hmax);
-  h2->Scale(0.85/hmax);
-  h3->Scale(0.85/hmax);
-  h4->Scale(0.85/hmax);
-  h5->Scale(0.85/hmax);
-  TLegend * leg1 = new TLegend(0.62, 0.7, 0.9, 0.9);
-  leg1->AddEntry(h0, "with bound state", "l");
-  leg1->AddEntry(h1, "with bound state", "l");
-  leg1->AddEntry(h2, "with #phi production", "l");
-  leg1->AddEntry(h3, "with #Lambda(1520) prod.", "l");
-  leg1->AddEntry(h4, "direct production", "l");
-  leg1->AddEntry(h5, "total", "l");
-  TCanvas * c1 = new TCanvas("c1", "c1", 800, 600);
-  b1D->Draw();
-  h0->Draw("same");
-  h1->Draw("same");
-  h2->Draw("same");
-  h3->Draw("same");
-  h4->Draw("same");
-  h5->Draw("same");
-  leg1->Draw("same");
-  c1->Print("background1.pdf");
+  c0->Print("signal_background.pdf");
 
   TLegend * leg2 = new TLegend(0.62, 0.7, 0.9, 0.9);
   leg2->AddEntry(g0, "with bound state", "p");
@@ -247,6 +231,17 @@ int main(int argc, char * argv[]){
   g4->Draw("psame");
   leg2->Draw("same");
   c2->Print("momentumcorrelation.pdf");
+
+  TCanvas * c3 = new TCanvas("c3", "c3", 800, 600);
+  b2DL->Draw();
+  g0->Draw("psame");
+  g1->Draw("psame");
+  g2->Draw("psame");
+  g3->Draw("psame");
+  g3p->Draw("psame");
+  g4->Draw("psame");
+  leg2->Draw("same");
+  c3->Print("momentumcorrelation_large.pdf");
 
   return 0;
 }
