@@ -1,0 +1,19 @@
+Signal/h:   0.280355
+Smeared:    0.280355
+After cut:  0.273427
+Smear & cut:0.273127
+
+Total/h:    4770.17
+Smeared:    4770.17
+After cut:  0.304585
+Smear & cut:0.304541
+
+Signal/h:   0.263257
+Smeared:    0.258381
+After cut:  0.258001
+Smear & cut:0.252997
+
+Total/h:    3.41599
+Smeared:    3.41653
+After cut:  0.269754
+Smear & cut:0.264902
