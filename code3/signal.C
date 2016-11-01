@@ -10,7 +10,8 @@ int main(int argc, char * argv[]){
   SetFunctions();
   SetStoppingPower();
 
-  SetTagger(0.5, 4.5);
+  SetTagger(0.5, Ebeam);
+  //SetTagger(0.5, 4.5);
   
   Long64_t Nsim = 100000000;
 

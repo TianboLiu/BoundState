@@ -10,7 +10,7 @@ int main(int argc, char * argv[]){
   gRandom->SetSeed(1);
   SetFunctions();
   //SetTagger(Ebeam - Eqmax, Ebeam - Eqmin);//Set scattered electron energy range
-  SetTagger(0.5, 4.5);
+  SetTagger(0.5, Ebeam);
 
   const Long64_t Nsim = 10000000;
   const int Npt = 1000;
