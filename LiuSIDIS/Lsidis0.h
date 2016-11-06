@@ -114,7 +114,7 @@ class Lsidis{
   int SetFinalHadron(const TLorentzVector Ph);//Set final detected hadron 4-momenta
   int CalculateVariables();//Calculate Lorentz scalar variables
   int CalculateFinalState();//Calculate scattered lepton and detected hadron from x, y, z, Pt, phih, phiS
-  int SetVariables(const double x0, const double y0, const double z0, const double Pt20, const double phih0, const double phiS0);//Set variables x, y, z, Pt2, phih, phiS
+  int SetVariables(const double x0, const double y0, const double z0, const double Pt0, const double phih0, const double phiS0);//Set variables x, y, z, Pt2, phih, phiS
   double GetVariable(const char * var);//Get particular variable of current event
   TLorentzVector GetLorentzVector(const char * part);//Get 4-momentum of a particle of current event
   int GetPDFs();//Get PDFs at current x, Q2
@@ -433,6 +433,7 @@ int Lsidis::CalculateFinalState(){//Calculate scattered electron and detected ha
     Plp.RotateY(Pl_2.Theta());
     Plp.RotateZ(Pl_2.Phi());
     Plp.Boost(PP.BoostVector());
+    Pq = Pl - Plp;
     if (z < sqrt(Mh * Mh + Pt * Pt) / Pq_1.E()){//below hadron threshold
       physics_control = false;
       return 0;
@@ -449,9 +450,8 @@ int Lsidis::CalculateFinalState(){//Calculate scattered electron and detected ha
     PPh.RotateY(Pl_2.Theta());
     PPh.RotateZ(Pl_2.Phi());
     PPh.Boost(PP.BoostVector());
-    CalculateVariables();
-    return 0;
-    double W2 = Mp * Mp + 2.0 * PP * Pq - Q2;
+    //CalculateVariables();
+    double W2 = Mp * Mp + 2.0 * (PP * Pq) - Q2;
     if (W2 < pow(Mp + Mpi0, 2)){//below the lowest threshold
       physics_control = false;
       return 0;
@@ -477,9 +477,7 @@ int Lsidis::CalculateFinalState(){//Calculate scattered electron and detected ha
     perror("Initial state missing for final state calculation!");
     return -1;
   }
-}
-
-    
+}   
 
 double Lsidis::GetVariable(const char * var){//get current variable
   if (!physics_control){
@@ -504,11 +502,11 @@ double Lsidis::GetVariable(const char * var){//get current variable
   }
 }
 
-int Lsidis::SetVariables(const double x0, const double y0, const double z0, const double Pt20, const double phih0, const double phiS0){//Set variables x, y, z, Pt2, phih, phiS
+int Lsidis::SetVariables(const double x0, const double y0, const double z0, const double Pt0, const double phih0, const double phiS0){//Set variables x, y, z, Pt2, phih, phiS
   x = x0;
   y = y0;
   z = z0;
-  Pt = sqrt(Pt20);
+  Pt = Pt0;
   phih = phih0;
   phiS = phiS0;
   st_lp = true;
@@ -631,7 +629,7 @@ double Lsidis::GenerateEvent(const int mode = 0, const int method = 0){//Generat
     var[i] = gRandom->Uniform(Xmin[i], Xmax[i]);
   }
   if (method == 0){//generate in x, y, z, Pt2, phih, phiS
-    jacobian = 1.0;
+    jacobian = 2.0 * var[3];
     SetVariables(var[0], var[1], var[2], var[3], var[4], var[5]);
     CalculateFinalState();
     weight = dsigma(mode);
@@ -643,12 +641,8 @@ double Lsidis::GenerateEvent(const int mode = 0, const int method = 0){//Generat
   return weight * volume * jacobian;
 }
 
-
-
 int Lsidis::Test(){//Test code
-  for (int i = 0; i < 6; i++){
-    std::cout << D1[i] << std::endl;
-  }
+  std::cout << x << "  " << y << "  " << z << "  " << Pt << "  " << phih << "  " << phiS << std::endl;
   return 0;
 }
 
