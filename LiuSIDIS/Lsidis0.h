@@ -3,7 +3,7 @@
 //LHAPDF is required. Developed with v6.1
 //ROOT is required. Developed with v5.34.21
 //Potential error with other versions not tested
-//Last update date 03 Nov. 2016 version 0.0
+//Last update date 06 Nov. 2016 version 0.0
 
 #ifndef _LSIDIS_H_
 #define _LSIDIS_H_
@@ -99,6 +99,8 @@ class Lsidis{
   int SetNucleus(const double np, const double nn, const double pp, const double pn);//Set incoming nucleus
   int CheckNucleus();
   int SetHadron(const char * hadron);//Set detected hadron
+  int GetHadronID();//Get pid of the detected hadron
+  int GetHadronCharge();//Get charge of the detected hadron
   int CheckHadron();
   int SetPDFset(const char * set);//Set unpolarized collinear PDF set
   int CheckPDFset();
@@ -227,6 +229,14 @@ int Lsidis::SetHadron(const char * hadron){//set final hadron
   strcpy(hname, hadron);
   st_hadron = true;
   return 0;
+}
+
+int Lsidis::GetHadronID(){//get pid of the detected hadron
+  return hid;
+}
+
+int Lsidis::GetHadronCharge(){//get charge of the detected hadron
+  return hic;
 }
 
 int Lsidis::CheckHadron(){//check the status of final hadron
@@ -628,7 +638,7 @@ double Lsidis::GenerateEvent(const int mode = 0, const int method = 0){//Generat
   for (int i = 0; i < 6; i++){
     var[i] = gRandom->Uniform(Xmin[i], Xmax[i]);
   }
-  if (method == 0){//generate in x, y, z, Pt2, phih, phiS
+  if (method == 0){//generate in x, y, z, Pt, phih, phiS
     jacobian = 2.0 * var[3];
     SetVariables(var[0], var[1], var[2], var[3], var[4], var[5]);
     CalculateFinalState();
