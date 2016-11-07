@@ -644,6 +644,13 @@ double Lsidis::GenerateEvent(const int mode = 0, const int method = 0){//Generat
     CalculateFinalState();
     weight = dsigma(mode);
   }
+  else if (method == 1){//generate in x, Q2, z, Pt, phih, phiS
+    double y0 = var[1] / (2.0 * var[0] * (PP * Pl));
+    jacobian = 2.0 * var[3] * y0 / var[1];
+    SetVariables(var[0], y0, var[2], var[3], var[4], var[5]);
+    CalculateFinalState();
+    weight = dsigma(mode);
+  }
   else {
     perror("No such method choice!");
     return -1;
