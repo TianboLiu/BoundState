@@ -107,8 +107,38 @@ double GoldEnergy(const double * E0, const double * par){
   return result / 0.0433967;//Normalized missing energy distribution
 }
 
-TF1 TF_fp("fp", GoldMomentum, 0.0, 1.0, 0);//set bound N momentum distri
-TF1 TF_fE("fE", GoldEnergy, 0.0, 0.3, 0);//set bound N missing energy distri
+double CarbonMomentum(const double * p0, const double * par){//non-normalized
+  double p = p0[0];//nucleon momentum in C12 in unit of GeV
+  if (p < 0.0){
+    std::cerr << "Unphysical momentum value in CarbonMomentum!" << std::endl;
+    return -1.0;
+  }
+  double A0 = 10.6552;
+  double A2 = 32.3105;
+  double B2 = 8.43226;
+  double result = (A0 + pow(A2 * p, 2)) * exp(-pow(B2 * p, 2));
+  return p * p * result / 0.0241519;//Normalized momentum distribution
+}
+
+double CarbonEnergy(const double * E0, const double * par){
+  double E = E0[0];//nucleon missing energy in C12 in unit of GeV
+  if (E <= 0.0){
+    std::cerr << "Unphysical energy value in CarbonEnergy!" << std::endl;
+    return -1.0;
+  }
+  double A1 = 0.569161;
+  double a1 = 0.0175;
+  double b1 = 0.00510586;
+  double A2 = 0.0683607;
+  double a2 = 0.0369238;
+  double b2 = 0.0173035;
+  double result = A1 * exp(-pow((E - a1) / b1, 2)) + A2 * exp(-pow((E - a2) / b2, 2));
+  return result / 0.00724478;//Normalized missing energy distribution
+}
+
+
+TF1 TF_fp("fp", CarbonMomentum, 0.0, 1.0, 0);//set bound N momentum distri
+TF1 TF_fE("fE", CarbonEnergy, 0.0, 0.3, 0);//set bound N missing energy distri
 TF1 TF_BWPhi("BWPhi", BreitWigner, 0.819, 1.219, 2);//set phi mass distri
 TF1 TF_BWL1520("BWL1520", BreitWigner, 1.43195, 1.600, 2);//set Lambda1520 mass distri
 TF1 TF_BWd("BWd", BreitWigner, 1.900, 2.000, 2);//set bound state mass distri
@@ -715,7 +745,7 @@ double GeneratePhotoproductionBoundStateGold(const TLorentzVector * ki, TLorentz
   double dEddMd = Pout2.M() / Pout2.E();
   double Jac_d = std::abs(1.0 / dEpdQ / dEddMd);
   double w2 = Amp2 * distri_Md * Jac_d;//total weight of step 2
-  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E()) * (MA - p1.E() - p2.E()) / sqrt(pow(2.0 * M_PI, 3) * p1.E() * p2.E());
+  double Nor = MA * (MA - p1.E() - p2.E());
   double vol = (4.0 * M_PI) / ( pow(2.0 * M_PI, 3) * 2.0 * Ep0) / ( pow(2.0 * M_PI, 3) * 2.0 * Pout2.E()) / ( pow(2.0 * M_PI, 3) * 2.0 * (MA - p1.E() - p2.E()));
   double Flux = 4.0 * ki[0].E() * MA;
   weight[0] = Nor * w1 * w2 * vol / Flux;//total weight
@@ -776,7 +806,7 @@ double GenerateElectroproductionBoundStateGold(const TLorentzVector * ki, TLoren
   double dEddMd = Pout2.M() / Pout2.E();
   double Jac_d = std::abs(1.0 / dEpdQ / dEddMd);
   double w2 = Amp2 * distri_Md * Jac_d;//total weight of step 2
-  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E()) * (MA - p1.E() - p2.E()) / sqrt(pow(2.0 * M_PI, 3) * p1.E() * p2.E());
+  double Nor = MA * (MA - p1.E() - p2.E());
   double vol = (4.0 * M_PI) / ( pow(2.0 * M_PI, 3) * 2.0 * Ep0) / ( pow(2.0 * M_PI, 3) * 2.0 * Pout2.E()) / ( pow(2.0 * M_PI, 3) * 2.0 * (MA - p1.E() - p2.E()));
   double Flux = 4.0 * ki[0].E() * MA;
   weight[0] = Nor * w0 * prop * w1 * w2 * vol / Flux;//total weight
