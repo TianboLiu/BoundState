@@ -1,16 +1,17 @@
-#include "spectra.h"
+//#include "spectra.h"
+#include "spectra_gold.h"
 
 using namespace std;
 
 int main(int argc, char * argv[]){
   char * control = argv[1];
   if (strcmp("set", control) == 0){
-    makesetgold();
+    makeset();
   }
   if (strcmp("read", control) == 0){
     readset(argv[2]);
   }
-  if (strcmp("fit", control) == 0){
+  if (strcmp("momentum", control) == 0){
     readset(argv[2]);
     FitMissingMomentum();
   }
