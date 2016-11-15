@@ -5,7 +5,7 @@ using namespace std;
 int main(int argc, char * argv[]){
   char * control = argv[1];
   if (strcmp("set", control) == 0){
-    makeset();
+    makesetgold();
   }
   if (strcmp("read", control) == 0){
     readset(argv[2]);

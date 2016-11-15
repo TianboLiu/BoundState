@@ -71,6 +71,34 @@ int makeset(){
   return 0;
 }
 
+int makesetgold(){
+  double pm, sm, errp, errs;
+  double scale = 1.0e8;
+  TString tfiles[4] = {"spm_all/gaspmderad80.out","spm_all/gbspmderad80.out","spm_all/gcspmderad80.out","spm_all/gdspmderad80.out"};
+  FILE * gft = fopen("gft.dat", "w");
+  for (int i = 0; i < 4; i++){
+    std::ifstream infile(tfiles[i]);
+    while (infile >> pm >> sm >> errp >> errs){
+      if (sm < 1.0e-12) continue;
+      fprintf(gft, "%.4E  %.4E  %.4E  %.4E\n", pm*1.0e-3, sm*scale, errp*1.0e-3, errs*scale);
+    }
+    infile.close();
+  }
+  fclose(gft);
+  TString gefile[1] = {"sem_all/gbsemderad.out"};
+  FILE * get = fopen("get.dat", "w");
+  for (int i = 0; i < 1; i++){
+    std::ifstream infile(gefile[i]);
+    while (infile >> pm >> sm >> errp >> errs){
+      if (errs < 1.0e-12) continue;//errs = 1.0e-6;
+      fprintf(get, "%.4E  %.4E  %.4E  %.4E\n", pm*1.0e-3, sm, errp*1.0e-3, errs);
+    }
+    infile.close();
+  }
+  fclose(get);
+  return 0;
+}
+
 int readset(char * filename){
   std::ifstream infile(filename);
   int Np = 0;
@@ -142,7 +170,7 @@ int FitMissingMomentum(const char * minName = "Minuit", const char * algoName = 
 
 double MissingEnergy(double * x, const double * par){
   double E = x[0];
-  double E0 = 0.0125;
+  //double E0 = 0.0125;
   //if (E < E0) return 0;
   double A1 = par[0];
   double a1 = par[1];
