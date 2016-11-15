@@ -136,9 +136,8 @@ double CarbonEnergy(const double * E0, const double * par){
   return result / 0.00724478;//Normalized missing energy distribution
 }
 
-
-TF1 TF_fp("fp", CarbonMomentum, 0.0, 1.0, 0);//set bound N momentum distri
-TF1 TF_fE("fE", CarbonEnergy, 0.0, 0.3, 0);//set bound N missing energy distri
+TF1 TF_fp("fp", GoldMomentum, 0.0, 1.0, 0);//set bound N momentum distri
+TF1 TF_fE("fE", GoldEnergy, 0.0, 0.3, 0);//set bound N missing energy distri
 TF1 TF_BWPhi("BWPhi", BreitWigner, 0.819, 1.219, 2);//set phi mass distri
 TF1 TF_BWL1520("BWL1520", BreitWigner, 1.43195, 1.600, 2);//set Lambda1520 mass distri
 TF1 TF_BWd("BWd", BreitWigner, 1.900, 2.000, 2);//set bound state mass distri
