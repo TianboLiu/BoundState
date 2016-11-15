@@ -715,7 +715,7 @@ double GeneratePhotoproductionBoundStateGold(const TLorentzVector * ki, TLorentz
   double dEddMd = Pout2.M() / Pout2.E();
   double Jac_d = std::abs(1.0 / dEpdQ / dEddMd);
   double w2 = Amp2 * distri_Md * Jac_d;//total weight of step 2
-  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E());
+  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E()) * (MA - p1.E() - p2.E()) / sqrt(pow(2.0 * M_PI, 3) * p1.E() * p2.E());
   double vol = (4.0 * M_PI) / ( pow(2.0 * M_PI, 3) * 2.0 * Ep0) / ( pow(2.0 * M_PI, 3) * 2.0 * Pout2.E()) / ( pow(2.0 * M_PI, 3) * 2.0 * (MA - p1.E() - p2.E()));
   double Flux = 4.0 * ki[0].E() * MA;
   weight[0] = Nor * w1 * w2 * vol / Flux;//total weight
@@ -776,7 +776,7 @@ double GenerateElectroproductionBoundStateGold(const TLorentzVector * ki, TLoren
   double dEddMd = Pout2.M() / Pout2.E();
   double Jac_d = std::abs(1.0 / dEpdQ / dEddMd);
   double w2 = Amp2 * distri_Md * Jac_d;//total weight of step 2
-  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E());
+  double Nor = 2.0 * MA * 2.0 * (p1.E() + p2.E()) * (MA - p1.E() - p2.E()) / sqrt(pow(2.0 * M_PI, 3) * p1.E() * p2.E());
   double vol = (4.0 * M_PI) / ( pow(2.0 * M_PI, 3) * 2.0 * Ep0) / ( pow(2.0 * M_PI, 3) * 2.0 * Pout2.E()) / ( pow(2.0 * M_PI, 3) * 2.0 * (MA - p1.E() - p2.E()));
   double Flux = 4.0 * ki[0].E() * MA;
   weight[0] = Nor * w0 * prop * w1 * w2 * vol / Flux;//total weight
