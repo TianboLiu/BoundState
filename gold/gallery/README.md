@@ -5,4 +5,4 @@ CLAS12 + BONUS + Forward tagger
 
 0.01383 cm gold target
 
-10^35 eN cm$^-2$ s^-1 luminosity
+10^35 eN cm^-2 s^-1 luminosity
