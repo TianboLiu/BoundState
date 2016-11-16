@@ -1,0 +1,21 @@
+Ebeam: 3.3
+
+Signal/h:   6.27809
+Smeared:    6.27809
+After cut:  5.40391
+Smear & cut:5.39066
+
+Total/h:    4638.94
+Smeared:    4638.94
+After cut:  5.50962
+Smear & cut:5.49852
+
+Signal/h:   5.90356
+Smeared:    5.81114
+After cut:  5.10916
+Smear & cut:5.01393
+
+Total/h:    9.21194
+Smeared:    9.12429
+After cut:  5.15297
+Smear & cut:5.05818
