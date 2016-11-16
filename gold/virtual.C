@@ -14,7 +14,7 @@ int main(int argc, char * argv[]){
   double weight;
   ki[0].SetXYZT(0, 0, sqrt(Eb*Eb+Q2), Eb);
 
-  Long64_t Nsim = 100000000;
+  Long64_t Nsim = 500000000;
   
   TH1D * h0 = new TH1D("h0", "", 1, 0.0, 1.0);
   TH1D * h1 = new TH1D("h1", "", 1, 0.0, 1.0);
