@@ -171,7 +171,7 @@ int makeFQ(const char * fFQ = "FQ.dat"){//Q in unit GeV;
   ig.SetFunction(&FQint, &Q);
   ig.SetAbsTolerance(0.0);
   ig.SetRelTolerance(0.001);
-  for (Q = 0.0; Q < 0.3; Q+=0.001){
+  for (Q = 0.0; Q < 0.8; Q+=0.001){
     fprintf(fp, "%.4E  %.8E\n", Q, ig.Integral(0.0, 2.5 * GeVfm));
   }
   fprintf(fp, "%.4E  %.8E\n", 0.3, 0.0);
