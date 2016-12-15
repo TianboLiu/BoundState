@@ -213,6 +213,8 @@ int main(int argc, char * argv[]){
   //h5->Draw("same");
   leg0->Draw("same");
   c0->Print("signal_background.pdf");
+  c0->Print("Plot/signal_background.C");
+  c0->Print("Plot/signal_background.root");
 
   TLegend * leg2 = new TLegend(0.62, 0.7, 0.9, 0.9);
   leg2->AddEntry(g0, "with bound state", "p");
@@ -231,6 +233,8 @@ int main(int argc, char * argv[]){
   g4->Draw("psame");
   leg2->Draw("same");
   c2->Print("momentumcorrelation.pdf");
+  c2->Print("Plot/momentumcorrelation.C");
+  c2->Print("Plot/momentumcorrelation.root");
 
   TCanvas * c3 = new TCanvas("c3", "c3", 800, 600);
   b2DL->Draw();
@@ -242,6 +246,8 @@ int main(int argc, char * argv[]){
   g4->Draw("psame");
   leg2->Draw("same");
   c3->Print("momentumcorrelation_large.pdf");
+  c3->Print("Plot/momentumcorrelation_large.C");
+  c3->Print("Plot/momentumcorrelation_large.root");
 
   return 0;
 }

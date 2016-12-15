@@ -455,6 +455,8 @@ int main(int argc, char * argv[]){
   //h4->Draw("same");
   leg->Draw("same");
   cc->Print("signal_background_detected.pdf");
+  cc->Print("Plot/signal_background_detected.C");
+  cc->Print("Plot/signal_background_detected.root");
 
   TCanvas * ccp = new TCanvas("ccp", "", 800, 600);
   hmax = h4p->GetMaximum();
@@ -475,6 +477,8 @@ int main(int argc, char * argv[]){
   //h4p->Draw("same");
   legp->Draw("same");
   ccp->Print("signal_background_momentemcut_detected.pdf");
+  ccp->Print("Plot/signal_background_momentemcut_detected.C");
+  ccp->Print("Plot/signal_background_momentemcut_detected.root");
 
   TCanvas * ccs = new TCanvas("ccs", "", 800, 600);
   hmax = h1s->GetMaximum();
@@ -495,6 +499,8 @@ int main(int argc, char * argv[]){
   //h4s->Draw("same");
   legs->Draw("same");
   ccs->Print("signal_background_smear_detected.pdf");
+  ccs->Print("Plot/signal_background_smear_detected.C");
+  ccs->Print("Plot/signal_background_smear_detected.root");
 
   TCanvas * ccsp = new TCanvas("ccsp", "", 800, 600);
   hmax = h4sp->GetMaximum();
@@ -515,7 +521,8 @@ int main(int argc, char * argv[]){
   //h4sp->Draw("same");
   legsp->Draw("same");
   ccsp->Print("signal_background_smear_momentumcut_detected.pdf");
-
+  ccsp->Print("Plot/signal_background_smear_momentumcut_detected.C");
+  ccsp->Print("Plot/signal_background_smear_momentumcut_detected.root");
 
   int bin_low = hB->FindBin(1.94);
   int bin_high = hB->FindBin(1.96);
