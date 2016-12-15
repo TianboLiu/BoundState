@@ -152,7 +152,7 @@ int SetFunctions(){
   TF_BWL1520.SetParameter(1, 0.0156);//Set Lambda1520 width
   TF_BWL1520.SetNpx(2000);
   TF_BWd.SetParameter(0, 1.950027);//Set bound state mass real part
-  TF_BWd.SetParameter(1, 0.002118);//Set bound state width
+  TF_BWd.SetParameter(1, 0.004094);//Set bound state width
   TF_BWd.SetNpx(4000);
   return 0;
 }
@@ -734,7 +734,7 @@ double GeneratePhotoproductionBoundStateGold(const TLorentzVector * ki, TLorentz
   }
   kf[1] = Pout2;//Set final bound state 4-momentum
   double Amp2 = pow(AmplitudeBoundStateFormation(ki2, &Pout2), 2);//Get invariant amplitude square of bound state formation
-  const double Normal_d = 194.383;//bound state mass distribution normalization
+  const double Normal_d = 98.2728;//bound state mass distribution normalization
   double distri_Md = TF_BWd.Eval(Pout2.M()) / Normal_d;//mass matching weight
   double Q = GetRelativeMomentum(kf1);//Get relative momentum of phi p system in c.m. frame
   double Ep0 = sqrt(Mp * Mp + Q * Q);
@@ -795,7 +795,7 @@ double GenerateElectroproductionBoundStateGold(const TLorentzVector * ki, TLoren
   }
   kf[2] = Pout2;//Set final bound state 4-momentum
   double Amp2 = pow(AmplitudeBoundStateFormation(ki2, &Pout2), 2);//Get invariant amplitude square of bound state formation
-  const double Normal_d = 194.383;//bound state mass distribution normalization
+  const double Normal_d = 98.2728;//bound state mass distribution normalization
   double distri_Md = TF_BWd.Eval(Pout2.M()) / Normal_d;//mass matching weight
   double Q = GetRelativeMomentum(kf1);//Get relative momentum of phi p system in c.m. frame
   double Ep0 = sqrt(Mp * Mp + Q * Q);
@@ -884,7 +884,7 @@ double GenerateEvent_NKKN_withPhotoproductionBoundStateGold(const TLorentzVector
   kf[1] = kf2[1];//Set K+
   kf[2] = kf2[2];//Set K-
   kf[3] = kf2[0];//Set proton decayed from bound state
-  double Br = 0.919 * 0.489;//Branch ratio of bound state to NK+K-
+  double Br = 0.951 * 0.489;//Branch ratio of bound state to NK+K-
   weight[0] = scale * w1 * w2 * Br;
   return weight[0];
 }
@@ -961,7 +961,7 @@ double GenerateEvent_eNKKN_withElectroproductionBoundStateGold(const TLorentzVec
   kf[2] = kf2[1];//Set K+
   kf[3] = kf2[2];//Set K-
   kf[4] = kf2[0];//Set proton decayed from bound state
-  double Br = 0.919 * 0.489;//Branch ratio of bound state to NK+K-
+  double Br = 0.951 * 0.489;//Branch ratio of bound state to NK+K-
   weight[0] = scale * w1 * w2 * Br;
   return weight[0];
 }
