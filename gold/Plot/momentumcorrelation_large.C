@@ -9,25 +9,32 @@
    c3->SetBorderMode(0);
    c3->SetBorderSize(2);
    c3->SetFrameBorderMode(0);
-   c3->SetFrameBorderMode(0);
+   c3->SetFrameBorderSize(2);
+   c3->SetBottomMargin(0.15);
+   c3->SetLeftMargin(0.15);
    
-   TH2D *b2DL = new TH2D("b2DL","proton kaon momentum correlation",1,0,2,1,0,2);
+   TH2D *b2DL = new TH2D("b2DL","",1,0,2,1,0,2);
+  
+   b2DL->SetTitleSize(0.06);
+   b2DL->SetTitle("P(p)-P(K) distributions");
 
    Int_t ci;      // for color index setting
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    b2DL->SetLineColor(ci);
-   b2DL->GetXaxis()->SetTitle("P(K) / GeV");
+   b2DL->GetXaxis()->SetTitle("P(K)/GeV");
    b2DL->GetXaxis()->CenterTitle(true);
+   b2DL->GetXaxis()->SetTitleOffset(1.15);
    b2DL->GetXaxis()->SetLabelFont(42);
-   b2DL->GetXaxis()->SetLabelSize(0.035);
-   b2DL->GetXaxis()->SetTitleSize(0.05);
+   b2DL->GetXaxis()->SetLabelSize(0.055);
+   b2DL->GetXaxis()->SetTitleSize(0.06);
    b2DL->GetXaxis()->SetTitleFont(42);
-   b2DL->GetYaxis()->SetTitle("P(p) / GeV");
+   b2DL->GetYaxis()->SetTitle("P(p)/GeV");
    b2DL->GetYaxis()->CenterTitle(true);
+   b2DL->GetYaxis()->SetTitleOffset(1.15);
    b2DL->GetYaxis()->SetLabelFont(42);
-   b2DL->GetYaxis()->SetLabelSize(0.035);
-   b2DL->GetYaxis()->SetTitleSize(0.05);
+   b2DL->GetYaxis()->SetLabelSize(0.055);
+   b2DL->GetYaxis()->SetTitleSize(0.06);
    b2DL->GetYaxis()->SetTitleFont(42);
    b2DL->GetZaxis()->SetLabelFont(42);
    b2DL->GetZaxis()->SetLabelSize(0.035);
@@ -6226,14 +6233,14 @@
    
    graph->Draw("p");
    
-   TLegend *leg = new TLegend(0.62,0.7,0.9,0.9,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.6,0.68,0.9,0.9,NULL,"brNDC");
    leg->SetBorderSize(1);
    leg->SetLineColor(1);
    leg->SetLineStyle(1);
    leg->SetLineWidth(1);
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
-   TLegendEntry *entry=leg->AddEntry("Graph0","with bound state","p");
+   TLegendEntry *entry=leg->AddEntry("Graph0","pK^{+}K^{-} from N_{s#bar{s}}","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6241,7 +6248,7 @@
    entry->SetMarkerStyle(20);
    entry->SetMarkerSize(0.3);
    entry->SetTextFont(42);
-   entry=leg->AddEntry("Graph1","with bound state","p");
+   entry=leg->AddEntry("Graph1","only K^{+}K^{-} from N_{s#bar{s}}","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6249,7 +6256,7 @@
    entry->SetMarkerStyle(24);
    entry->SetMarkerSize(0.2);
    entry->SetTextFont(42);
-   entry=leg->AddEntry("Graph2","with #phi production","p");
+   entry=leg->AddEntry("Graph2","#phi production","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6257,7 +6264,7 @@
    entry->SetMarkerStyle(26);
    entry->SetMarkerSize(0.2);
    entry->SetTextFont(42);
-   entry=leg->AddEntry("Graph3","with #Lambda(1520) prod. (K^{+})","p");
+   entry=leg->AddEntry("Graph3","#Lambda(1520) production (K^{+})","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6265,7 +6272,7 @@
    entry->SetMarkerStyle(25);
    entry->SetMarkerSize(0.2);
    entry->SetTextFont(42);
-   entry=leg->AddEntry("Graph4","with #Lambda(1520) prod. (K^{-})","p");
+   entry=leg->AddEntry("Graph4","#Lambda(1520) production (K^{-})","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6273,7 +6280,7 @@
    entry->SetMarkerStyle(25);
    entry->SetMarkerSize(0.2);
    entry->SetTextFont(42);
-   entry=leg->AddEntry("Graph5","direct production","p");
+   entry=leg->AddEntry("Graph5","direct KK production","p");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
    entry->SetLineWidth(1);
@@ -6294,4 +6301,6 @@
    c3->Modified();
    c3->cd();
    c3->SetSelected(c3);
+
+   c3->Print("momentumcorrelation.pdf");
 }
