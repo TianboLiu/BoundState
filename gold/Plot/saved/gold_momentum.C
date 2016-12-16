@@ -18,7 +18,7 @@
 
    TH1D *unnamed = new TH1D("unnamed","",1,-0.31,0.31);
    unnamed->SetMinimum(0);
-   unnamed->SetMaximum(80);
+   unnamed->SetMaximum(80/scale);
    unnamed->SetStats(0);
 
    Int_t ci;      // for color index setting
