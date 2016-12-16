@@ -137,7 +137,7 @@
    Graph_Graph2->GetXaxis()->SetTitleSize(0.06);
    Graph_Graph2->GetXaxis()->SetTitleOffset(1.15);
    Graph_Graph2->GetXaxis()->SetTitleFont(42);
-   Graph_Graph2->GetYaxis()->SetTitle("V_{eff }/GeV");
+   Graph_Graph2->GetYaxis()->SetTitle("V_{eff} / GeV");
    Graph_Graph2->GetYaxis()->CenterTitle(true);
    Graph_Graph2->GetYaxis()->SetNdivisions(504);
    Graph_Graph2->GetYaxis()->SetLabelFont(42);
