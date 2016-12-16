@@ -116,6 +116,7 @@ int FitMissingMomentum(const char * minName = "Minuit", const char * algoName = 
   g0->Draw("pesame");
   f0->Draw("same");
   c0->Print("gold_momentum.pdf");
+  c0->Print("gold_momentum.C");
   return 0;
 }
 
@@ -178,6 +179,7 @@ int FitMissingEnergy(const char * minName = "Minuit", const char * algoName = "M
   g0->Draw("pesame");
   f0->Draw("same");
   c0->Print("gold_energy.pdf");
+  c0->Print("gole_energy.C");
   return 0;
 }
 
