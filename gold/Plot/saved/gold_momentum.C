@@ -7,7 +7,7 @@
    TCanvas *c0 = new TCanvas("c0", "c0",0,0,800,600);
    gStyle->SetOptStat(0);
    c0->SetHighLightColor(2);
-   c0->Range(-0.3875,-10,0.3875,90);
+   c0->Range(-0.3875,-10/scale,0.3875,90/scale);
    c0->SetFillColor(0);
    c0->SetBorderMode(0);
    c0->SetBorderSize(2);
@@ -35,7 +35,7 @@
    unnamed->GetYaxis()->SetTitle("f(p) / GeV^{-3}");
    unnamed->GetYaxis()->CenterTitle(true);
    unnamed->GetYaxis()->SetLabelFont(42);
-   unnamed->GetYaxis()->SetLabelOffset(1.15);
+   unnamed->GetYaxis()->SetTitleOffset(1.15);
    unnamed->GetYaxis()->SetLabelSize(0.055);
    unnamed->GetYaxis()->SetTitleSize(0.06);
    unnamed->GetYaxis()->SetTitleFont(42);
