@@ -27,12 +27,14 @@
    unnamed->SetLineColor(ci);
    unnamed->GetXaxis()->SetTitle("E / GeV");
    unnamed->GetXaxis()->CenterTitle(true);
+   unnamed->GetXaxis()->SetNdivisions(505);
    unnamed->GetXaxis()->SetLabelFont(42);
    unnamed->GetXaxis()->SetLabelSize(0.055);
    unnamed->GetXaxis()->SetTitleSize(0.06);
    unnamed->GetXaxis()->SetTitleOffset(1.15);
    unnamed->GetXaxis()->SetTitleFont(42);
    unnamed->GetYaxis()->SetTitle("f(E)");
+   unnamed->GetYaxis()->CenterTitle(true);
    unnamed->GetYaxis()->SetLabelFont(42);
    unnamed->GetYaxis()->SetTitleOffset(1.15);
    unnamed->GetYaxis()->SetLabelSize(0.055);
