@@ -45,7 +45,7 @@
    ci = TColor::GetColor("#000099");
    Graph_Graph1->SetLineColor(ci);
    Graph_Graph1->GetXaxis()->SetTitle("E_{#gamma} / GeV");
-   Graph_Graph1->GetXaxis()->SetRange(1,2);
+   Graph_Graph1->GetXaxis()->SetRangeUser(1,2);
    Graph_Graph1->GetXaxis()->CenterTitle(true);
    Graph_Graph1->GetXaxis()->SetLabelFont(42);
    Graph_Graph1->GetXaxis()->SetLabelSize(0.055);
@@ -59,7 +59,7 @@
    Graph_Graph1->GetYaxis()->SetTitleSize(0.06);
    Graph_Graph1->GetYaxis()->SetTitleOffset(1.15);
    Graph_Graph1->GetYaxis()->SetTitleFont(42);
-   Graph_Graph1->GetYaxis()->SetRange(1,10000);
+   Graph_Graph1->GetYaxis()->SetRangeUser(1,10000);
    Graph_Graph1->GetZaxis()->SetLabelFont(42);
    Graph_Graph1->GetZaxis()->SetLabelSize(0.035);
    Graph_Graph1->GetZaxis()->SetTitleSize(0.035);
