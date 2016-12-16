@@ -34,6 +34,7 @@
    unnamed->GetXaxis()->SetTitleFont(42);
    unnamed->GetYaxis()->SetTitle("f(p) / GeV^{-3}");
    unnamed->GetYaxis()->CenterTitle(true);
+   unnamed->GetYaxis()->SetNdivisions(505);
    unnamed->GetYaxis()->SetLabelFont(42);
    unnamed->GetYaxis()->SetTitleOffset(1.15);
    unnamed->GetYaxis()->SetLabelSize(0.055);
