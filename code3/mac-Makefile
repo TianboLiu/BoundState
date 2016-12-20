@@ -1,0 +1,86 @@
+# A Generic Makefile for compiling ROOT programs
+# R. Michaels, rom@jlab.org, Aug 2001  See also README !!
+# Version of this release
+#
+
+ROOTLIBS      = $(shell root-config --evelibs) -lMathMore
+# option: --libs, --glibs
+LHAPDFLIBS    =
+# not installed yet
+GSLLIBS	      = $(shell gsl-config --libs)
+
+CXX           = g++-6 
+CLANG         = clang++
+CXXFLAGS      = -fopenmp
+ROOTFLAGS     = -Wall -frtti -fexceptions -fPIC  -DLINUXVERS $(shell root-config --cflags) -O
+LHAPDFFLAGS   =
+FFLAGS	      = -lgfortran -O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
+GSLFLAGS      = $(shell gsl-config --cflags)
+
+
+# Linux with g++
+INCLUDES      = 
+
+LD            = g++-6
+LDFLAGS       = -O3 $(shell root-config --ldflags)
+
+LIBS          = $(ROOTLIBS) $(LHAPDFLIBS) $(GSLLIBS)
+FLAGS         = $(CXXFLAGS) $(LHAPDFFLAGS) $(GSLFLAGS) $(ROOTFLAGS)
+
+ALL_LIBS =  $(LIBS) $(FLAGS) -std=c++1y
+
+# The following sources comprise the package of scaler classes by R. Michaels.
+# O = main
+SRC = $(O).C
+
+HEAD = $(SRC:.C=.h)
+DEPS = $(SRC:.C=.d)
+SCALER_OBJS = $(SRC:.C=.o)
+
+F_OBJS = 
+cc_OBJS =
+total_OBJS = $(F_OBJS) $(cc_OBJS)
+
+# Test code executibles
+PROGS = $(O)
+
+%.o: %.f
+	$(CXX) $(FFLAGS) -c $< -o $@
+
+%.o: %.cc
+	$(CXX) $(ALL_LIBS) -c $< -o $@ 
+
+$(O): $(O).o $(O).C $(total_OBJS)
+	rm -f $@
+	$(CXX) -o $@ $(O).o $(ALL_LIBS) $(total_OBJS)
+
+
+clean:
+	rm -f *.o core *~ *.d *.tar $(PROGS)
+
+realclean:  clean
+	rm -f *.d
+
+###
+
+.SUFFIXES:
+.SUFFIXES: .c .cc .cpp .C .o .d
+
+%.o:	%.C
+	$(CXX) $(ALL_LIBS) -c $<
+
+%.d:	%.C
+	@echo Creating dependencies for $<
+	@$(SHELL) -ec '$(CXX) -MM $(ALL_LIBS) -c $< \
+		| sed '\''s/\($*\)\.o[ :]*/\1.o $@ : /g'\'' > $@; \
+		[ -s $@ ] || rm -f $@'
+
+-include $(DEPS)
+
+
+
+
+
+
+
+
