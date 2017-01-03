@@ -42,6 +42,9 @@
    hBsp->GetZaxis()->SetLabelSize(0.035);
    hBsp->GetZaxis()->SetTitleSize(0.035);
    hBsp->GetZaxis()->SetTitleFont(42);
+   hBsp->Scale(0.8);
+   hBsp->SetMinimum(0);
+   hBsp->SetMaximum(0.01785207*0.8);
    hBsp->Draw("");
    
    TH1D *h0sp = new TH1D("h0sp","",1000,1.88,2.32);
@@ -306,6 +309,7 @@
    h0sp->GetZaxis()->SetLabelSize(0.035);
    h0sp->GetZaxis()->SetTitleSize(0.035);
    h0sp->GetZaxis()->SetTitleFont(42);
+   h0sp->Scale(0.8);
    h0sp->Draw("same");
    
    TH1D *hh0sp = new TH1D("hh0sp","",1000,1.88,2.32);
@@ -599,6 +603,7 @@
    hh0sp->GetZaxis()->SetLabelSize(0.035);
    hh0sp->GetZaxis()->SetTitleSize(0.035);
    hh0sp->GetZaxis()->SetTitleFont(42);
+   hh0sp->Scale(0.8);
    hh0sp->Draw("same");
    
    TH1D *h1sp = new TH1D("h1sp","",1000,1.88,2.32);
@@ -820,6 +825,7 @@
    h1sp->GetZaxis()->SetLabelSize(0.035);
    h1sp->GetZaxis()->SetTitleSize(0.035);
    h1sp->GetZaxis()->SetTitleFont(42);
+   h1sp->Scale(0.8);
    h1sp->Draw("same");
    
    TH1D *h2sp = new TH1D("h2sp","",1000,1.88,2.32);
@@ -944,6 +950,7 @@
    h2sp->GetZaxis()->SetLabelSize(0.035);
    h2sp->GetZaxis()->SetTitleSize(0.035);
    h2sp->GetZaxis()->SetTitleFont(42);
+   h2sp->Scale(0.8);
    h2sp->Draw("same");
    
    TH1D *h3sp = new TH1D("h3sp","",1000,1.88,2.32);
@@ -1186,6 +1193,7 @@
    h3sp->GetZaxis()->SetLabelSize(0.035);
    h3sp->GetZaxis()->SetTitleSize(0.035);
    h3sp->GetZaxis()->SetTitleFont(42);
+   h3sp->Scale(0.8);
    h3sp->Draw("same");
    
    TLegend *leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
