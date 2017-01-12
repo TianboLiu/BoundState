@@ -140,7 +140,7 @@ TF1 TF_fp("fp", GoldMomentum, 0.0, 1.0, 0);//set bound N momentum distri
 TF1 TF_fE("fE", GoldEnergy, 0.0, 0.3, 0);//set bound N missing energy distri
 TF1 TF_BWPhi("BWPhi", BreitWigner, 0.819, 1.219, 2);//set phi mass distri
 TF1 TF_BWL1520("BWL1520", BreitWigner, 1.43195, 1.600, 2);//set Lambda1520 mass distri
-TF1 TF_BWd("BWd", BreitWigner, 1.900, 2.000, 2);//set bound state mass distri
+TF1 TF_BWd("BWd", BreitWigner, 1.880, 2.320, 2);//set bound state mass distri
 
 int SetFunctions(){
   TF_fp.SetNpx(500);
@@ -1066,14 +1066,14 @@ double CheckBONUS(const TLorentzVector * P, const char * particle = "K+", const 
   if (Ek < 0.0)//fail to get out off target
     return 0.0;
   double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
-  if (p < 0.06 || p > 0.25)//momentum out off BONUS coverage
+  if (p < 0.06 || p > 0.2)//momentum out off BONUS coverage
     return 0.0;
   double wd = 1.0;
   return wd;
 }
 
 double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 forward detector
-  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+  if (MomentumCut(P, 0.0, 0.2))//momentum below 250 MeV
     return 0.0;
   if (!PolarAngleCut(P, 5.0, 35.0, "deg"))//angle outside CLAS12 FA coverage
     return 0.0;
@@ -1094,7 +1094,7 @@ double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", con
   if (Ek < 0.0)//fail to get out off target
     return 0.0;
   double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
-  if (p < 0.25)//momentum out off BONUS coverage
+  if (p < 0.2)//momentum out off BONUS coverage
     return 0.0;
   double wd = 1.0;
   if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0){
@@ -1108,7 +1108,7 @@ double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", con
 }
 
 double CheckCLAS12LA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 central detector
-  if (MomentumCut(P, 0.0, 0.25))//momentum below 250 MeV
+  if (MomentumCut(P, 0.0, 0.2))//momentum below 250 MeV
     return 0.0;
   if (!PolarAngleCut(P, 35.0, 125.0, "deg"))//angle outside CLAS12 FA coverage
     return 0.0;
@@ -1129,7 +1129,7 @@ double CheckCLAS12LA(const TLorentzVector * P, const char * particle = "K+", con
   if (Ek < 0.0)//fail to get out off target
     return 0.0;
   double p = sqrt(pow(Ek+P->M(), 2) - P->M2());//Get momentum
-  if (p < 0.25)//momentum out off BONUS coverage
+  if (p < 0.2)//momentum out off BONUS coverage
     return 0.0;
   double wd = 1.0;
   if (strcmp(particle, "K+") == 0 || strcmp(particle, "K-") == 0){

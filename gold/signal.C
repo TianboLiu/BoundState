@@ -58,11 +58,17 @@ int main(int argc, char * argv[]){
   h4->SetLineColor(5);
 
   TH1D * hBs = new TH1D("hBs", "", 1000, 1.88, 2.32);
-  hBs->SetTitle("M(pK^{+}K^{-}) spectra");
+  hBs->SetTitle("before momentum cuts");
   hBs->GetXaxis()->SetTitle("M(pK^{+}K^{-}) / GeV");
-  hBs->GetXaxis()->CenterTitle();
-  hBs->GetXaxis()->SetTitleOffset(1.0);
-  hBs->GetXaxis()->SetTitleSize(0.05);
+  hBs->GetXaxis()->CenterTitle(true);
+  hBs->GetXaxis()->SetTitleOffset(1.15);
+  hBs->GetXaxis()->SetTitleSize(0.06);
+  hBs->GetXaxis()->SetLabelSize(0.055);
+  hBs->GetYaxis()->SetTitle("counts / hour");
+  hBs->GetYaxis()->CenterTitle(true);
+  hBs->GetYaxis()->SetLabelSize(0.055);
+  hBs->GetYaxis()->SetTitleSize(0.06);
+  hBs->GetYaxis()->SetTitleOffset(1.15);
   hBs->GetYaxis()->SetRangeUser(0.0, 1.0);
   TH1D * h0s = new TH1D("h0s", "", 1000, 1.88, 2.32);
   TH1D * hh0s = new TH1D("hh0s", "", 1000, 1.88, 2.32);
@@ -98,11 +104,20 @@ int main(int argc, char * argv[]){
   h4p->SetLineColor(5);
 
   TH1D * hBsp = new TH1D("hBsp", "", 1000, 1.88, 2.32);
-  hBsp->SetTitle("M(pK^{+}K^{-}) spectra");
+  hBsp->SetTitle("after momentum cuts");
   hBsp->GetXaxis()->SetTitle("M(pK^{+}K^{-}) / GeV");
-  hBsp->GetXaxis()->CenterTitle();
-  hBsp->GetXaxis()->SetTitleOffset(1.0);
-  hBsp->GetXaxis()->SetTitleSize(0.05);
+  hBsp->GetXaxis()->CenterTitle(true);
+  hBsp->GetXaxis()->SetLabelSize(0.055);
+  hBsp->GetXaxis()->SetTitleOffset(1.15);
+  hBsp->GetXaxis()->SetTitleOffset(1.15);
+  hBsp->GetXaxis()->SetTitleSize(0.06);
+  hBsp->GetYaxis()->SetTitle("counts / hour");
+  hBsp->GetYaxis()->CenterTitle(true);
+  hBsp->GetYaxis()->SetLabelFont(42);
+  hBsp->GetYaxis()->SetLabelSize(0.045);
+  hBsp->GetYaxis()->SetTitleSize(0.06);
+  hBsp->GetYaxis()->SetTitleFont(42);
+  hBsp->GetYaxis()->SetTitleOffset(1.15);
   hBsp->GetYaxis()->SetRangeUser(0.0, 1.0);
   TH1D * h0sp = new TH1D("h0sp", "", 1000, 1.88, 2.32);
   TH1D * hh0sp = new TH1D("hh0sp", "", 1000, 1.88, 2.32);
@@ -172,15 +187,15 @@ int main(int argc, char * argv[]){
 
 	P_all = P_p + P_Kp + P_Km;
 
-	h0->Fill(P0_all.M(), weight * ftotal / 2.0);
+	h0->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.5) && MomentumCut(&P0_Kp, 0.0, 0.35) && MomentumCut(&P0_Km, 0.0, 0.35))
-	  h0p->Fill(P0_all.M(), weight * ftotal / 2.0);
+	  h0p->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
-	h0s->Fill(P_all.M(), weight * ftotal / 2.0);
+	h0s->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.5) && MomentumCut(&P_Kp, 0.0, 0.35) && MomentumCut(&P_Km, 0.0, 0.35))
-	  h0sp->Fill(P_all.M(), weight * ftotal / 2.0);
+	  h0sp->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
       }
     }
 
@@ -232,15 +247,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	hh0->Fill(P0_all.M(), weight * ftotal / 2.0);
+	hh0->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.5) && MomentumCut(&P0_Kp, 0.0, 0.35) && MomentumCut(&P0_Km, 0.0, 0.35))
-	  hh0p->Fill(P0_all.M(), weight * ftotal / 2.0);
+	  hh0p->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
-	hh0s->Fill(P_all.M(), weight * ftotal / 2.0);
+	hh0s->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.5) && MomentumCut(&P_Kp, 0.0, 0.35) && MomentumCut(&P_Km, 0.0, 0.35))
-	  hh0sp->Fill(P_all.M(), weight * ftotal / 2.0);
+	  hh0sp->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
       }
     }
 
@@ -293,15 +308,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	h1->Fill(P0_all.M(), weight * ftotal / 2.0);
+	h1->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.5) && MomentumCut(&P0_Kp, 0.0, 0.35) && MomentumCut(&P0_Km, 0.0, 0.35))
-	  h1p->Fill(P0_all.M(), weight * ftotal / 2.0);
+	  h1p->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
-	h1s->Fill(P_all.M(), weight * ftotal / 2.0);
+	h1s->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.5) && MomentumCut(&P_Kp, 0.0, 0.35) && MomentumCut(&P_Km, 0.0, 0.35))
-	  h1sp->Fill(P_all.M(), weight * ftotal / 2.0);
+	  h1sp->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
       }
     }
 
@@ -354,15 +369,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	h2->Fill(P0_all.M(), weight * ftotal / 2.0);
+	h2->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.5) && MomentumCut(&P0_Kp, 0.0, 0.35) && MomentumCut(&P0_Km, 0.0, 0.35))
-	  h2p->Fill(P0_all.M(), weight * ftotal / 2.0);
+	  h2p->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
-	h2s->Fill(P_all.M(), weight * ftotal / 2.0);
+	h2s->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.5) && MomentumCut(&P_Kp, 0.0, 0.35) && MomentumCut(&P_Km, 0.0, 0.35))
-	  h2sp->Fill(P_all.M(), weight * ftotal / 2.0);
+	  h2sp->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
       }
     }
 
@@ -415,15 +430,15 @@ int main(int argc, char * argv[]){
 	P0_all = P0_p + P0_Kp + P0_Km;
 	P_all = P_p + P_Kp + P_Km;
 
-	h3->Fill(P0_all.M(), weight * ftotal / 2.0);
+	h3->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P0_p, 0.0, 0.5) && MomentumCut(&P0_Kp, 0.0, 0.35) && MomentumCut(&P0_Km, 0.0, 0.35))
-	  h3p->Fill(P0_all.M(), weight * ftotal / 2.0);
+	  h3p->Fill(P0_all.M(), weight * ftotal * 79.0/197.0);
 
-	h3s->Fill(P_all.M(), weight * ftotal / 2.0);
+	h3s->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
 
 	if (MomentumCut(&P_p, 0.0, 0.5) && MomentumCut(&P_Kp, 0.0, 0.35) && MomentumCut(&P_Km, 0.0, 0.35))
-	  h3sp->Fill(P_all.M(), weight * ftotal / 2.0);
+	  h3sp->Fill(P_all.M(), weight * ftotal * 79.0/197.0);
       }
     }
     
@@ -456,7 +471,6 @@ int main(int argc, char * argv[]){
   leg->Draw("same");
   cc->Print("signal_background_detected.pdf");
   cc->Print("Plot/signal_background_detected.C");
-  cc->Print("Plot/signal_background_detected.root");
 
   TCanvas * ccp = new TCanvas("ccp", "", 800, 600);
   hmax = h4p->GetMaximum();
@@ -478,16 +492,24 @@ int main(int argc, char * argv[]){
   legp->Draw("same");
   ccp->Print("signal_background_momentemcut_detected.pdf");
   ccp->Print("Plot/signal_background_momentemcut_detected.C");
-  ccp->Print("Plot/signal_background_momentemcut_detected.root");
 
   TCanvas * ccs = new TCanvas("ccs", "", 800, 600);
+  ccs->SetHighLightColor(2);
+  ccs->Range(1.825,-0.02166037,2.375,0.1949433);
+  ccs->SetFillColor(0);
+  ccs->SetBorderMode(0);
+  ccs->SetBorderSize(2);
+  ccs->SetFrameBorderMode(0);
+  ccs->SetFrameBorderMode(0);
+  ccs->SetLeftMargin(0.15);
+  ccs->SetBottomMargin(0.15);
   hmax = h1s->GetMaximum();
   hBs->GetYaxis()->SetRangeUser(0.0, 1.05 * hmax);
-  TLegend * legs = new TLegend(0.62, 0.7, 0.9, 0.9);
-  legs->AddEntry(h0s, "with bound state", "l");
-  legs->AddEntry(hh0s, "with bound state", "l");
-  legs->AddEntry(h1s, "with #phi production", "l");
-  legs->AddEntry(h2s, "with #Lambda(1520) prod.", "l");
+  TLegend * legs = new TLegend(0.6, 0.7, 0.9, 0.9, NULL, "brNDC");
+  legs->AddEntry(h0s, "pKK from bound state", "l");
+  legs->AddEntry(hh0s, "only KK from bound state", "l");
+  legs->AddEntry(h1s, "#phi production", "l");
+  legs->AddEntry(h2s, "#Lambda(1520) production", "l");
   legs->AddEntry(h3s, "direct KK production", "l");
   //legs->AddEntry(h4s, "total", "l");
   hBs->Draw();
@@ -500,16 +522,24 @@ int main(int argc, char * argv[]){
   legs->Draw("same");
   ccs->Print("signal_background_smear_detected.pdf");
   ccs->Print("Plot/signal_background_smear_detected.C");
-  ccs->Print("Plot/signal_background_smear_detected.root");
-
+ 
   TCanvas * ccsp = new TCanvas("ccsp", "", 800, 600);
+  ccsp->SetHighLightColor(2);
+  ccsp->Range(1.825,-0.002231509,2.375,0.02008358);
+  ccsp->SetFillColor(0);
+  ccsp->SetBorderMode(0);
+  ccsp->SetBorderSize(2);
+  ccsp->SetFrameBorderMode(0);
+  ccsp->SetFrameBorderMode(0);
+  ccsp->SetLeftMargin(0.15);
+  ccsp->SetBottomMargin(0.15);
   hmax = h4sp->GetMaximum();
   hBsp->GetYaxis()->SetRangeUser(0.0, 1.1 * hmax);
-  TLegend * legsp = new TLegend(0.62, 0.7, 0.9, 0.9);
-  legsp->AddEntry(h0sp, "with bound state", "l");
-  legsp->AddEntry(hh0sp, "with bound state", "l");
-  legsp->AddEntry(h1sp, "with #phi production", "l");
-  legsp->AddEntry(h2sp, "with #Lambda(1520) prod.", "l");
+  TLegend * legsp = new TLegend(0.6, 0.7, 0.9, 0.9);
+  legsp->AddEntry(h0sp, "pKK from bound state", "l");
+  legsp->AddEntry(hh0sp, "only KK from bound state", "l");
+  legsp->AddEntry(h1sp, "#phi production", "l");
+  legsp->AddEntry(h2sp, "#Lambda(1520) production", "l");
   legsp->AddEntry(h3sp, "direct KK production", "l");
   //legsp->AddEntry(h4sp, "total", "l");
   hBsp->Draw();
@@ -522,7 +552,6 @@ int main(int argc, char * argv[]){
   legsp->Draw("same");
   ccsp->Print("signal_background_smear_momentumcut_detected.pdf");
   ccsp->Print("Plot/signal_background_smear_momentumcut_detected.C");
-  ccsp->Print("Plot/signal_background_smear_momentumcut_detected.root");
 
   int bin_low = hB->FindBin(1.94);
   int bin_high = hB->FindBin(1.96);
