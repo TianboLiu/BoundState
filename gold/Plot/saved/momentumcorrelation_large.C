@@ -22,14 +22,14 @@
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    b2DL->SetLineColor(ci);
-   b2DL->GetXaxis()->SetTitle("P(K)/GeV");
+   b2DL->GetXaxis()->SetTitle("P(K) / GeV");
    b2DL->GetXaxis()->CenterTitle(true);
    b2DL->GetXaxis()->SetTitleOffset(1.15);
    b2DL->GetXaxis()->SetLabelFont(42);
    b2DL->GetXaxis()->SetLabelSize(0.055);
    b2DL->GetXaxis()->SetTitleSize(0.06);
    b2DL->GetXaxis()->SetTitleFont(42);
-   b2DL->GetYaxis()->SetTitle("P(p)/GeV");
+   b2DL->GetYaxis()->SetTitle("P(p) / GeV");
    b2DL->GetYaxis()->CenterTitle(true);
    b2DL->GetYaxis()->SetTitleOffset(1.15);
    b2DL->GetYaxis()->SetLabelFont(42);
