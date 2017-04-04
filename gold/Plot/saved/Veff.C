@@ -14,7 +14,7 @@
    
    TGraph *graph = new TGraph(100);
    graph->SetName("Graph0");
-   graph->SetTitle("effective potential");
+   graph->SetTitle("");
    graph->SetFillColor(1);
    graph->SetLineColor(4);
    graph->SetLineWidth(2);
@@ -119,7 +119,7 @@
    graph->SetPoint(98,4.9,0.0002202088987);
    graph->SetPoint(99,4.95,0.0001038157121);
    
-   TH1F *Graph_Graph2 = new TH1F("Graph_Graph2","effective potential",100,0,5.445);
+   TH1F *Graph_Graph2 = new TH1F("Graph_Graph2","",100,0,5.445);
    Graph_Graph2->SetMinimum(-0.6);
    Graph_Graph2->SetMaximum(0.2);
    Graph_Graph2->SetDirectory(0);
@@ -129,7 +129,7 @@
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    Graph_Graph2->SetLineColor(ci);
-   Graph_Graph2->GetXaxis()->SetTitle("r / fm");
+   Graph_Graph2->GetXaxis()->SetTitle("r (fm)");
    Graph_Graph2->GetXaxis()->SetRange(1,92);
    Graph_Graph2->GetXaxis()->CenterTitle(true);
    Graph_Graph2->GetXaxis()->SetLabelFont(42);
@@ -137,7 +137,7 @@
    Graph_Graph2->GetXaxis()->SetTitleSize(0.06);
    Graph_Graph2->GetXaxis()->SetTitleOffset(1.15);
    Graph_Graph2->GetXaxis()->SetTitleFont(42);
-   Graph_Graph2->GetYaxis()->SetTitle("V_{eff} / GeV");
+   Graph_Graph2->GetYaxis()->SetTitle("V_{eff} (GeV)");
    Graph_Graph2->GetYaxis()->CenterTitle(true);
    Graph_Graph2->GetYaxis()->SetNdivisions(504);
    Graph_Graph2->GetYaxis()->SetLabelFont(42);
@@ -153,14 +153,16 @@
    
    graph->Draw("ac");
    
-   TPaveText *pt = new TPaveText(0.3361055,0.9341608,0.6638945,0.995,"blNDC");
-   pt->SetName("title");
+   TPaveText *pt = new TPaveText(0.17, 0.8, 0.22, 0.9,"blNDC");
+   //pt->SetName("title");
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->SetFillStyle(0);
    pt->SetTextFont(42);
-   TText *text = pt->AddText("effective potential");
+   TText *text = pt->AddText("(a)");
    pt->Draw();
+
+
    V->Modified();
    V->cd();
    V->SetSelected(V);

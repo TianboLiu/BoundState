@@ -25,14 +25,14 @@
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    unnamed->SetLineColor(ci);
-   unnamed->GetXaxis()->SetTitle("p / GeV");
+   unnamed->GetXaxis()->SetTitle("p (GeV)");
    unnamed->GetXaxis()->CenterTitle(true);
    unnamed->GetXaxis()->SetLabelFont(42);
    unnamed->GetXaxis()->SetLabelSize(0.055);
    unnamed->GetXaxis()->SetTitleSize(0.06);
    unnamed->GetXaxis()->SetTitleOffset(1.15);
    unnamed->GetXaxis()->SetTitleFont(42);
-   unnamed->GetYaxis()->SetTitle("f(p) / GeV^{-3}");
+   unnamed->GetYaxis()->SetTitle("f(p) (GeV^{-3})");
    unnamed->GetYaxis()->CenterTitle(true);
    unnamed->GetYaxis()->SetNdivisions(505);
    unnamed->GetYaxis()->SetLabelFont(42);
@@ -327,6 +327,16 @@
    f0->SetParError(4,0);
    f0->SetParLimits(4,0,0);
    f0->Draw("same");
+
+   TPaveText *pt = new TPaveText(0.17, 0.8, 0.22, 0.9,"blNDC");
+   //pt->SetName("title");
+   pt->SetBorderSize(0);
+   pt->SetFillColor(0);
+   pt->SetFillStyle(0);
+   pt->SetTextFont(42);
+   TText *text = pt->AddText("(a)");
+   pt->Draw();
+
    c0->Modified();
    c0->cd();
    c0->SetSelected(c0);

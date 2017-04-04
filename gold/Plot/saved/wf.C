@@ -14,7 +14,7 @@
    
    TGraph *graph = new TGraph(100);
    graph->SetName("Graph0");
-   graph->SetTitle("wave function");
+   graph->SetTitle("");
    graph->SetFillColor(1);
    graph->SetLineColor(4);
    graph->SetLineWidth(2);
@@ -119,7 +119,7 @@
    graph->SetPoint(98,4.9,0.04441807165);
    graph->SetPoint(99,4.95,0.04317559295);
    
-   TH1F *Graph_Graph1 = new TH1F("Graph_Graph1","wave function",100,0,5.445);
+   TH1F *Graph_Graph1 = new TH1F("Graph_Graph1","",100,0,5.445);
    Graph_Graph1->SetMinimum(0);
    Graph_Graph1->SetMaximum(0.5);
    Graph_Graph1->SetDirectory(0);
@@ -129,14 +129,14 @@
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    Graph_Graph1->SetLineColor(ci);
-   Graph_Graph1->GetXaxis()->SetTitle("r / fm");
+   Graph_Graph1->GetXaxis()->SetTitle("r (fm)");
    Graph_Graph1->GetXaxis()->SetRange(1,92);
    Graph_Graph1->GetXaxis()->CenterTitle(true);
    Graph_Graph1->GetXaxis()->SetLabelFont(42);
    Graph_Graph1->GetXaxis()->SetLabelSize(0.055);
    Graph_Graph1->GetXaxis()->SetTitleSize(0.06);
    Graph_Graph1->GetXaxis()->SetTitleFont(42);
-   Graph_Graph1->GetYaxis()->SetTitle("u(r) / GeV^{1/2}");
+   Graph_Graph1->GetYaxis()->SetTitle("u(r) (GeV^{1/2})");
    Graph_Graph1->GetYaxis()->CenterTitle(true);
    Graph_Graph1->GetYaxis()->SetNdivisions(505);
    Graph_Graph1->GetYaxis()->SetLabelFont(42);
@@ -152,13 +152,13 @@
    
    graph->Draw("ac");
    
-   TPaveText *pt = new TPaveText(0.369397,0.94,0.630603,0.995,"blNDC");
-   pt->SetName("title");
+   TPaveText *pt = new TPaveText(0.17,0.8,0.22,0.9,"blNDC");
+   //pt->SetName("title");
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->SetFillStyle(0);
    pt->SetTextFont(42);
-   TText *text = pt->AddText("wave function");
+   TText *text = pt->AddText("(b)");
    pt->Draw();
    cwf->Modified();
    cwf->cd();

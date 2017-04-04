@@ -1029,14 +1029,15 @@
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    Graph_Graph1->SetLineColor(ci);
-   Graph_Graph1->GetXaxis()->SetTitle("Q / GeV");
+   Graph_Graph1->GetXaxis()->SetTitle("Q (GeV)");
    Graph_Graph1->GetXaxis()->SetRange(1,911);
    Graph_Graph1->GetXaxis()->CenterTitle(true);
+   Graph_Graph1->GetXaxis()->SetNdivisions(505);
    Graph_Graph1->GetXaxis()->SetLabelFont(42);
    Graph_Graph1->GetXaxis()->SetLabelSize(0.055);
    Graph_Graph1->GetXaxis()->SetTitleSize(0.06);
    Graph_Graph1->GetXaxis()->SetTitleFont(42);
-   Graph_Graph1->GetYaxis()->SetTitle("F / GeV^{-1/2}");
+   Graph_Graph1->GetYaxis()->SetTitle("F (GeV^{-1/2})");
    Graph_Graph1->GetYaxis()->CenterTitle(true);
    Graph_Graph1->GetYaxis()->SetNdivisions(505);
    Graph_Graph1->GetYaxis()->SetLabelFont(42);
