@@ -3892,7 +3892,7 @@
    h4->GetZaxis()->SetTitleFont(42);
    h4->Draw("same");
    
-   TLegend *leg = new TLegend(0.23,0.68,0.9,0.9,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.20,0.68,0.9,0.9,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetLineColor(0);
    leg->SetLineStyle(0);
