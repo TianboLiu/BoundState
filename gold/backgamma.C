@@ -11,10 +11,10 @@ int main(int argc, char * argv[]){
 
   double Ebeam = atof(argv[1]);//Get electron beam energy
  
-  gRandom->SetSeed(1);
+  gRandom->SetSeed(2);
   SetFunctions();
 
-  const Long64_t Nsim = 500000000;
+  const Long64_t Nsim = 50000000;
   const int Npt = 1000;
 
   double lumi = 1.0e35 * 1.0e-26 * pow(0.197327, 2) / 197.0;//eA GeV^2 s^-1

@@ -1073,7 +1073,7 @@ double CheckBONUS(const TLorentzVector * P, const char * particle = "K+", const 
 }
 
 double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 forward detector
-  if (MomentumCut(P, 0.0, 0.2))//momentum below 250 MeV
+  if (MomentumCut(P, 0.0, 0.2))//momentum below 200 MeV
     return 0.0;
   if (!PolarAngleCut(P, 5.0, 35.0, "deg"))//angle outside CLAS12 FA coverage
     return 0.0;
@@ -1104,7 +1104,7 @@ double CheckCLAS12FA(const TLorentzVector * P, const char * particle = "K+", con
     PP.SetXYZM(p * sin(th) * cos(azi), p * sin(th) * sin(azi), p * cos(th), 0.493677);
     wd = LongLifetimeDecayFactor(&PP, 3.712, 2.0);
   }
-  return wd;
+  return wd * 0.8;
 }
 
 double CheckCLAS12LA(const TLorentzVector * P, const char * particle = "K+", const double z = 0.5){//Get the probability of the detection by CLAS12 central detector
