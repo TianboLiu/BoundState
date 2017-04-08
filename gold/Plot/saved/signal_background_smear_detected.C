@@ -4684,13 +4684,14 @@
    TText *text = pt->AddText("(a)");
    pt->Draw();
 
-   TPaveText *pt2 = new TPaveText(0.5,0.2,0.85,0.3,"blNDC");
+   TPaveText *pt2 = new TPaveText(0.5,0.2,0.88,0.33,"blNDC");
    // pt->SetName("title");
    pt2->SetBorderSize(0);
    pt2->SetFillColor(0);
    pt2->SetFillStyle(0);
    pt2->SetTextFont(42);
    TText *text = pt2->AddText("before momentum cuts");
+   pt2->SetTextSize(0.05);
    pt2->Draw();
 
 
