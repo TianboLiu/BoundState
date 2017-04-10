@@ -35,7 +35,7 @@
    b1D->GetYaxis()->CenterTitle(true);
    b1D->GetYaxis()->SetLabelFont(42);
    b1D->GetYaxis()->SetLabelSize(0.055);
-   b1D->GetYaxis()->SetTitleSize(0.05);
+   b1D->GetYaxis()->SetTitleSize(0.06);
    b1D->GetYaxis()->SetTitleFont(42);
    b1D->GetYaxis()->SetTitleOffset(1.15);
    b1D->GetZaxis()->SetLabelFont(42);
