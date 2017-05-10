@@ -194,6 +194,7 @@ namespace GOLD{
 namespace GENERATE{
 
   TRandom3 random(0);
+  TGenPhaseSpace GenPhase;
   double Weight = 0.0;
   
   int NucleonGold(TLorentzVector * P){
@@ -226,17 +227,17 @@ namespace GENERATE{
       weight[0] = 0;
       return 0;
     }
-    const double cth = random.Uniform(-1.0, 1.0);
-    const double phi = random.Uniform(-M_PI, M_PI);
-    const double Q = sqrt( (s - pow(Mphi + Mp, 2)) * (s - pow(Mphi - Mp, 2))) / (2.0 * Pout.M());
+    double mass[2] = {Mphi, Mp};
+    GenPhase.SetDecay(Pout, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);
+    kf[1] = *GenPhase.GetDecay(1);
+    TLorentzVector ka = ki[0];
+    TLorentzVector kc = kf[0];
+    ka.Boost(-Pout.BoostVector());
+    kc.Boost(-Pout.BoostVector());
+    double cth = cos(ka.Angle(kc.Vect()));
     weight[0] = dSigmaPhi(Mphi + Mp, Pout.M(), cth) * 4.0 * M_PI;
-    kf[0].SetXYZM(Q * sqrt(1.0 - cth * cth) * cos(phi), Q * sqrt(1.0 - cth * cth) * sin(phi), Q * cth, Mphi);//phi in c.m. along gamma
-    TLorentzVector kk = ki[0];
-    kk.Boost(-Pout.BoostVector());//gamma in c.m.
-    kf[0].RotateY(kk.Theta());
-    kf[0].RotateZ(kk.Phi());//phi in c.m.
-    kf[0].Boost(Pout.BoostVector());//phi
-    kf[1] = Pout - kf[0];//N'
     return weight[0];//GeV^-2
   }
 
@@ -285,6 +286,7 @@ namespace GENERATE{
     weight[0] *= pow(MODEL::FQ(Q), 2) * MODEL::FractionNphi;
     kf[0] = ki[0] + P2;
     weight[0] *= GOLD::ProtonDensity * ki[0].Gamma() / PARTICLE::phi.Gamma();
+    //weight[0] *= GOLD::ProtonDensity * (7.3 / Phys::hbar / ki[0].Beta());
     return weight[0];
   }
 
@@ -292,7 +294,7 @@ namespace GENERATE{
     //ki: gamma; kf: N', d
     TLorentzVector kf1[2];
     double weight1;
-    PhiPhotoproductionGold(ki, kf1, &weight1);//produce Jpsi
+    PhiPhotoproductionGold(ki, kf1, &weight1);//produce phi
     if (weight1 == 0){
       weight[0] = 0;
       return 0;
@@ -300,7 +302,7 @@ namespace GENERATE{
     kf[0] = kf1[1];//N'
     double weight2;
     BoundStateFormationGold(&kf1[0], &kf[1], &weight2);//form bound state
-    weight[0] = weight1 * weight2;
+    weight[0] = weight1 * weight2 * GOLD::NA;
     return weight[0];
   }
 
@@ -324,11 +326,244 @@ namespace GENERATE{
     return weight[0];
   }
 
+  double BoundStateElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', d
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1 = kf[1];//virtual photon
+    double weight2;
+    BoundStatePhotoproductionGold(&ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    TLorentzVector PA(0, 0, 0, GOLD::NA * Mp);
+    weight[0] *= sqrt(pow(ki1 * PA, 2) - ki1.M2() * PA.M2()) / sqrt(pow(ki[0] * PA, 2) - ki[0].M2() * PA.M2());
+    return weight[0];
+  }
 
-    
+  double PhiElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', phi, N'
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1 = kf[1];//virtual photon
+    double weight2;
+    PhiPhotoproductionGold(&ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    TLorentzVector PA(0, 0, 0, GOLD::NA * Mp);
+    weight[0] *= sqrt(pow(ki1 * PA, 2) - ki1.M2() * PA.M2()) / sqrt(pow(ki[0] * PA, 2) - ki[0].M2() * PA.M2());
+    return weight[0];
+  }
+
+  int NKKWeight(){
+    FILE * fp = fopen("wave/NKK.dat", "w");
+    double x, y;
+    double mass[3] = {Mp, PARTICLE::K$p.M(), PARTICLE::K$m.M()};
+    TLorentzVector PP(0, 0, 0, 0);
+    double sum = 0;
+    for (int i =0; i < 100; i++){
+      cout << i << endl;
+      x = Mp + PARTICLE::K.M() * 2.0 + 0.05 * i;
+      PP.SetE(x);
+      GenPhase.SetDecay(PP, 3, mass);
+      sum = 0;
+      for (int j = 0; j < 10000000; j++){
+	sum += GenPhase.Generate();
+      }
+      y = sum / 10000000;
+      fprintf(fp, "%.6E\t%.6E\n", x, 1.0 / y);
+    }
+    fclose(fp);
+    return 0;
+  }
+
+  ROOT::Math::Interpolator fNKK_INTER(100, ROOT::Math::Interpolation::kCSPLINE);
+  int SetfNKK(){
+    ifstream infile("wave/NKK.dat");
+    double x[100], y[100];
+    for (int i = 0; i < 100; i++)
+      infile >> x[i] >> y[i];
+    fNKK_INTER.SetData(100, x, y);
+    infile.close();
+    return 0;
+  }
+
+  double fNKK(const double M){
+    if (M <= 1.92563)
+      return 0;
+    return fNKK_INTER.Eval(M);
+  }
+
+  double KKPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma, N; kf: N', K+, K-
+    TLorentzVector Pout = ki[0] + ki[1];
+    const double MK = PARTICLE::K.M();
+    if (Pout.M() <= Mp + MK + MK){
+      weight[0] = 0;
+      return weight[0];
+    }
+    double mass[3] = {Mp, MK, MK};
+    GenPhase.SetDecay(Pout, 3, mass);
+    weight[0] = GenPhase.Generate() * fNKK(Pout.M());//phase space weight
+    kf[0] = *GenPhase.GetDecay(0);//N'
+    kf[1] = *GenPhase.GetDecay(1);//K+
+    kf[2] = *GenPhase.GetDecay(2);//K-
+    TLorentzVector kk = kf[1] + kf[2];
+    double W0 = kk.M() + Mp;
+    TLorentzVector kp = ki[0];
+    kp.Boost(-Pout.BoostVector());
+    kk.Boost(-Pout.BoostVector());
+    double cth = cos(kk.Angle(kp.Vect()));
+    weight[0] *= dSigmaPhi(W0, Pout.M(), cth) * 4.0 * M_PI;//phi(KK) cross section
+    weight[0] *= 0.489;//Branch ratio to K+K-
+    return weight[0];
+  }
+
+  double KKPhotoproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma; kf: N', K+, K-
+    TLorentzVector ki1[2];
+    ki1[0] = ki[0];//photon
+    NucleonGold(&ki1[1]);//off-shell nucleon
+    KKPhotoproduction(ki1, kf, weight);
+    weight[0] *= GOLD::NA;
+    return weight[0];//GeV^-2
+  }
+
+  double KKElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', K+, K-
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1 = kf[1];//virtual photon
+    double weight2;
+    KKPhotoproductionGold(&ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    TLorentzVector PA(0, 0, 0, GOLD::NA * Mp);
+    weight[0] *= sqrt(pow(ki1 * PA, 2) - ki1.M2() * PA.M2()) / sqrt(pow(ki[0] * PA, 2) - ki[0].M2() * PA.M2());
+    return weight[0];
+  }
+
+  double dSigmaL1520(const double W0, const double W, const double cth){
+    if (W <= W0) return 0;
+    double par[5] = {11.299, 4.60959, 0.835621, 0.54681, 1.827941};
+    double b1 = par[3] * (W - W0 + par[4]);
+    double a2 = 0.25;
+    double a0 = par[0] * (W - W0) * exp(-par[1] * pow(W - W0, par[2]));;//total cross section in unit mub
+    double r0 = exp(b1 * cth) * b1 / (2.0 * sinh(b1));
+    double r2 = cth * cth * exp(b1 * cth) * pow(b1, 3) / (2.0 * (b1 * b1 + 2.0) * sinh(b1) - 4.0 * b1 * cosh(b1));
+    double ds = a0 * (r0 + a2 * r2) / (1.0 + a2) / (2.0 * M_PI) / 389.379;//ds/dOmega in unit GeV^-2
+    return ds;
+  }
+
+  double L1520Photoproduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma, N; kf: K+, L1520
+    TLorentzVector Pout = ki[0] + ki[1];
+    const double MK = PARTICLE::K.M();
+    const double ML = PARTICLE::Lambda1520.RandomM();
+    if (Pout.M() <= MK + ML){
+      weight[0] = 0;
+      return weight[0];
+    }
+    double mass[2] = {MK, ML};
+    GenPhase.SetDecay(Pout, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);
+    kf[1] = *GenPhase.GetDecay(1);
+    TLorentzVector ka = ki[0];
+    TLorentzVector kc = kf[0];
+    ka.Boost(-Pout.BoostVector());
+    kc.Boost(-Pout.BoostVector());
+    double cth = cos(ka.Angle(kc.Vect()));
+    weight[0] = dSigmaL1520(MK + ML, Pout.M(), cth) * 4.0 * M_PI;
+    return weight[0];
+  }
+
+  double L1520PhotoproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma; kf: K+, L1520
+    TLorentzVector ki1[2];
+    ki1[0] = ki[0];//photon
+    NucleonGold(&ki1[1]);//off-shell nucleon
+    L1520Photoproduction(ki1, kf, weight);
+    weight[0] *= GOLD::NA;
+    return weight[0];//GeV^-2
+  }
+
+  double L1520ElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', K+, L1520
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1 = kf[1];//virtual photon
+    double weight2;
+    L1520PhotoproductionGold(&ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    TLorentzVector PA(0, 0, 0, GOLD::NA * Mp);
+    weight[0] *= sqrt(pow(ki1 * PA, 2) - ki1.M2() * PA.M2()) / sqrt(pow(ki[0] * PA, 2) - ki[0].M2() * PA.M2());
+    return weight[0];
+  }
+
+  double Event_eNKKN_BoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', [K+, K-, p]
+    TLorentzVector kk[3];
+    BoundStateElectroproductionGold(ki, kk, weight);
+    kf[0] = kk[0];//e'
+    kf[1] = kk[1];//N'
+    const double MK = PARTICLE::K.M();
+    double mass[3] = {Mp, MK, MK};
+    GenPhase.SetDecay(kk[2], 3, mass);
+    weight[0] *= GenPhase.Generate() * fNKK(kk[2].M());
+    kf[2] = *GenPhase.GetDecay(1);//K+
+    kf[3] = *GenPhase.GetDecay(2);//K-
+    kf[4] = *GenPhase.GetDecay(0);//p
+    weight[0] *= 0.465;//Branch ratio to pK+K-
+    return weight[0];
+  }
+
+  double Event_eNKK_Phi(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', [K+, K-]
+    TLorentzVector kk[3];
+    PhiElectroproductionGold(ki, kk, weight);
+    kf[0] = kk[0];//e'
+    kf[1] = kk[2];//N'
+    const double MK = PARTICLE::K.M();
+    double mass[2] = {MK, MK};
+    GenPhase.SetDecay(kk[1], 2, mass);
+    GenPhase.Generate();
+    kf[2] = *GenPhase.GetDecay(0);//K+
+    kf[3] = *GenPhase.GetDecay(1);//K-
+    weight[0] *= 0.489;//Branch ratio to K+K-
+    weight[0] *= 79.0 / 197.0;//require proton
+    return weight[0];
+  }
+
+  double Event_eNKK_KK(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', K+, K-
+    KKElectroproductionGold(ki, kf, weight);
+    weight[0] *= 79.0 / 197.0;
+    return weight[0];
+  }
+
+  double Event_eNKK_L1520(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', K+, K-
+    TLorentzVector kk[3];
+    L1520ElectroproductionGold(ki, kk, weight);
+    kf[0] = kk[0];//e'
+    kf[2] = kk[1];//K+
+    const double MK = PARTICLE::K.M();
+    double mass[2] = {Mp, MK};
+    GenPhase.SetDecay(kk[2], 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//p
+    kf[3] = *GenPhase.GetDecay(1);//K-
+    weight[0] *= 0.45 / 2.0;//Branch ratio to pK-
+    weight[0] *= 79.0 / 197.0;//require proton
+    return weight[0];
+  }
+
+
 }
 
-
+int Initialize(){
+  MODEL::SetMODEL();
+  GOLD::SetGOLD();
+  GENERATE::SetfNKK();
+  return 0;
+}
 
 
 #endif
