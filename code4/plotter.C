@@ -675,7 +675,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(15.0);
+    h0->SetMaximum(3.0);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
@@ -684,7 +684,7 @@ int main(const int argc, const char * argv[]){
     h4->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Massdetected.pdf(","pdf");//
-    h0a->SetMaximum(25.0);
+    h0a->SetMaximum(5.0);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
@@ -693,7 +693,7 @@ int main(const int argc, const char * argv[]){
     h4a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Massdetected.pdf","pdf");//
-    h0b->SetMaximum(30.0);
+    h0b->SetMaximum(8.0);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
@@ -702,7 +702,7 @@ int main(const int argc, const char * argv[]){
     h4b->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Massdetected.pdf","pdf");//
-    h0c->SetMaximum(30.0);
+    h0c->SetMaximum(5.0);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
     h1c->DrawClone("same");
