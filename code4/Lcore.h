@@ -133,7 +133,7 @@ namespace MODEL{
     return 1.0 / (pow(E[0] * E[0] - Mass * Mass, 2) + E[0] * E[0] * Width * Width) / 96.7216;
   }
 
-  TF1 TF_fMass("fM", BreitWigner, Mass - 5.0 * Width, Mass + 5.0 * Width, 0);
+  TF1 TF_fMass("fM", BreitWigner, PARTICLE::K.M() * 2.0 + Mp + 1.0e-20, Mass + 10.0 * Width, 0);
 
   int SetMODEL(){
     SetVeff();
@@ -564,6 +564,8 @@ namespace GENERATE{
 
 namespace DETECTOR{
 
+  TRandom3 random(0);
+
   TFile * facc1;
   TFile * facc2;
   TH3F * acc_pip;
@@ -595,6 +597,31 @@ namespace DETECTOR{
     int binz = acc->GetZaxis()->FindBin(p);
     return acc->GetBinContent(binx, biny, binz);
   }
+
+  double Smear(TLorentzVector * P, const char * detector){
+    double m = P->M();
+    double p = P->P();
+    double theta = P->Theta();
+    double phi = P->Phi();
+    double res[3];
+    if (strcmp(detector, "clas") == 0){
+      res[0] = 0.01;
+      res[1] = 0.001;
+      res[2] = 0.004;
+    }
+    else if (strcmp(detector, "bonus") == 0){
+      res[0] = 0.1;
+      res[1] = 0.02;
+      res[2] = 0.02;
+    }
+    else return 0;
+    p = p * abs(random.Gaus(1, res[0]));
+    theta = random.Gaus(theta, res[1]);
+    phi = random.Gaus(phi, res[2]);
+    P->SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
+    return 1.0;
+  }
+
 
 
 
