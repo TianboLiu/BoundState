@@ -6,10 +6,10 @@ int main(const int argc, const char * argv[]){
 
   TLorentzVector ki[2], kf[5];
   double weight = 0;
-  //ki[0].SetXYZT(0, 0, sqrt(4.4 * 4.4 - PARTICLE::e.M() * PARTICLE::e.M()), 4.4);
-  ki[0].SetXYZT(0, 0, 4.4, 4.4);
+  ki[0].SetXYZT(0, 0, sqrt(4.4 * 4.4 - PARTICLE::e.M() * PARTICLE::e.M()), 4.4);
+  //ki[0].SetXYZT(0, 0, 4.4, 4.4);
 
-  TFile * fs = new TFile("result/raw.root", "RECREATE");
+  TFile * fs = new TFile("result/detected.root", "RECREATE");
 
   TH1D * h0 = new TH1D("MpKK_BoundStateAll", "", 2200, 1.88, 2.32);
   TH1D * h1 = new TH1D("MpKK_BoundStateKK", "", 2200, 1.88, 2.32);
@@ -46,7 +46,7 @@ int main(const int argc, const char * argv[]){
   d4b->SetDirectory(fs);
   
 
-  Long64_t Nsim = 100000000;
+  Long64_t Nsim = 500000000;
 
   TLorentzVector PP;
   for (Long64_t i = 0; i < Nsim; i++){
@@ -54,18 +54,22 @@ int main(const int argc, const char * argv[]){
  
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
     if (weight > 0){
+      double factorp = DETECTOR::Acceptance(kf[4], "p");
+      weight *= DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
       PP = kf[2] + kf[3] + kf[4];
-      h0->Fill(PP.M(), weight);
-      d0a->Fill(kf[2].P(), kf[4].P(), weight);
-      d0b->Fill(kf[3].P(), kf[4].P(), weight);
+      h0->Fill(PP.M(), weight * factorp);
+      d0a->Fill(kf[2].P(), kf[4].P(), weight * factorp);
+      d0b->Fill(kf[3].P(), kf[4].P(), weight * factorp);
+      factorp = DETECTOR::Acceptance(kf[1], "p");
       PP = kf[1] + kf[2] + kf[3];
-      h1->Fill(PP.M(), weight);
-      d1a->Fill(kf[2].P(), kf[1].P(), weight);
-      d1b->Fill(kf[3].P(), kf[1].P(), weight);
+      h1->Fill(PP.M(), weight * factorp);
+      d1a->Fill(kf[2].P(), kf[1].P(), weight * factorp);
+      d1b->Fill(kf[3].P(), kf[1].P(), weight * factorp);
     }
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
     if (weight > 0){
+      weight *= DETECTOR::Acceptance(kf[1], "p") * DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
       PP = kf[1] + kf[2] + kf[3];
       h2->Fill(PP.M(), weight);
       d2a->Fill(kf[2].P(), kf[1].P(), weight);
@@ -74,6 +78,7 @@ int main(const int argc, const char * argv[]){
 
     weight = GENERATE::Event_eNKK_L1520(ki, kf);
     if (weight > 0){
+      weight *= DETECTOR::Acceptance(kf[1], "p") * DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
       PP = kf[1] + kf[2] + kf[3];
       h3->Fill(PP.M(), weight);
       d3a->Fill(kf[2].P(), kf[1].P(), weight);
@@ -82,6 +87,7 @@ int main(const int argc, const char * argv[]){
  
     weight = GENERATE::Event_eNKK_KK(ki, kf);
     if (weight > 0){
+      weight *= DETECTOR::Acceptance(kf[1], "p") * DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
       PP = kf[1] + kf[2] + kf[3];
       h4->Fill(PP.M(), weight);
       d4a->Fill(kf[2].P(), kf[1].P(), weight);
@@ -106,7 +112,6 @@ int main(const int argc, const char * argv[]){
   d3b->Scale(1.0/Nsim);
   d4a->Scale(1.0/Nsim);
   d4b->Scale(1.0/Nsim);
-
 
   
  

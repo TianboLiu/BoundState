@@ -27,6 +27,8 @@
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH2F.h"
+#include "TH3F.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
 #include "TLegend.h"
@@ -558,10 +560,53 @@ namespace GENERATE{
 
 }
 
+
+namespace DETECTOR{
+
+  TFile * facc1;
+  TFile * facc2;
+  TH3F * acc_pip;
+  TH3F * acc_pim;
+  TH3F * acc_ele;
+
+  int SetDETECTOR(){
+    facc1 = new TFile("acceptance/clasev_acceptance.root", "r");
+    facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
+    acc_pip = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
+    acc_pim = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
+    acc_ele = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
+    return 0;
+  }
+
+  double Acceptance(const TLorentzVector P, const char * part){
+    double p = P.P();
+    double theta = P.Theta() * 180.0 / M_PI;
+    double phi = P.Phi() * 180.0 / M_PI;
+    if (phi < 0) phi = phi + 360.0;
+    TH3F * acc;
+    if (strcmp(part, "p") == 0) acc = acc_pip;
+    else if (strcmp(part, "e") == 0) acc = acc_ele;
+    else if (strcmp(part, "K+") == 0) acc = acc_pip;
+    else if (strcmp(part, "K-") == 0) acc = acc_pim;
+    else return 0;
+    int binx = acc->GetXaxis()->FindBin(phi);
+    int biny = acc->GetYaxis()->FindBin(theta);
+    int binz = acc->GetZaxis()->FindBin(p);
+    return acc->GetBinContent(binx, biny, binz);
+  }
+
+
+
+
+}
+
+
+
 int Initialize(){
   MODEL::SetMODEL();
   GOLD::SetGOLD();
   GENERATE::SetfNKK();
+  DETECTOR::SetDETECTOR();
   return 0;
 }
 
