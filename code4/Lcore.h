@@ -224,7 +224,8 @@ namespace GENERATE{
     //ki: gamma, N; kf: phi, N'
     TLorentzVector Pout = ki[0] + ki[1];//Total
     const double s = Pout.M2();//c.m. energy square
-    const double Mphi = PARTICLE::phi.RandomM();//random phi meson mass 
+    const double MK = PARTICLE::K.M();
+    const double Mphi = PARTICLE::phi.RandomM(MK * 2.0 + 1.0e-20, 1.1);//random phi meson mass 
     if (s <= pow(Mphi + Mp, 2)){
       weight[0] = 0;
       return 0;
@@ -457,7 +458,7 @@ namespace GENERATE{
     //ki: gamma, N; kf: K+, L1520
     TLorentzVector Pout = ki[0] + ki[1];
     const double MK = PARTICLE::K.M();
-    const double ML = PARTICLE::Lambda1520.RandomM();
+    const double ML = PARTICLE::Lambda1520.RandomM(MK + Mp + 1.0e-20, 1.7);
     if (Pout.M() <= MK + ML){
       weight[0] = 0;
       return weight[0];
