@@ -2,6 +2,10 @@
 
 int main(const int argc, const char * argv[]){
 
+  Long64_t Nsim;
+  if (argc < 2) Nsim = 10000000;
+  else Nsim = atoi(argv[1]);
+
   Initialize();
 
   TLorentzVector ki[2], kf[5];
@@ -91,8 +95,6 @@ int main(const int argc, const char * argv[]){
   d4b->SetDirectory(fs);
   d4c->SetDirectory(fs);
   
-
-  Long64_t Nsim = 1000000000;
 
   TLorentzVector PP, Pa, Pb, Pc;
   for (Long64_t i = 0; i < Nsim; i++){
