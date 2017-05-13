@@ -4,10 +4,10 @@ int main(){
 
   Initialize();
 
-  TLorentzVector k(0.5, 0.1, 1.6, 2.5);
+  TLorentzVector k(0.1, 0.0, 0.1, 0.5);
   //cout << DETECTOR::Acceptance(k, "K+") << endl;
 
-  cout << DETECTOR::acc_pip->GetBinContent(2,3,4) << endl;
+  cout << DETECTOR::AcceptanceBONUS12(k, "K+") << endl;
 
   if (false){
     TFile * fs =  new TFile("acceptance/clasev_acceptance.root", "r");
