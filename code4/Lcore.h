@@ -568,58 +568,112 @@ namespace DETECTOR{
 
   TFile * facc1;
   TFile * facc2;
-  TH3F * acc_pip;
-  TH3F * acc_pim;
-  TH3F * acc_ele;
+  TFile * facc3;
+  TH3F * acc_ele_clas;
+  TH3F * acc_pip_clas;
+  TH3F * acc_pim_clas;
+  TH3F * acc_Kp_clas;
+  TH3F * acc_Km_clas;
+  TH3F * acc_proton_clas;
+  TH2D * acc_proton_bonus;
+  TH2D * acc_Kp_bonus;
+  TH2D * acc_pip_bonus;
+  TH2D * acc_Km_bonus;
+  TH2D * acc_pim_bonus;
 
   int SetDETECTOR(){
-    facc1 = new TFile("acceptance/clasev_acceptance.root", "r");
+    facc1 = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
     facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
-    acc_pip = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
-    acc_pim = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
-    acc_ele = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
+    facc3 = new TFile("acceptance/bonus12_upstream.root", "r");
+    acc_pip_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
+    acc_pim_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
+    acc_ele_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
+    acc_proton_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
+    acc_Kp_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
+    acc_Km_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
+    acc_proton_bonus = (TH2D *) facc3->Get("h0");
+    acc_Kp_bonus = (TH2D *) facc3->Get("h1");
+    acc_pip_bonus = (TH2D *) facc3->Get("h2");
+    acc_Km_bonus = (TH2D *) facc3->Get("h3");
+    acc_pim_bonus = (TH2D *) facc3->Get("h4");
+    
     return 0;
   }
 
-  double Acceptance(const TLorentzVector P, const char * part){
+  double AcceptanceCLAS12(const TLorentzVector P, const char * part){
     double p = P.P();
     double theta = P.Theta() * 180.0 / M_PI;
+    if (theta > 35.0) return 0;//only forward detector
     double phi = P.Phi() * 180.0 / M_PI;
     if (phi < 0) phi = phi + 360.0;
     TH3F * acc;
-    if (strcmp(part, "p") == 0) acc = acc_pip;
-    else if (strcmp(part, "e") == 0) acc = acc_ele;
-    else if (strcmp(part, "K+") == 0) acc = acc_pip;
-    else if (strcmp(part, "K-") == 0) acc = acc_pim;
+    if (strcmp(part, "e") == 0) acc = acc_ele_clas;
+    else if (strcmp(part, "p") == 0) acc = acc_proton_clas;
+    else if (strcmp(part, "K+") == 0) acc = acc_Kp_clas;
+    else if (strcmp(part, "K-") == 0) acc = acc_Km_clas;
+    else if (strcmp(part, "pi+") == 0) acc = acc_pip_clas;
+    else if (strcmp(part, "pi-") == 0) acc = acc_pim_clas;
     else return 0;
     int binx = acc->GetXaxis()->FindBin(phi);
     int biny = acc->GetYaxis()->FindBin(theta);
     int binz = acc->GetZaxis()->FindBin(p);
-    return acc->GetBinContent(binx, biny, binz);
+    double result = acc->GetBinContent(binx, biny, binz);
+    if (strcmp(part, "K+") == 0 || strcmp(part, "K-") == 0) result *= exp(-6.5 / Phys::c / PARTICLE::K.Tau() / P.Beta() / P.Gamma());//kaon decay
+    return result;
   }
 
-  double Smear(TLorentzVector * P, const char * detector){
+  double AcceptanceBONUS12(const TLorentzVector P, const char * part){
+    double p = P.P() * 1000.0;//MeV
+    if (p > 0.2) return 0;//sharp cut on momentum
+    double theta = P.Theta() * 180.0 / M_PI;
+    TH2D * acc;
+    if (strcmp(part, "p") == 0) acc = acc_pip_bonus;
+    else if (strcmp(part, "K+") == 0) acc = acc_Kp_bonus;
+    else if (strcmp(part, "K-") == 0) acc = acc_Km_bonus;
+    else if (strcmp(part, "pi+") == 0) acc = acc_pip_bonus;
+    else if (strcmp(part, "pi-") == 0) acc = acc_pim_bonus;
+    else return 0;
+    int binx = acc->GetXaxis()->FindBin(theta);
+    int biny = acc->GetYaxis()->FindBin(p);
+    double result = acc->GetBinContent(binx, biny);
+    return result;
+  }
+
+  double Acceptance(const TLorentzVector P, const char * part){
+    double acc_clas = AcceptanceCLAS12(P, part);
+    double acc_bonus = AcceptanceBONUS12(P, part);
+    return 1.0 - (1.0 - acc_clas) * (1.0 - acc_bonus);
+  }
+
+  double Smear(TLorentzVector * P, const char * part){
     double m = P->M();
     double p = P->P();
     double theta = P->Theta();
     double phi = P->Phi();
     double res[3];
-    if (strcmp(detector, "clas") == 0){
+    double acc = AcceptanceBONUS12(P[0], part);   
+    if (acc > 0){
       res[0] = 0.01;
       res[1] = 0.001;
       res[2] = 0.004;
+      p = p * abs(random.Gaus(1, res[0]));
+      theta = random.Gaus(theta, res[1]);
+      phi = random.Gaus(phi, res[2]);
+      P->SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
+      return acc;
     }
-    else if (strcmp(detector, "bonus") == 0){
+    acc = AcceptanceCLAS12(P[0], part);
+    if (acc > 0){
       res[0] = 0.1;
       res[1] = 0.02;
       res[2] = 0.02;
+      p = p * abs(random.Gaus(1, res[0]));
+      theta = random.Gaus(theta, res[1]);
+      phi = random.Gaus(phi, res[2]);
+      P->SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
+      return acc;
     }
-    else return 0;
-    p = p * abs(random.Gaus(1, res[0]));
-    theta = random.Gaus(theta, res[1]);
-    phi = random.Gaus(phi, res[2]);
-    P->SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
-    return 1.0;
+    return 0;
   }
 
 

@@ -59,21 +59,21 @@ int main(const int argc, const char * argv[]){
   h3c->SetDirectory(fs);
   h4c->SetDirectory(fs);
 
-  TH2D * d0a = new TH2D("Momentum_p_Kp_BoundStateAll", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d0b = new TH2D("Momentum_p_Km_BoundStateAll", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d0c = new TH2D("Momentum_Kp_Km_BoundStateAll", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d1a = new TH2D("Momentum_p_Kp_BoundStateKK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d1b = new TH2D("Momentum_p_Km_BoundStateKK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d1c = new TH2D("Momentum_Kp_Km_BoundStateKK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d2a = new TH2D("Momentum_p_Kp_phi", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d2b = new TH2D("Momentum_p_Km_phi", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d2c = new TH2D("Momentum_Kp_Km_phi", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d3a = new TH2D("Momentum_p_Kp_Lambda1520", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d3b = new TH2D("Momentum_p_Km_Lambda1520", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d3c = new TH2D("Momentum_Kp_Km_Lambda1520", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d4a = new TH2D("Momentum_p_Kp_KK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d4b = new TH2D("Momentum_p_Km_KK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
-  TH2D * d4c = new TH2D("Momentum_Kp_Km_KK", "", 200, 0.0, 2.0, 200, 0.0, 2.0);
+  TH2D * d0a = new TH2D("Momentum_p_Kp_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d0b = new TH2D("Momentum_p_Km_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d0c = new TH2D("Momentum_Kp_Km_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1a = new TH2D("Momentum_p_Kp_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1b = new TH2D("Momentum_p_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1c = new TH2D("Momentum_Kp_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d2a = new TH2D("Momentum_p_Kp_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d2b = new TH2D("Momentum_p_Km_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d2c = new TH2D("Momentum_Kp_Km_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d3a = new TH2D("Momentum_p_Kp_Lambda1520", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d3b = new TH2D("Momentum_p_Km_Lambda1520", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d3c = new TH2D("Momentum_Kp_Km_Lambda1520", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d4a = new TH2D("Momentum_p_Kp_KK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d4b = new TH2D("Momentum_p_Km_KK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d4c = new TH2D("Momentum_Kp_Km_KK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
 
   d0a->SetDirectory(fs);
   d0b->SetDirectory(fs);
