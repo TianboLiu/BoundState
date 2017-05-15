@@ -537,7 +537,7 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Momentumraw.pdf)","pdf");//
   }
 
-  if (opt == 6){//invariant mass vertex
+  if (opt == 6){//invariant mass detected d
     TFile * fs = new TFile("result/detected.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
@@ -714,7 +714,7 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Massdetected.pdf)","pdf");
   }
 
-  if (opt == 7){//Momentum vertex
+  if (opt == 7){//Momentum detected
     TFile * fs = new TFile("result/detected.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
@@ -970,7 +970,7 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Momentumdetected.pdf)","pdf");//
   }
 
-  if (opt == 8){//invariant mass vertex
+  if (opt == 8){//invariant mass smeared 
     TFile * fs = new TFile("result/smeared.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
@@ -1147,7 +1147,7 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Masssmeared.pdf)","pdf");
   }
 
-  if (opt == 9){//Momentum vertex
+  if (opt == 9){//Momentum smeared
     TFile * fs = new TFile("result/smeared.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
@@ -1401,6 +1401,138 @@ int main(const int argc, const char * argv[]){
     d0c->DrawClone("axis");
     d4c->DrawClone("colsame");
     c0->Print("gallary/Momentumsmeared.pdf)","pdf");//
+  }
+
+  if (opt == 10){//Two pions
+    TFile * fs = new TFile("result/smeared.root", "r");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
+    TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
+    TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
+    TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
+    TFile * ts = new TFile("result/twopi.root", "r");
+    TH1D * h1 = (TH1D *) ts->Get("MpKK_TwoPi");
+    TH1D * h1a = (TH1D *) ts->Get("MpKp_TwoPi");
+    TH1D * h1b = (TH1D *) ts->Get("MpKm_TwoPi");
+    TH1D * h1c = (TH1D *) ts->Get("MKK_TwoPi");
+    double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
+    double time = 3600.0;
+    double binsize = 0.2;//MeV
+    h0->GetXaxis()->SetTitle("M(pKK) (GeV)");
+    h0->GetXaxis()->CenterTitle(true);
+    h0->GetXaxis()->SetTitleSize(0.06);
+    h0->GetXaxis()->SetTitleOffset(1.15);
+    h0->GetXaxis()->SetLabelSize(0.06);
+    h0->GetXaxis()->SetRangeUser(1.88, 2.32);
+    h0->GetXaxis()->SetNdivisions(6, 5, 0);
+    h0->GetYaxis()->SetTitle("counts / hour / MeV");
+    h0->GetYaxis()->CenterTitle(true);
+    h0->GetYaxis()->SetTitleSize(0.06);
+    h0->GetYaxis()->SetTitleOffset(1.15);
+    h0->GetYaxis()->SetLabelSize(0.06);
+    h0->GetYaxis()->SetRangeUser(0.0, 15.0);
+    h0->GetYaxis()->SetNdivisions(5, 5, 0);
+    h0a->GetXaxis()->SetTitle("M(pK^{+}) (GeV)");
+    h0a->GetXaxis()->CenterTitle(true);
+    h0a->GetXaxis()->SetTitleSize(0.06);
+    h0a->GetXaxis()->SetTitleOffset(1.15);
+    h0a->GetXaxis()->SetLabelSize(0.06);
+    h0a->GetXaxis()->SetRangeUser(1.88, 2.32);
+    h0a->GetXaxis()->SetNdivisions(6, 5, 0);
+    h0a->GetYaxis()->SetTitle("counts / hour / MeV");
+    h0a->GetYaxis()->CenterTitle(true);
+    h0a->GetYaxis()->SetTitleSize(0.06);
+    h0a->GetYaxis()->SetTitleOffset(1.15);
+    h0a->GetYaxis()->SetLabelSize(0.06);
+    h0a->GetYaxis()->SetRangeUser(0.0, 15.0);
+    h0a->GetYaxis()->SetNdivisions(5, 5, 0);
+    h0b->GetXaxis()->SetTitle("M(pK^{-}) (GeV)");
+    h0b->GetXaxis()->CenterTitle(true);
+    h0b->GetXaxis()->SetTitleSize(0.06);
+    h0b->GetXaxis()->SetTitleOffset(1.15);
+    h0b->GetXaxis()->SetLabelSize(0.06);
+    h0b->GetXaxis()->SetRangeUser(1.88, 2.32);
+    h0b->GetXaxis()->SetNdivisions(6, 5, 0);
+    h0b->GetYaxis()->SetTitle("counts / hour / MeV");
+    h0b->GetYaxis()->CenterTitle(true);
+    h0b->GetYaxis()->SetTitleSize(0.06);
+    h0b->GetYaxis()->SetTitleOffset(1.15);
+    h0b->GetYaxis()->SetLabelSize(0.06);
+    h0b->GetYaxis()->SetRangeUser(0.0, 15.0);
+    h0b->GetYaxis()->SetNdivisions(5, 5, 0);
+    h0c->GetXaxis()->SetTitle("M(K^{+}K^{-}) (GeV)");
+    h0c->GetXaxis()->CenterTitle(true);
+    h0c->GetXaxis()->SetTitleSize(0.06);
+    h0c->GetXaxis()->SetTitleOffset(1.15);
+    h0c->GetXaxis()->SetLabelSize(0.06);
+    h0c->GetXaxis()->SetRangeUser(1.88, 2.32);
+    h0c->GetXaxis()->SetNdivisions(6, 5, 0);
+    h0c->GetYaxis()->SetTitle("counts / hour / MeV");
+    h0c->GetYaxis()->CenterTitle(true);
+    h0c->GetYaxis()->SetTitleSize(0.06);
+    h0c->GetYaxis()->SetTitleOffset(1.15);
+    h0c->GetYaxis()->SetLabelSize(0.06);
+    h0c->GetYaxis()->SetRangeUser(0.0, 15.0);
+    h0c->GetYaxis()->SetNdivisions(5, 5, 0);
+    //
+    h0->Scale(lumi*time/binsize);
+    h1->Scale(lumi*time/binsize);
+    h0a->Scale(lumi*time/binsize);
+    h1a->Scale(lumi*time/binsize);
+    h0b->Scale(lumi*time/binsize);
+    h1b->Scale(lumi*time/binsize);
+    h0c->Scale(lumi*time/binsize);
+    h1c->Scale(lumi*time/binsize);
+    //
+    h0->SetStats(0);
+    h0a->SetStats(0);
+    h0b->SetStats(0);
+    h0c->SetStats(0);
+    //
+    h0->SetLineColor(1);
+    h1->SetLineColor(2);
+    h0a->SetLineColor(1);
+    h1a->SetLineColor(2);
+    h0b->SetLineColor(1);
+    h1b->SetLineColor(2);
+    h0c->SetLineColor(1);
+    h1c->SetLineColor(2);
+    //
+    h1->Scale(0.01);
+    h1a->Scale(0.01);
+    h1b->Scale(0.01);
+    h1c->Scale(0.01);
+    //
+    TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "2#pi misidentified", "l");
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    h0->SetMaximum(0.1);
+    h0->DrawClone("axis");
+    h0->DrawClone("same");
+    h1->DrawClone("same");
+    leg->DrawClone("same");
+    c0->Print("gallary/TwoPions.pdf(","pdf");//
+    h0a->SetMaximum(0.2);
+    h0a->DrawClone("axis");
+    h0a->DrawClone("same");
+    h1a->DrawClone("same");
+    leg->DrawClone("same");
+    c0->Print("gallary/TwoPions.pdf","pdf");//
+    h0b->SetMaximum(0.2);
+    h0b->DrawClone("axis");
+    h0b->DrawClone("same");
+    h1b->DrawClone("same");
+    leg->DrawClone("same");
+    c0->Print("gallary/TwoPions.pdf","pdf");//
+    h0c->SetMaximum(0.1);
+    h0c->DrawClone("axis");
+    h0c->DrawClone("same");
+    h1c->DrawClone("same");
+    h0c->DrawClone("same");
+    leg->DrawClone("same");
+    c0->Print("gallary/TwoPions.pdf)","pdf");
   }
 
 

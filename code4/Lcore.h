@@ -500,6 +500,105 @@ namespace GENERATE{
     return weight[0];
   }
 
+  ROOT::Math::Interpolator dSigmaPiPi_INTER(117, ROOT::Math::Interpolation::kCSPLINE);
+  int SetdSigmaPiPi(){
+    ifstream infile("wave/protonpippimtotal.dat");
+    double x[117], y[117], w[117];
+    for (int i = 0; i < 117; i++){
+      infile >> x[i] >> y[i];
+      w[i] = sqrt(Mp * Mp + 2.0 * Mp * x[i]);
+      y[i] *= 0.1 / pow(Phys::hbar, 2);//convert to GeV^-2
+    }
+    dSigmaPiPi_INTER.SetData(117, w, y);
+    infile.close();
+    return 0;
+  }
+
+  double dSigmaPiPi(const double W){
+    if (W <= Mp + PARTICLE::pi.M() * 2.0) return 0;
+    return dSigmaPiPi_INTER.Eval(W);
+  }
+
+  int NPiPiWeight(){
+    FILE * fp = fopen("wave/NPiPi.dat", "w");
+    double x, y;
+    double mass[3] = {Mp, PARTICLE::pi$p.M(), PARTICLE::pi$m.M()};
+    TLorentzVector PP(0, 0, 0, 0);
+    double sum = 0;
+    for (int i =0; i < 100; i++){
+      cout << i << endl;
+      x = Mp + PARTICLE::pi.M() * 2.0 + 0.05 * i;
+      PP.SetE(x);
+      GenPhase.SetDecay(PP, 3, mass);
+      sum = 0;
+      for (int j = 0; j < 10000000; j++){
+	sum += GenPhase.Generate();
+      }
+      y = sum / 10000000;
+      fprintf(fp, "%.6E\t%.6E\n", x, 1.0 / y);
+    }
+    fclose(fp);
+    return 0;
+  }
+
+  ROOT::Math::Interpolator fNPiPi_INTER(100, ROOT::Math::Interpolation::kCSPLINE);
+  int SetfNPiPi(){
+    ifstream infile("wave/NPiPi.dat");
+    double x[100], y[100];
+    for (int i = 0; i < 100; i++)
+      infile >> x[i] >> y[i];
+    fNPiPi_INTER.SetData(100, x, y);
+    infile.close();
+    return 0;
+  }
+
+  double fNPiPi(const double M){
+    if (M <= Mp + PARTICLE::pi.M() * 2.0)
+      return 0;
+    return fNPiPi_INTER.Eval(M);
+  }
+
+  double PiPiPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma, N; kf: N', pi+, pi-
+    TLorentzVector Pout = ki[0] + ki[1];
+    const double Mpi = PARTICLE::pi.M();
+    if (Pout.M() <= Mp + Mpi + Mpi){
+      weight[0] = 0;
+      return weight[0];
+    }
+    double mass[3] = {Mp, Mpi, Mpi};
+    GenPhase.SetDecay(Pout, 3, mass);
+    weight[0] = GenPhase.Generate() * fNPiPi(Pout.M());//phase space weight
+    kf[0] = *GenPhase.GetDecay(0);//N'
+    kf[1] = *GenPhase.GetDecay(1);//pi+
+    kf[2] = *GenPhase.GetDecay(2);//pi-
+    weight[0] *= dSigmaPiPi(Pout.M());//phi(KK) cross section
+    return weight[0];
+  }
+
+  double PiPiPhotoproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma; kf: N', pi+, pi-
+    TLorentzVector ki1[2];
+    ki1[0] = ki[0];//photon
+    NucleonGold(&ki1[1]);//off-shell nucleon
+    PiPiPhotoproduction(ki1, kf, weight);
+    weight[0] *= GOLD::NA;
+    return weight[0];//GeV^-2
+  }
+
+  double PiPiElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', pi+, pi-
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1 = kf[1];//virtual photon
+    double weight2;
+    PiPiPhotoproductionGold(&ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    TLorentzVector PA(0, 0, 0, GOLD::NA * Mp);
+    weight[0] *= sqrt(pow(ki1 * PA, 2) - ki1.M2() * PA.M2()) / sqrt(pow(ki[0] * PA, 2) - ki[0].M2() * PA.M2());
+    return weight[0];
+  }
+
   double Event_eNKKN_BoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
     //ki: e; kf: e', N', [K+, K-, p]
     TLorentzVector kk[3];
@@ -556,6 +655,20 @@ namespace GENERATE{
     weight[0] *= 0.45 / 2.0;//Branch ratio to pK-
     weight[0] *= 79.0 / 197.0;//require proton
     return weight[0];
+  }
+
+  double Event_eNPiPi_PiPi(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', pi+, pi-
+    PiPiElectroproductionGold(ki, kf, weight);
+    weight[0] *= 79.0 / 197.0;
+    return weight[0];
+  }
+
+  int SetGENERATE(){
+    SetfNKK();
+    SetdSigmaPiPi();
+    SetfNPiPi();
+    return 0;
   }
 
 
@@ -677,9 +790,6 @@ namespace DETECTOR{
   }
 
 
-
-
-
 }
 
 
@@ -687,7 +797,7 @@ namespace DETECTOR{
 int Initialize(){
   MODEL::SetMODEL();
   GOLD::SetGOLD();
-  GENERATE::SetfNKK();
+  GENERATE::SetGENERATE();
   DETECTOR::SetDETECTOR();
   return 0;
 }
