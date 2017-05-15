@@ -95,6 +95,38 @@ int main(const int argc, const char * argv[]){
   d4b->SetDirectory(fs);
   d4c->SetDirectory(fs);
   
+  TH2D * r0a = new TH2D("PTheta_p_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r0b = new TH2D("PTheta_Kp_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r0c = new TH2D("PTheta_Km_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1a = new TH2D("PTheta_p_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1b = new TH2D("PTheta_Kp_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1c = new TH2D("PTheta_Km_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r2a = new TH2D("PTheta_p_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r2b = new TH2D("PTheta_Kp_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r2c = new TH2D("PTheta_Km_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r3a = new TH2D("PTheta_p_Lambda1520", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r3b = new TH2D("PTheta_Kp_Lambda1520", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r3c = new TH2D("PTheta_Km_Lambda1520", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r4a = new TH2D("PTheta_p_KK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r4b = new TH2D("PTheta_Kp_KK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r4c = new TH2D("PTheta_Km_KK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  const double deg = 180.0 / M_PI;
+
+  r0a->SetDirectory(fs);
+  r0b->SetDirectory(fs);
+  r0c->SetDirectory(fs);
+  r1a->SetDirectory(fs);
+  r1b->SetDirectory(fs);
+  r1c->SetDirectory(fs);
+  r2a->SetDirectory(fs);
+  r2b->SetDirectory(fs);
+  r2c->SetDirectory(fs);
+  r3a->SetDirectory(fs);
+  r3b->SetDirectory(fs);
+  r3c->SetDirectory(fs);
+  r4a->SetDirectory(fs);
+  r4b->SetDirectory(fs);
+  r4c->SetDirectory(fs);
 
   TLorentzVector PP, Pa, Pb, Pc;
   for (Long64_t i = 0; i < Nsim; i++){
@@ -114,6 +146,9 @@ int main(const int argc, const char * argv[]){
       d0a->Fill(kf[2].P(), kf[4].P(), weight);
       d0b->Fill(kf[3].P(), kf[4].P(), weight);
       d0c->Fill(kf[2].P(), kf[3].P(), weight);
+      r0a->Fill(kf[4].Theta() * deg, kf[4].P(), weight);
+      r0b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+      r0c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
     }
 
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
@@ -130,6 +165,9 @@ int main(const int argc, const char * argv[]){
       d1a->Fill(kf[2].P(), kf[1].P(), weight);
       d1b->Fill(kf[3].P(), kf[1].P(), weight);
       d1c->Fill(kf[2].P(), kf[3].P(), weight);
+      r1a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r1b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+      r1c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
     }
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
@@ -146,6 +184,9 @@ int main(const int argc, const char * argv[]){
       d2a->Fill(kf[2].P(), kf[1].P(), weight);
       d2b->Fill(kf[3].P(), kf[1].P(), weight);
       d2c->Fill(kf[2].P(), kf[3].P(), weight);
+      r2a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r2b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+      r2c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
     }
 
     weight = GENERATE::Event_eNKK_L1520(ki, kf);
@@ -162,6 +203,9 @@ int main(const int argc, const char * argv[]){
       d3a->Fill(kf[2].P(), kf[1].P(), weight);
       d3b->Fill(kf[3].P(), kf[1].P(), weight);
       d3c->Fill(kf[2].P(), kf[3].P(), weight);
+      r3a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r3b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+      r3c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
     }
  
     weight = GENERATE::Event_eNKK_KK(ki, kf);
@@ -178,6 +222,9 @@ int main(const int argc, const char * argv[]){
       d4a->Fill(kf[2].P(), kf[1].P(), weight);
       d4b->Fill(kf[3].P(), kf[1].P(), weight);
       d4c->Fill(kf[2].P(), kf[3].P(), weight);
+      r4a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r4b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+      r4c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
     }
 
   }
@@ -222,6 +269,21 @@ int main(const int argc, const char * argv[]){
   d4b->Scale(1.0/Nsim);
   d4c->Scale(1.0/Nsim);
 
+  r0a->Scale(1.0/Nsim);
+  r0b->Scale(1.0/Nsim);
+  r0c->Scale(1.0/Nsim);
+  r1a->Scale(1.0/Nsim);
+  r1b->Scale(1.0/Nsim);
+  r1c->Scale(1.0/Nsim);
+  r2a->Scale(1.0/Nsim);
+  r2b->Scale(1.0/Nsim);
+  r2c->Scale(1.0/Nsim);
+  r3a->Scale(1.0/Nsim);
+  r3b->Scale(1.0/Nsim);
+  r3c->Scale(1.0/Nsim);
+  r4a->Scale(1.0/Nsim);
+  r4b->Scale(1.0/Nsim);
+  r4c->Scale(1.0/Nsim);
  
   fs->Write();
 

@@ -767,8 +767,8 @@ namespace DETECTOR{
     double acc = AcceptanceBONUS12(P[0], part);   
     if (acc > 0){
       res[0] = 0.01;
-      res[1] = 0.001;
-      res[2] = 0.004;
+      res[1] = 0.018;
+      res[2] = 0.030;
       p = p * abs(random.Gaus(1, res[0]));
       theta = random.Gaus(theta, res[1]);
       phi = random.Gaus(phi, res[2]);
@@ -777,9 +777,9 @@ namespace DETECTOR{
     }
     acc = AcceptanceCLAS12(P[0], part);
     if (acc > 0){
-      res[0] = 0.1;
-      res[1] = 0.02;
-      res[2] = 0.02;
+      res[0] = 0.01;
+      res[1] = 0.001;
+      res[2] = 0.004;
       p = p * abs(random.Gaus(1, res[0]));
       theta = random.Gaus(theta, res[1]);
       phi = random.Gaus(phi, res[2]);

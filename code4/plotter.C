@@ -265,8 +265,14 @@ int main(const int argc, const char * argv[]){
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     h2b->DrawClone("same");
-    h3b->Scale(1/10.);h3b->DrawClone("same");
+    h3b->Scale(1/20.);h3b->DrawClone("same");
     h4b->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production / 20", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Massraw.pdf","pdf");//
     h0c->SetMaximum(30.0);
@@ -277,6 +283,12 @@ int main(const int argc, const char * argv[]){
     h3c->DrawClone("same");
     h4c->DrawClone("same");
     h0c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Massraw.pdf)","pdf");
   }
@@ -537,7 +549,105 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Momentumraw.pdf)","pdf");//
   }
 
-  if (opt == 6){//invariant mass detected d
+  if (opt == 6){//P-theta vertex
+    TFile * fs = new TFile("result/raw.root", "r");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
+    TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
+    TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
+    TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
+    TH2D * r2a = (TH2D *) fs->Get("PTheta_p_phi");
+    TH2D * r2b = (TH2D *) fs->Get("PTheta_Kp_phi");
+    TH2D * r2c = (TH2D *) fs->Get("PTheta_Km_phi");
+    TH2D * r3a = (TH2D *) fs->Get("PTheta_p_Lambda1520");
+    TH2D * r3b = (TH2D *) fs->Get("PTheta_Kp_Lambda1520");
+    TH2D * r3c = (TH2D *) fs->Get("PTheta_Km_Lambda1520");
+    TH2D * r4a = (TH2D *) fs->Get("PTheta_p_KK");
+    TH2D * r4b = (TH2D *) fs->Get("PTheta_Kp_KK");
+    TH2D * r4c = (TH2D *) fs->Get("PTheta_Km_KK");
+    TH2D * rB = new TH2D("rB", "", 1, 0.0, 90.0, 1, 0.0, 2.0);
+    rB->SetStats(0);
+    rB->GetXaxis()->SetTitle("#theta (deg)");
+    rB->GetXaxis()->CenterTitle(true);
+    rB->GetXaxis()->SetTitleSize(0.06);
+    rB->GetXaxis()->SetTitleOffset(1.15);
+    rB->GetXaxis()->SetLabelSize(0.06);
+    rB->GetXaxis()->SetRangeUser(0.0, 90.0);
+    rB->GetXaxis()->SetNdivisions(6, 5, 0);
+    rB->GetYaxis()->SetTitle("P (GeV)");
+    rB->GetYaxis()->CenterTitle(true);
+    rB->GetYaxis()->SetTitleSize(0.06);
+    rB->GetYaxis()->SetTitleOffset(1.15);
+    rB->GetYaxis()->SetLabelSize(0.06);
+    rB->GetYaxis()->SetRangeUser(0.0, 2.0);
+    rB->GetYaxis()->SetNdivisions(5, 5, 0);
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    rB->SetTitle("proton from N-#phi");
+    rB->DrawClone("axis");
+    r0a->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf(", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r0b->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r0c->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");//
+    rB->SetTitle("proton with N-#phi production");
+    rB->DrawClone("axis");
+    r1a->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r1b->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r1c->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");//
+    rB->SetTitle("proton with #phi production");
+    rB->DrawClone("axis");
+    r2a->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{+} from #phi");
+    rB->DrawClone("axis");
+    r2b->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{-} from #phi");
+    rB->DrawClone("axis");
+    r2c->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");//
+    rB->SetTitle("proton from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3a->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{+} with #Lambda(1520) production");
+    rB->DrawClone("axis");
+    r3b->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{-} from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3c->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");//
+    rB->SetTitle("proton with direct KK production");
+    rB->DrawClone("axis");
+    r4a->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{+} from direct KK production");
+    rB->DrawClone("axis");
+    r4b->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf", "pdf");
+    rB->SetTitle("K^{-} from direct KK production");
+    rB->DrawClone("axis");
+    r4c->Draw("colsame");
+    c0->Print("gallary/PThetaraw.pdf)", "pdf");//
+  }
+
+  if (opt == 7){//invariant mass detected d
     TFile * fs = new TFile("result/detected.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
@@ -698,8 +808,14 @@ int main(const int argc, const char * argv[]){
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     h2b->DrawClone("same");
-    h3b->Scale(1/10.);h3b->DrawClone("same");
+    h3b->Scale(1/20.);h3b->DrawClone("same");
     h4b->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production / 20", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Massdetected.pdf","pdf");//
     h0c->SetMaximum(0.1);
@@ -710,11 +826,17 @@ int main(const int argc, const char * argv[]){
     h3c->DrawClone("same");
     h4c->DrawClone("same");
     h0c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 20", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Massdetected.pdf)","pdf");
   }
 
-  if (opt == 7){//Momentum detected
+  if (opt == 8){//Momentum detected
     TFile * fs = new TFile("result/detected.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
@@ -970,7 +1092,105 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Momentumdetected.pdf)","pdf");//
   }
 
-  if (opt == 8){//invariant mass smeared 
+  if (opt == 9){//P-theta detected
+    TFile * fs = new TFile("result/detected.root", "r");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
+    TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
+    TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
+    TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
+    TH2D * r2a = (TH2D *) fs->Get("PTheta_p_phi");
+    TH2D * r2b = (TH2D *) fs->Get("PTheta_Kp_phi");
+    TH2D * r2c = (TH2D *) fs->Get("PTheta_Km_phi");
+    TH2D * r3a = (TH2D *) fs->Get("PTheta_p_Lambda1520");
+    TH2D * r3b = (TH2D *) fs->Get("PTheta_Kp_Lambda1520");
+    TH2D * r3c = (TH2D *) fs->Get("PTheta_Km_Lambda1520");
+    TH2D * r4a = (TH2D *) fs->Get("PTheta_p_KK");
+    TH2D * r4b = (TH2D *) fs->Get("PTheta_Kp_KK");
+    TH2D * r4c = (TH2D *) fs->Get("PTheta_Km_KK");
+    TH2D * rB = new TH2D("rB", "", 1, 0.0, 90.0, 1, 0.0, 2.0);
+    rB->SetStats(0);
+    rB->GetXaxis()->SetTitle("#theta (deg)");
+    rB->GetXaxis()->CenterTitle(true);
+    rB->GetXaxis()->SetTitleSize(0.06);
+    rB->GetXaxis()->SetTitleOffset(1.15);
+    rB->GetXaxis()->SetLabelSize(0.06);
+    rB->GetXaxis()->SetRangeUser(0.0, 90.0);
+    rB->GetXaxis()->SetNdivisions(6, 5, 0);
+    rB->GetYaxis()->SetTitle("P (GeV)");
+    rB->GetYaxis()->CenterTitle(true);
+    rB->GetYaxis()->SetTitleSize(0.06);
+    rB->GetYaxis()->SetTitleOffset(1.15);
+    rB->GetYaxis()->SetLabelSize(0.06);
+    rB->GetYaxis()->SetRangeUser(0.0, 2.0);
+    rB->GetYaxis()->SetNdivisions(5, 5, 0);
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    rB->SetTitle("proton from N-#phi");
+    rB->DrawClone("axis");
+    r0a->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf(", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r0b->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r0c->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");//
+    rB->SetTitle("proton with N-#phi production");
+    rB->DrawClone("axis");
+    r1a->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r1b->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r1c->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");//
+    rB->SetTitle("proton with #phi production");
+    rB->DrawClone("axis");
+    r2a->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{+} from #phi");
+    rB->DrawClone("axis");
+    r2b->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{-} from #phi");
+    rB->DrawClone("axis");
+    r2c->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");//
+    rB->SetTitle("proton from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3a->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{+} with #Lambda(1520) production");
+    rB->DrawClone("axis");
+    r3b->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{-} from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3c->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");//
+    rB->SetTitle("proton with direct KK production");
+    rB->DrawClone("axis");
+    r4a->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{+} from direct KK production");
+    rB->DrawClone("axis");
+    r4b->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf", "pdf");
+    rB->SetTitle("K^{-} from direct KK production");
+    rB->DrawClone("axis");
+    r4c->Draw("colsame");
+    c0->Print("gallary/PThetadetected.pdf)", "pdf");//
+  }
+
+  if (opt == 10){//invariant mass smeared 
     TFile * fs = new TFile("result/smeared.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
@@ -1131,8 +1351,14 @@ int main(const int argc, const char * argv[]){
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     h2b->DrawClone("same");
-    h3b->Scale(1/10.);h3b->DrawClone("same");
+    h3b->Scale(1/20.);h3b->DrawClone("same");
     h4b->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production / 20", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Masssmeared.pdf","pdf");//
     h0c->SetMaximum(0.1);
@@ -1143,11 +1369,17 @@ int main(const int argc, const char * argv[]){
     h3c->DrawClone("same");
     h4c->DrawClone("same");
     h0c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 20", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Masssmeared.pdf)","pdf");
   }
 
-  if (opt == 9){//Momentum smeared
+  if (opt == 11){//Momentum smeared
     TFile * fs = new TFile("result/smeared.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
@@ -1403,7 +1635,105 @@ int main(const int argc, const char * argv[]){
     c0->Print("gallary/Momentumsmeared.pdf)","pdf");//
   }
 
-  if (opt == 10){//Two pions
+  if (opt == 12){//P-theta smeared
+    TFile * fs = new TFile("result/smeared.root", "r");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
+    TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
+    TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
+    TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
+    TH2D * r2a = (TH2D *) fs->Get("PTheta_p_phi");
+    TH2D * r2b = (TH2D *) fs->Get("PTheta_Kp_phi");
+    TH2D * r2c = (TH2D *) fs->Get("PTheta_Km_phi");
+    TH2D * r3a = (TH2D *) fs->Get("PTheta_p_Lambda1520");
+    TH2D * r3b = (TH2D *) fs->Get("PTheta_Kp_Lambda1520");
+    TH2D * r3c = (TH2D *) fs->Get("PTheta_Km_Lambda1520");
+    TH2D * r4a = (TH2D *) fs->Get("PTheta_p_KK");
+    TH2D * r4b = (TH2D *) fs->Get("PTheta_Kp_KK");
+    TH2D * r4c = (TH2D *) fs->Get("PTheta_Km_KK");
+    TH2D * rB = new TH2D("rB", "", 1, 0.0, 90.0, 1, 0.0, 2.0);
+    rB->SetStats(0);
+    rB->GetXaxis()->SetTitle("#theta (deg)");
+    rB->GetXaxis()->CenterTitle(true);
+    rB->GetXaxis()->SetTitleSize(0.06);
+    rB->GetXaxis()->SetTitleOffset(1.15);
+    rB->GetXaxis()->SetLabelSize(0.06);
+    rB->GetXaxis()->SetRangeUser(0.0, 90.0);
+    rB->GetXaxis()->SetNdivisions(6, 5, 0);
+    rB->GetYaxis()->SetTitle("P (GeV)");
+    rB->GetYaxis()->CenterTitle(true);
+    rB->GetYaxis()->SetTitleSize(0.06);
+    rB->GetYaxis()->SetTitleOffset(1.15);
+    rB->GetYaxis()->SetLabelSize(0.06);
+    rB->GetYaxis()->SetRangeUser(0.0, 2.0);
+    rB->GetYaxis()->SetNdivisions(5, 5, 0);
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    rB->SetTitle("proton from N-#phi");
+    rB->DrawClone("axis");
+    r0a->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf(", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r0b->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r0c->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");//
+    rB->SetTitle("proton with N-#phi production");
+    rB->DrawClone("axis");
+    r1a->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{+} from N-#phi");
+    rB->DrawClone("axis");
+    r1b->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{-} from N-#phi");
+    rB->DrawClone("axis");
+    r1c->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");//
+    rB->SetTitle("proton with #phi production");
+    rB->DrawClone("axis");
+    r2a->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{+} from #phi");
+    rB->DrawClone("axis");
+    r2b->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{-} from #phi");
+    rB->DrawClone("axis");
+    r2c->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");//
+    rB->SetTitle("proton from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3a->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{+} with #Lambda(1520) production");
+    rB->DrawClone("axis");
+    r3b->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{-} from #Lambda(1520)");
+    rB->DrawClone("axis");
+    r3c->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");//
+    rB->SetTitle("proton with direct KK production");
+    rB->DrawClone("axis");
+    r4a->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{+} from direct KK production");
+    rB->DrawClone("axis");
+    r4b->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf", "pdf");
+    rB->SetTitle("K^{-} from direct KK production");
+    rB->DrawClone("axis");
+    r4c->Draw("colsame");
+    c0->Print("gallary/PThetasmeared.pdf)", "pdf");//
+  }
+
+  if (opt == 13){//Two pions
     TFile * fs = new TFile("result/smeared.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
