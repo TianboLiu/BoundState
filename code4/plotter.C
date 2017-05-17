@@ -785,7 +785,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.05);
+    h0->SetMaximum(0.15);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
@@ -1328,7 +1328,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.05);
+    h0->SetMaximum(0.15);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
@@ -1734,16 +1734,15 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 13){//Two pions
-    TFile * fs = new TFile("result/smeared.root", "r");
+    TFile * fs = new TFile("result/cut.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
-    TFile * ts = new TFile("result/twopi.root", "r");
-    TH1D * h1 = (TH1D *) ts->Get("MpKK_TwoPi");
-    TH1D * h1a = (TH1D *) ts->Get("MpKp_TwoPi");
-    TH1D * h1b = (TH1D *) ts->Get("MpKm_TwoPi");
-    TH1D * h1c = (TH1D *) ts->Get("MKK_TwoPi");
+    TH1D * h1 = (TH1D *) fs->Get("MpKK_PiPi");
+    TH1D * h1a = (TH1D *) fs->Get("MpKp_PiPi");
+    TH1D * h1b = (TH1D *) fs->Get("MpKm_PiPi");
+    TH1D * h1c = (TH1D *) fs->Get("MKK_PiPi");
     double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
     double time = 3600.0;
     double binsize = 0.2;//MeV
@@ -1838,25 +1837,29 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.1);
+    h0->SetMaximum(0.3);
+    h0->GetXaxis()->SetRangeUser(1.91, 2.05);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf(","pdf");//
-    h0a->SetMaximum(0.2);
+    h0a->SetMaximum(0.3);
+    h0a->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf","pdf");//
-    h0b->SetMaximum(0.2);
+    h0b->SetMaximum(0.3);
+    h0b->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf","pdf");//
-    h0c->SetMaximum(0.1);
+    h0c->SetMaximum(0.3);
+    h0c->GetXaxis()->SetRangeUser(0.98, 1.05);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
     h1c->DrawClone("same");

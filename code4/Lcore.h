@@ -737,7 +737,7 @@ namespace DETECTOR{
 
   double AcceptanceBONUS12(const TLorentzVector P, const char * part){
     double p = P.P() * 1000.0;//MeV
-    if (p > 200.0) return 0;//sharp cut on momentum
+    if (p > 250.0) return 0;//sharp cut on momentum
     double theta = P.Theta() * 180.0 / M_PI;
     TH2D * acc;
     if (strcmp(part, "p") == 0) acc = acc_pip_bonus;
