@@ -342,6 +342,20 @@ namespace GENERATE{
     return weight[0];
   }
 
+  double PhiElectroproduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', phi, N'
+    double weight1;
+    ScatteredElectron(ki, kf, &weight1);
+    TLorentzVector ki1[2];
+    ki1[0] = kf[1];//virtual photon
+    ki1[1].SetXYZT(0, 0, 0, Mp);//rest nucleon
+    double weight2;
+    PhiPhotoproduction(ki1, &kf[1], &weight2);
+    weight[0] = weight1 * weight2;
+    weight[0] *= sqrt(pow(ki1[0] * ki1[1], 2) - ki1[0].M2() * ki1[1].M2()) / sqrt(pow(ki[0] * ki1[1], 2) - ki[0].M2() * ki1[1].M2());
+    return weight[0];
+  }
+
   double PhiElectroproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
     //ki: e; kf: e', phi, N'
     double weight1;
@@ -615,6 +629,22 @@ namespace GENERATE{
     weight[0] *= 0.465;//Branch ratio to pK+K-
     return weight[0];
   }
+
+  double Event_eNKK_Phi_Nucleon(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: e; kf: e', N', [K+, K-]
+    TLorentzVector kk[3];
+    PhiElectroproduction(ki, kk, weight);
+    kf[0] = kk[0];//e'
+    kf[1] = kk[2];//N'
+    const double MK = PARTICLE::K.M();
+    double mass[2] = {MK, MK};
+    GenPhase.SetDecay(kk[1], 2, mass);
+    GenPhase.Generate();
+    kf[2] = *GenPhase.GetDecay(0);//K+
+    kf[3] = *GenPhase.GetDecay(1);//K-
+    weight[0] *= 0.489;//Branch ratio to K+K-
+    return weight[0];
+  }   
 
   double Event_eNKK_Phi(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
     //ki: e; kf: e', N', [K+, K-]
