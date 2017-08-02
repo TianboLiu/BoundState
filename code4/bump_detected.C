@@ -14,7 +14,7 @@ int main(const int argc, const char * argv[]){
   ki[0].SetXYZT(0, 0, 4.4, 4.4);
   
 
-  TFile * fs = new TFile("result/bumpraw.root", "RECREATE");
+  TFile * fs = new TFile("result/bumpdetected.root", "RECREATE");
 
   TH1D * h0 = new TH1D("Mass_KK", "", 1000, 0.9, 1.9);
   TH1D * h1 = new TH1D("Mass_gN", "", 1000, 1.9, 2.9);
@@ -39,6 +39,8 @@ int main(const int argc, const char * argv[]){
  
     weight = GENERATE::Event_eNKK_Phi_Nucleon(ki, kf);
     if (weight > 0){
+      weight *= DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
+
       P1 = ki[0] - kf[0];//virtual photon
       P3 = kf[2] + kf[3];//phi
       P4 = kf[1];//N'
@@ -59,6 +61,8 @@ int main(const int argc, const char * argv[]){
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
     if (weight > 0){
+      weight *= DETECTOR::Acceptance(kf[2], "K+") * DETECTOR::Acceptance(kf[3], "K-");
+
       P1 = ki[0] - kf[0];//virtual photon
       P3 = kf[2] + kf[3];//phi
       P4 = kf[1];//N'
