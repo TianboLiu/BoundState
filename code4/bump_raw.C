@@ -18,22 +18,23 @@ int main(const int argc, const char * argv[]){
 
   TH1D * h0 = new TH1D("Mass_KK", "", 1000, 0.9, 1.9);
   TH1D * h1 = new TH1D("Mass_gN", "", 1000, 1.9, 2.9);
-  TH1D * h2 = new TH1D("T_gPhi", "", 1000, 0.0, 3.0);
+  TH1D * h2 = new TH1D("CosThetaPhi", "", 1000, -1.0, 1.0);
   TH1D * h3 = new TH1D("E_g", "", 1000, 0.0, 4.4);
   
   TH1D * H0 = new TH1D("Mass_KK_Gold", "", 1000, 0.9, 1.9);
   TH1D * H1 = new TH1D("Mass_gN_Gold", "", 1000, 1.9, 2.9);
-  TH1D * H2 = new TH1D("T_gPhi_Gold", "", 1000, 0.0, 3.0);
+  TH1D * H2 = new TH1D("CosThetaPhi_Gold", "", 1000, -1.0, 1.0);
   TH1D * H3 = new TH1D("E_g_Gold", "", 1000, 0.0, 4.4);
 
-  TH2D * s0 = new TH2D("ET", "", 200, 0.0, 4.4, 200, 0.0, 3.0);
+  TH2D * s0 = new TH2D("ECosTheta", "", 200, 0.0, 4.4, 200, -1.0, 1.0);
   
-  TH2D * S0 = new TH2D("ET_Gold", "", 200, 0.0, 4.4, 200, 0.0, 3.0);
+  TH2D * S0 = new TH2D("ECosTheta_Gold", "", 200, 0.0, 4.4, 200, -1.0, 1.0);
 
   TLorentzVector P2(0, 0, 0, Mp);//rest nucleon
   TLorentzVector P1, P3, P4;
-  double p1cm, p3cm, t, t0;
-  double Ecm;
+  TLorentzVector Ptotal;
+  //double p1cm, p3cm, t, t0;
+  //double Ecm;
   for (Long64_t i = 0; i < Nsim; i++){
     if (i%1000000 == 0) cout << i << endl;
  
@@ -43,18 +44,20 @@ int main(const int argc, const char * argv[]){
       P3 = kf[2] + kf[3];//phi
       P4 = kf[1];//N'
       P2.SetXYZT(0, 0, 0, Mp);
-      Ecm = sqrt((P1 + P2) * (P1 + P2));
-      t = (P1 - P3) * (P1 - P3);
-      p1cm = sqrt(pow(P1 * P2, 2) - P1.M2() * P2.M2()) / Ecm;
-      p3cm = sqrt(pow(P3 * P4, 2) - P3.M2() * P4.M2()) / Ecm;
-      t0 = pow((P1.M2() - P3.M2() - P2.M2() + P4.M2()) / (2.0 * Ecm), 2) - pow(p1cm - p3cm, 2);
+      Ptotal = kf[1] + kf[2] + kf[3];
+
+      P1.Boost(-Ptotal.BoostVector());
+      P2.Boost(-Ptotal.BoostVector());
+      P3.Boost(-Ptotal.BoostVector());
+      P4.Boost(-Ptotal.BoostVector());
+
 
       h0->Fill(P3.M(), weight);
-      h1->Fill(Ecm, weight);
-      h2->Fill(abs(t - t0), weight);//|t-t0|
+      h1->Fill(Ptotal.M(), weight);
+      h2->Fill(cos(P3.Angle(P1.Vect())), weight);
       h3->Fill(P1.E(), weight);
       
-      s0->Fill(P1.E(), abs(t - t0), weight);
+      s0->Fill(P1.E(), cos(P3.Angle(P1.Vect())), weight);
     }
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
@@ -63,18 +66,19 @@ int main(const int argc, const char * argv[]){
       P3 = kf[2] + kf[3];//phi
       P4 = kf[1];//N'
       P2 = P3 + P4 - P1;
-      Ecm = sqrt((P1 + P2) * (P1 + P2));
-      t = (P1 - P3) * (P1 - P3);
-      p1cm = sqrt(pow(P1 * P2, 2) - P1.M2() * P2.M2()) / Ecm;
-      p3cm = sqrt(pow(P3 * P4, 2) - P3.M2() * P4.M2()) / Ecm;
-      t0 = pow((P1.M2() - P3.M2() - P2.M2() + P4.M2()) / (2.0 * Ecm), 2) - pow(p1cm - p3cm, 2);
+      Ptotal = kf[1] + kf[2] + kf[3];
+
+      P1.Boost(-Ptotal.BoostVector());
+      P2.Boost(-Ptotal.BoostVector());
+      P3.Boost(-Ptotal.BoostVector());
+      P4.Boost(-Ptotal.BoostVector());
 
       H0->Fill(P3.M(), weight);
-      H1->Fill(Ecm, weight);
-      H2->Fill(abs(t - t0), weight);//|t-t0|
+      H1->Fill(Ptotal.M(), weight);
+      H2->Fill(cos(P3.Angle(P1.Vect())), weight);//|t-t0|
       H3->Fill(P1.E(), weight);
       
-      S0->Fill(P1.E(), abs(t - t0), weight);
+      S0->Fill(P1.E(), cos(P3.Angle(P1.Vect())), weight);
     }
   }
 
