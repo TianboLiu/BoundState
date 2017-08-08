@@ -709,9 +709,7 @@ namespace DETECTOR{
 
   TRandom3 random(0);
 
-  TFile * facc1;
-  TFile * facc2;
-  TFile * facc3;
+  TFile * facc1, * facc2, * facc3, * facc4;
   TH3F * acc_ele_clas;
   TH3F * acc_pip_clas;
   TH3F * acc_pim_clas;
@@ -723,11 +721,15 @@ namespace DETECTOR{
   TH2D * acc_pip_bonus;
   TH2D * acc_Km_bonus;
   TH2D * acc_pim_bonus;
+  TH2D * acc_phi_clas;
+  TH2D * acc_phi_bonus;
+  TH2D * acc_phi_all;
 
   int SetDETECTOR(){
     facc1 = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
     facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
     facc3 = new TFile("acceptance/bonus12_upstream.root", "r");
+    facc4 = new TFile("acceptance/acceptance_phi.root", "r");
     acc_pip_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
     acc_pim_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
     acc_ele_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
@@ -739,7 +741,9 @@ namespace DETECTOR{
     acc_pip_bonus = (TH2D *) facc3->Get("h2");
     acc_Km_bonus = (TH2D *) facc3->Get("h3");
     acc_pim_bonus = (TH2D *) facc3->Get("h4");
-    
+    acc_phi_clas = (TH2D *) facc4->Get("acceptance_PTheta_clas12");
+    acc_phi_bonus = (TH2D *) facc4->Get("acceptance_PTheta_bonus12");
+    acc_phi_all = (TH2D *) facc4->Get("acceptance_PTheta_all");
     return 0;
   }
 
@@ -786,6 +790,18 @@ namespace DETECTOR{
     double acc_clas = AcceptanceCLAS12(P, part);
     double acc_bonus = AcceptanceBONUS12(P, part);
     return 1.0 - (1.0 - acc_clas) * (1.0 - acc_bonus);
+  }
+
+  double AcceptancePhi(const TLorentzVector P, const char * detector){
+    TH2D * acc;
+    if (strcmp(detector, "clas12") == 0) acc = acc_phi_clas;
+    else if (strcmp(detector, "bonus12") == 0) acc = acc_phi_bonus;
+    else if (strcmp(detector, "all") == 0) acc = acc_phi_all;
+    else return 0;
+    int binx = acc->GetXaxis()->FindBin(P.P());
+    int biny = acc->GetYaxis()->FindBin(P.Theta());
+    double result = acc->GetBinContent(binx, biny);
+    return result;
   }
 
   double Smear(TLorentzVector * P, const char * part){
