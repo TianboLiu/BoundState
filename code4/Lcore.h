@@ -191,7 +191,193 @@ namespace GOLD{
 
 }
 
+namespace PHIMODEL{
+  ROOT::Math::Interpolator CLASm08(65, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm07(78, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm06(80, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm05(78, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm04(81, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm03(86, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm02(86, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASm01(85, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp00(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp01(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp02(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp03(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0375(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0425(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0475(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0525(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0575(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0625(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0675(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0725(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0775(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0825(87, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0875(86, ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator CLASp0925(80, ROOT::Math::Interpolation::kCSPLINE);
+  
+  int SetInterpolation(){
+    double x[100], y[100], tmp;
+    ifstream fm08("data/dsc-0.8.dat");
+    int i = 0;
+    while (fm08 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm08.SetData(65, x, y);
+    fm08.close();
+    ifstream fm07("data/dsc-0.7.dat");
+    i = 0;
+    while (fm07 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm07.SetData(78, x, y);
+    fm07.close();
+    ifstream fm06("data/dsc-0.6.dat");
+    i = 0;
+    while (fm06 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm06.SetData(80, x, y);
+    fm06.close();
+    ifstream fm05("data/dsc-0.5.dat");
+    i = 0;
+    while (fm05 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm05.SetData(78, x, y);
+    fm05.close();
+    ifstream fm04("data/dsc-0.4.dat");
+    i = 0;
+    while (fm04 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm04.SetData(81, x, y);
+    fm04.close();
+    ifstream fm03("data/dsc-0.3.dat");
+    i = 0;
+    while (fm03 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm03.SetData(86, x, y);
+    fm03.close();
+    ifstream fm02("data/dsc-0.2.dat");
+    i = 0;
+    while (fm02 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm02.SetData(86, x, y);
+    fm02.close();
+    ifstream fm01("data/dsc-0.1.dat");
+    i = 0;
+    while (fm01 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASm01.SetData(85, x, y);
+    fm01.close();
+    ifstream fp00("data/dsc0.0.dat");
+    i = 0;
+    while (fp00 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp00.SetData(87, x, y);
+    fp00.close();
+    ifstream fp01("data/dsc0.1.dat");
+    i = 0;
+    while (fp01 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp01.SetData(87, x, y);
+    fp01.close();
+    ifstream fp02("data/dsc0.2.dat");
+    i = 0;
+    while (fp02 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp02.SetData(87, x, y);
+    fp02.close();
+    ifstream fp03("data/dsc0.3.dat");
+    i = 0;
+    while (fp03 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp03.SetData(87, x, y);
+    fp03.close();
+    ifstream fp0375("data/dsc0.375.dat");
+    i = 0;
+    while (fp0375 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0375.SetData(87, x, y);
+    fp0375.close();
+    ifstream fp0425("data/dsc0.425.dat");
+    i = 0;
+    while (fp0425 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0425.SetData(87, x, y);
+    fp0425.close();
+    ifstream fp0475("data/dsc0.475.dat");
+    i = 0;
+    while (fp0475 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0475.SetData(87, x, y);
+    fp0475.close();
+    ifstream fp0525("data/dsc0.525.dat");
+    i = 0;
+    while (fp0525 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0525.SetData(87, x, y);
+    fp0525.close();
+    ifstream fp0575("data/dsc0.575.dat");
+    i = 0;
+    while (fp0575 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0575.SetData(87, x, y);
+    fp0575.close();
+    ifstream fp0625("data/dsc0.625.dat");
+    i = 0;
+    while (fp0625 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0625.SetData(87, x, y);
+    fp0625.close();
+    ifstream fp0675("data/dsc0.675.dat");
+    i = 0;
+    while (fp0675 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0675.SetData(87, x, y);
+    fp0675.close();
+    ifstream fp0725("data/dsc0.725.dat");
+    i = 0;
+    while (fp0725 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0725.SetData(87, x, y);
+    fp0725.close();
+    ifstream fp0775("data/dsc0.775.dat");
+    i = 0;
+    while (fp0775 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0775.SetData(87, x, y);
+    fp0775.close();
+    ifstream fp0825("data/dsc0.825.dat");
+    i = 0;
+    while (fp0825 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0825.SetData(87, x, y);
+    fp0825.close();
+    ifstream fp0875("data/dsc0.875.dat");
+    i = 0;
+    while (fp0875 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0875.SetData(86, x, y);
+    fp0875.close();
+    ifstream fp0925("data/dsc0.925.dat");
+    i = 0;
+    while (fp0925 >> x[i] >> tmp >> y[i] >> tmp) i++;
+    CLASp0925.SetData(80, x, y);
+    fp0925.close();
+    return 0;
+  }
 
+  double dSigmaPhi_clas(const double W0, const double W, const double cth){
+    if (W <= W0) return 0;
+    double result = 0.0;
+    double dE = W - W0;
+    if (dE > 0.85) dE = 0.85;
+    if (cth < -0.75) result = CLASm08.Eval(dE);
+    else if (cth >= -0.75 && cth < -0.65) result = CLASm07.Eval(dE);
+    else if (cth >= -0.65 && cth < -0.55) result = CLASm06.Eval(dE);
+    else if (cth >= -0.55 && cth < -0.45) result = CLASm05.Eval(dE);
+    else if (cth >= -0.45 && cth < -0.35) result = CLASm04.Eval(dE);
+    else if (cth >= -0.35 && cth < -0.25) result = CLASm03.Eval(dE);
+    else if (cth >= -0.25 && cth < -0.15) result = CLASm02.Eval(dE);
+    else if (cth >= -0.15 && cth < -0.05) result = CLASm01.Eval(dE);
+    else if (cth >= -0.05 && cth < 0.05) result = CLASp00.Eval(dE);
+    else if (cth >= 0.05 && cth < 0.15) result = CLASp01.Eval(dE);
+    else if (cth >= 0.15 && cth < 0.25) result = CLASp02.Eval(dE);
+    else if (cth >= 0.25 && cth < 0.35) result = CLASp03.Eval(dE);
+    else if (cth >= 0.35 && cth < 0.40) result = CLASp0375.Eval(dE);
+    else if (cth >= 0.40 && cth < 0.45) result = CLASp0425.Eval(dE);
+    else if (cth >= 0.45 && cth < 0.50) result = CLASp0475.Eval(dE);
+    else if (cth >= 0.50 && cth < 0.55) result = CLASp0525.Eval(dE);
+    else if (cth >= 0.55 && cth < 0.60) result = CLASp0575.Eval(dE);
+    else if (cth >= 0.60 && cth < 0.65) result = CLASp0625.Eval(dE);
+    else if (cth >= 0.65 && cth < 0.70) result = CLASp0675.Eval(dE);
+    else if (cth >= 0.70 && cth < 0.75) result = CLASp0725.Eval(dE);
+    else if (cth >= 0.75 && cth < 0.80) result = CLASp0775.Eval(dE);
+    else if (cth >= 0.80 && cth < 0.85) result = CLASp0825.Eval(dE);
+    else if (cth >= 0.85 && cth < 0.90) result = CLASp0875.Eval(dE);
+    else if (cth >= 0.90) result = CLASp0925.Eval(dE);
+    else result = 0.0;
+    return result / (2.0 * M_PI) / 389.379;//ds/dOmega in unit GeV^-2
+  }
+   
+    
+    
+}
 
 namespace GENERATE{
 
@@ -208,7 +394,9 @@ namespace GENERATE{
     return 0;
   }
 
-  double dSigmaPhi(const double W0, const double W, const double cth){
+  double (*dSigmaPhi)(const double, const double, const double);
+
+  double dSigmaPhi_old(const double W0, const double W, const double cth){
     if (W <= W0) return 0;
     double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
     double b1 = par[3] * pow(W * W - W0 * W0, par[4]);
@@ -695,6 +883,8 @@ namespace GENERATE{
   }
 
   int SetGENERATE(){
+    dSigmaPhi = &PHIMODEL::dSigmaPhi_clas;
+    //dSigmaPhi = &dSigmaPhi_old;
     SetfNKK();
     SetdSigmaPiPi();
     SetfNPiPi();
@@ -843,6 +1033,7 @@ namespace DETECTOR{
 int Initialize(){
   MODEL::SetMODEL();
   GOLD::SetGOLD();
+  PHIMODEL::SetInterpolation();
   GENERATE::SetGENERATE();
   DETECTOR::SetDETECTOR();
   return 0;
