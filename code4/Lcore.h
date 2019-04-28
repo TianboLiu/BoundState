@@ -918,7 +918,7 @@ namespace DETECTOR{
   int SetDETECTOR(){
     facc1 = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
     facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
-    facc3 = new TFile("acceptance/bonus12_upstream.root", "r");
+    facc3 = new TFile("acceptance/acc_alert_20190427.root", "r");
     facc4 = new TFile("acceptance/acceptance_phi.root", "r");
     acc_pip_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
     acc_pim_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
@@ -961,7 +961,7 @@ namespace DETECTOR{
 
   double AcceptanceBONUS12(const TLorentzVector P, const char * part){
     double p = P.P() * 1000.0;//MeV
-    if (p > 250.0) return 0;//sharp cut on momentum
+    if (p > 350.0) return 0;//sharp cut on momentum
     double theta = P.Theta() * 180.0 / M_PI;
     TH2D * acc;
     if (strcmp(part, "p") == 0) acc = acc_pip_bonus;
