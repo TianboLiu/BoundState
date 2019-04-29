@@ -1942,13 +1942,13 @@ int main(const int argc, const char * argv[]){
     h0c->GetYaxis()->SetNdivisions(5, 5, 0);
     //
     h0->Scale(lumi*time/binsize);
-    h1->Scale(time/binsize/10000/5e7);
+    h1->Scale(time/binsize/2500/5e7);
     h0a->Scale(lumi*time/binsize);
-    h1a->Scale(time/binsize/10000/5e7);
+    h1a->Scale(time/binsize/2500/5e7);
     h0b->Scale(lumi*time/binsize);
-    h1b->Scale(time/binsize/10000/5e7);
+    h1b->Scale(time/binsize/2500/5e7);
     h0c->Scale(lumi*time/binsize);
-    h1c->Scale(time/binsize/10000/5e7);
+    h1c->Scale(time/binsize/2500/5e7);
     //
     h0->SetStats(0);
     h0a->SetStats(0);
@@ -2025,6 +2025,28 @@ int main(const int argc, const char * argv[]){
     cout << "Back3:  " << h3->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Back4:  " << h4->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Back5:  " << h5->Integral(bin1, bin2) * lumi * time << endl;
+  }
+
+  if (opt == 141){//
+    TFile * fs = new TFile("result/cut.root", "r");
+    TFile * f2pi = new TFile("result/twopinew.root", "r");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
+    TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
+    TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
+    TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
+    TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
+    TH1D * h5 = (TH1D *) f2pi->Get("MpKK_TwoPi");
+    h5->Scale(0.01);
+    double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
+    double time = 3600.0;
+    int bin1 = h0->FindBin(1.935 + 1.0e-10);
+    int bin2 = h0->FindBin(1.965 - 1.0e-10);
+    cout << "Signal: " << h0->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back1:  " << h1->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back2:  " << h2->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back3:  " << h3->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back4:  " << h4->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back5:  " << h5->Integral(bin1, bin2) /2500/5e7 * time << endl;
   }
 
   if (opt == 15){//invariant mass cut
