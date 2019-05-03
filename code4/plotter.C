@@ -1329,7 +1329,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.15);
+    h0->SetMaximum(0.25);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
@@ -1338,7 +1338,7 @@ int main(const int argc, const char * argv[]){
     h4->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Masssmeared.pdf(","pdf");//
-    h0a->SetMaximum(0.1);
+    h0a->SetMaximum(0.15);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
@@ -1347,7 +1347,7 @@ int main(const int argc, const char * argv[]){
     h4a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Masssmeared.pdf","pdf");//
-    h0b->SetMaximum(0.1);
+    h0b->SetMaximum(0.15);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
@@ -1362,7 +1362,7 @@ int main(const int argc, const char * argv[]){
     leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Masssmeared.pdf","pdf");//
-    h0c->SetMaximum(0.1);
+    h0c->SetMaximum(0.15);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
     h1c->DrawClone("same");
@@ -1839,28 +1839,28 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.3);
+    h0->SetMaximum(0.5);
     h0->GetXaxis()->SetRangeUser(1.91, 2.05);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf(","pdf");//
-    h0a->SetMaximum(0.3);
+    h0a->SetMaximum(0.5);
     h0a->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf","pdf");//
-    h0b->SetMaximum(0.3);
+    h0b->SetMaximum(0.5);
     h0b->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPions.pdf","pdf");//
-    h0c->SetMaximum(0.3);
+    h0c->SetMaximum(0.5);
     h0c->GetXaxis()->SetRangeUser(0.98, 1.05);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
@@ -1975,28 +1975,28 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.3);
+    h0->SetMaximum(0.5);
     h0->GetXaxis()->SetRangeUser(1.91, 2.05);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPionsNew.pdf(","pdf");//
-    h0a->SetMaximum(0.3);
+    h0a->SetMaximum(0.5);
     h0a->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPionsNew.pdf","pdf");//
-    h0b->SetMaximum(0.3);
+    h0b->SetMaximum(0.5);
     h0b->GetXaxis()->SetRangeUser(1.4, 1.5);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/TwoPionsNew.pdf","pdf");//
-    h0c->SetMaximum(0.3);
+    h0c->SetMaximum(0.5);
     h0c->GetXaxis()->SetRangeUser(0.98, 1.05);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
@@ -2187,7 +2187,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    h0->SetMaximum(0.15);
+    h0->SetMaximum(0.25);
     h0->DrawClone("axis");
     h0->DrawClone("same");
     h1->DrawClone("same");
@@ -2196,7 +2196,7 @@ int main(const int argc, const char * argv[]){
     h4->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Masscut.pdf(","pdf");//
-    h0a->SetMaximum(0.1);
+    h0a->SetMaximum(0.15);
     h0a->DrawClone("axis");
     h0a->DrawClone("same");
     h1a->DrawClone("same");
@@ -2205,7 +2205,7 @@ int main(const int argc, const char * argv[]){
     h4a->DrawClone("same");
     leg->DrawClone("same");
     c0->Print("gallary/Masscut.pdf","pdf");//
-    h0b->SetMaximum(0.1);
+    h0b->SetMaximum(0.15);
     h0b->DrawClone("axis");
     h0b->DrawClone("same");
     h1b->DrawClone("same");
@@ -2220,7 +2220,7 @@ int main(const int argc, const char * argv[]){
     leg->AddEntry(h4, "direct KK production", "l");
     leg->DrawClone("same");
     c0->Print("gallary/Masscut.pdf","pdf");//
-    h0c->SetMaximum(0.1);
+    h0c->SetMaximum(0.15);
     h0c->DrawClone("axis");
     h0c->DrawClone("same");
     h1c->DrawClone("same");
