@@ -5,14 +5,15 @@ int Cut(const TLorentzVector p, const TLorentzVector Kp, const TLorentzVector Km
 
 int main(const int argc, const char * argv[]){
 
-  if (argc < 2){
-    cout << "./twopinew <filename>" << endl;
+  if (argc < 3){
+    cout << "./twopinew <filename> <Nsim>" << endl;
     return 0;
   }
+  double Nsim = atof(argv[2]);
 
   Initialize();
 
-  double lumi = 1e5 * 79.0 / 197.0;
+  double convert = 1e-4 / pow(Phys::hbar, 2) * 79.0;//convert unit to GeV^-2 per gold
 
   TLorentzVector ki[2], kf[5];
   ki[0].SetXYZT(0, 0, sqrt(4.4 * 4.4 - PARTICLE::e.M() * PARTICLE::e.M()), 4.4);
@@ -20,16 +21,16 @@ int main(const int argc, const char * argv[]){
   TFile * fs = new TFile("result/twopinew.root", "RECREATE");
 
   TH1D * h0 = new TH1D("MpPiPi", "", 2200, 1.18, 1.62);
-  TH1D * h1 = new TH1D("MpKK_TwoPi", "", 2200, 1.88, 2.32);
+  TH1D * h1 = new TH1D("MpKK_PiPi", "", 2200, 1.88, 2.32);
 
   TH1D * h0a = new TH1D("MpPip", "", 2200, 1.03, 1.47);
-  TH1D * h1a = new TH1D("MpKp_TwoPi", "", 2200, 1.38, 1.82);
+  TH1D * h1a = new TH1D("MpKp_PiPi", "", 2200, 1.38, 1.82);
 
   TH1D * h0b = new TH1D("MpPim", "", 2200, 1.03, 1.47);
-  TH1D * h1b = new TH1D("MpKm_TwoPi", "", 2200, 1.38, 1.82);
+  TH1D * h1b = new TH1D("MpKm_PiPi", "", 2200, 1.38, 1.82);
 
   TH1D * h0c = new TH1D("MPiPi", "", 2200, 0.26, 1.70);
-  TH1D * h1c = new TH1D("MKK_TwoPi", "", 2200, 0.98, 1.42);
+  TH1D * h1c = new TH1D("MKK_PiPi", "", 2200, 0.98, 1.42);
 
   h0->SetDirectory(fs);
   h1->SetDirectory(fs);
@@ -91,21 +92,21 @@ int main(const int argc, const char * argv[]){
     }
   }
 
-  h0->Scale(lumi);
-  h1->Scale(lumi);
+  h0->Scale(convert/Nsim);
+  h1->Scale(convert/Nsim);
  
-  h0a->Scale(lumi);
-  h1a->Scale(lumi);
+  h0a->Scale(convert/Nsim);
+  h1a->Scale(convert/Nsim);
  
-  h0b->Scale(lumi);
-  h1b->Scale(lumi);
+  h0b->Scale(convert/Nsim);
+  h1b->Scale(convert/Nsim);
  
-  h0c->Scale(lumi);
-  h1c->Scale(lumi);
+  h0c->Scale(convert/Nsim);
+  h1c->Scale(convert/Nsim);
  
-  d0a->Scale(lumi);
-  d0b->Scale(lumi);
-  d0c->Scale(lumi);
+  d0a->Scale(convert/Nsim);
+  d0b->Scale(convert/Nsim);
+  d0c->Scale(convert/Nsim);
  
   infile.close();
   fs->Write();

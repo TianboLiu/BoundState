@@ -1877,13 +1877,14 @@ int main(const int argc, const char * argv[]){
     TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
-    TH1D * h1 = (TH1D *) f2pi->Get("MpKK_TwoPi");
-    TH1D * h1a = (TH1D *) f2pi->Get("MpKp_TwoPi");
-    TH1D * h1b = (TH1D *) f2pi->Get("MpKm_TwoPi");
-    TH1D * h1c = (TH1D *) f2pi->Get("MKK_TwoPi");
+    TH1D * h1 = (TH1D *) f2pi->Get("MpKK_PiPi");
+    TH1D * h1a = (TH1D *) f2pi->Get("MpKp_PiPi");
+    TH1D * h1b = (TH1D *) f2pi->Get("MpKm_PiPi");
+    TH1D * h1c = (TH1D *) f2pi->Get("MKK_PiPi");
     double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
     double time = 3600.0;
     double binsize = 0.2;//MeV
+    double mispid = 2500.0;
     h0->GetXaxis()->SetTitle("M(pKK) (GeV)");
     h0->GetXaxis()->CenterTitle(true);
     h0->GetXaxis()->SetTitleSize(0.06);
@@ -1942,13 +1943,13 @@ int main(const int argc, const char * argv[]){
     h0c->GetYaxis()->SetNdivisions(5, 5, 0);
     //
     h0->Scale(lumi*time/binsize);
-    h1->Scale(time/binsize/2500/5e7);
+    h1->Scale(lumi*time/binsize);
     h0a->Scale(lumi*time/binsize);
-    h1a->Scale(time/binsize/2500/5e7);
+    h1a->Scale(lumi*time/binsize);
     h0b->Scale(lumi*time/binsize);
-    h1b->Scale(time/binsize/2500/5e7);
+    h1b->Scale(lumi*time/binsize);
     h0c->Scale(lumi*time/binsize);
-    h1c->Scale(time/binsize/2500/5e7);
+    h1c->Scale(lumi*time/binsize);
     //
     h0->SetStats(0);
     h0a->SetStats(0);
@@ -1964,10 +1965,10 @@ int main(const int argc, const char * argv[]){
     h0c->SetLineColor(1);
     h1c->SetLineColor(2);
     //
-    h1->Scale(0.01);
-    h1a->Scale(0.01);
-    h1b->Scale(0.01);
-    h1c->Scale(0.01);
+    h1->Scale(1.0/mispid);
+    h1a->Scale(1.0/mispid);
+    h1b->Scale(1.0/mispid);
+    h1c->Scale(1.0/mispid);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -2035,10 +2036,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
-    TH1D * h5 = (TH1D *) f2pi->Get("MpKK_TwoPi");
+    TH1D * h5 = (TH1D *) f2pi->Get("MpKK_PiPi");
     h5->Scale(0.01);
     double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
     double time = 3600.0;
+    double mispid = 2500.0;
     int bin1 = h0->FindBin(1.935 + 1.0e-10);
     int bin2 = h0->FindBin(1.965 - 1.0e-10);
     cout << "Signal: " << h0->Integral(bin1, bin2) * lumi * time << endl;
@@ -2046,7 +2048,7 @@ int main(const int argc, const char * argv[]){
     cout << "Back2:  " << h2->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Back3:  " << h3->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Back4:  " << h4->Integral(bin1, bin2) * lumi * time << endl;
-    cout << "Back5:  " << h5->Integral(bin1, bin2) /2500/5e7 * time << endl;
+    cout << "Back5:  " << h5->Integral(bin1, bin2) * lumi * time / mispid << endl;
   }
 
   if (opt == 15){//invariant mass cut
