@@ -26,7 +26,7 @@ int main(const int argc, const char * argv[]){
   ki[0].SetXYZT(0, 0, sqrt(4.4 * 4.4 - PARTICLE::e.M() * PARTICLE::e.M()), 4.4);
   kgold.SetXYZT(0, 0, 0, Mp * 197.0);
 
-  TFile * fs = new TFile("result/twopinew.root", "RECREATE");
+  TFile * fs = new TFile(filename.Data(), "RECREATE");
 
   TH1D * h0 = new TH1D("MpPiPi", "", 2200, 1.18, 1.62);
   TH1D * h1 = new TH1D("MpKK_PiPi", "", 2200, 1.88, 2.32);
