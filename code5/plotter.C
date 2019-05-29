@@ -1500,7 +1500,7 @@ int main(const int argc, const char * argv[]){
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
-    hB->SetMaximum(h4->GetMaximum() * 1.5);
+    hB->SetMaximum(h0->GetMaximum() * 1.2);
     hB->SetAxisRange(1.88, 2.31, "X");
     hB->GetXaxis()->SetTitle("M(pKK) (GeV)");
     hB->GetYaxis()->SetTitle("counts / hour / MeV");
@@ -2016,6 +2016,26 @@ int main(const int argc, const char * argv[]){
     cout << "Back5:  " << h5->Integral(bin1, bin2) * lumi * time / mispid << endl;
   }
 
+  if (opt == 7){//
+    TFile * fs = new TFile(loadpath + "cut.root", "r");
+    TFile * f2pi = new TFile(loadpath + "twopinew.root", "r");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
+    TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
+    TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
+    TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
+    TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
+    TH1D * h5 = (TH1D *) f2pi->Get("MpKK_PiPi");
+    h5->Scale(0.01);
+    double mispid = 2500.0;
+    int bin1 = h0->FindBin(1.940 + 1.0e-10);
+    int bin2 = h0->FindBin(1.960 - 1.0e-10);
+    cout << "Signal: " << h0->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back1:  " << h1->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back2:  " << h2->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back3:  " << h3->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back4:  " << h4->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Back5:  " << h5->Integral(bin1, bin2) * lumi * time / mispid << endl;
+  }
 
 
   return 0;
