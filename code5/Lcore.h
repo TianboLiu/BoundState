@@ -900,6 +900,7 @@ namespace DETECTOR{
   TRandom3 random(0);
 
   TFile * facc1, * facc2, * facc3;
+  TFile * fres1, * fres2;
   TH3F * acc_ele_clas;
   TH3F * acc_pip_clas;
   TH3F * acc_pim_clas;
@@ -911,11 +912,22 @@ namespace DETECTOR{
   TH2D * acc_pip_alert;
   TH2D * acc_Km_alert;
   TH2D * acc_pim_alert;
+  TH2D * res_Kp_alert_p;
+  TH2D * res_Kp_alert_theta;
+  TH2D * res_Kp_alert_phi;
+  TH2D * res_Km_alert_p;
+  TH2D * res_Km_alert_theta;
+  TH2D * res_Km_alert_phi;
+  TH2D * res_proton_alert_p;
+  TH2D * res_proton_alert_theta;
+  TH2D * res_proton_alert_phi;
 
   int SetDETECTOR(){
     facc1 = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
     facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
     facc3 = new TFile("acceptance/acc_alert_20190427.root", "r");
+    fres1 = new TFile("acceptance/res_kp_20190429.root", "r");
+    fres2 = new TFile("acceptance/res_proton_20190429.root", "r");
     acc_pip_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
     acc_pim_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
     acc_ele_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
@@ -927,6 +939,15 @@ namespace DETECTOR{
     acc_pip_alert = (TH2D *) facc3->Get("h2");
     acc_Km_alert = (TH2D *) facc3->Get("h3");
     acc_pim_alert = (TH2D *) facc3->Get("h4");
+    res_Kp_alert_p = (TH2D *) fres1->Get("h1");
+    res_Kp_alert_theta = (TH2D *) fres1->Get("h2");
+    res_Kp_alert_phi = (TH2D *) fres1->Get("h3");
+    res_Km_alert_p = (TH2D *) fres1->Get("h1");
+    res_Km_alert_theta = (TH2D *) fres1->Get("h2");
+    res_Km_alert_phi = (TH2D *) fres1->Get("h3");
+    res_proton_alert_p = (TH2D *) fres2->Get("h1");
+    res_proton_alert_theta = (TH2D *) fres2->Get("h2");
+    res_proton_alert_phi = (TH2D *) fres2->Get("h3");
     return 0;
   }
 
@@ -981,11 +1002,29 @@ namespace DETECTOR{
     double theta = P->Theta();
     double phi = P->Phi();
     double res[3];
-    double acc = AcceptanceALERT(P[0], part);   
+    double acc = AcceptanceALERT(P[0], part);
+    TH2D * resp, * restheta, * resphi;
     if (acc > 0){
-      res[0] = 0.01;
-      res[1] = 0.018;
-      res[2] = 0.030;
+      if (strcmp(part, "p") == 0){
+	resp = res_proton_alert_p;
+	restheta = res_proton_alert_theta;
+	resphi = res_proton_alert_phi;
+      }
+      else if (strcmp(part, "K+") == 0){
+	resp = res_Kp_alert_p;
+	restheta = res_Kp_alert_theta;
+	resphi = res_Kp_alert_phi;
+      }
+      else if (strcmp(part, "K-") == 0){
+	resp = res_Km_alert_p;
+	restheta = res_Km_alert_theta;
+	resphi = res_Km_alert_phi;
+      }
+      else
+	return 0;
+      res[0] = resp->GetBinContent(resp->GetXaxis()->FindBin(theta / M_PI * 180.0), resp->GetYaxis()->FindBin(p * 1000.0)) / 100.0;
+      res[1] = restheta->GetBinContent(restheta->GetXaxis()->FindBin(theta / M_PI * 180.0), restheta->GetYaxis()->FindBin(p * 1000.0));
+      res[2] = resphi->GetBinContent(resphi->GetXaxis()->FindBin(theta / M_PI * 180.0), resphi->GetYaxis()->FindBin(p * 1000.0));
       p = p * abs(random.Gaus(1, res[0]));
       theta = random.Gaus(theta, res[1]);
       phi = random.Gaus(phi, res[2]);
