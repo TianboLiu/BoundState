@@ -10,7 +10,7 @@ int main(const int argc, const char * argv[]){
   const int opt = atoi(argv[1]);
   gStyle->SetPalette(55);
 
-  double lumi = 1.0e35 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
+  double lumi = 3.0e34 * 1.0e-26 * pow(Phys::hbar, 2) / GOLD::NA;//eA GeV^2 s^-1
   double time = 3600.0;
 
   TString loadpath = argv[2];
