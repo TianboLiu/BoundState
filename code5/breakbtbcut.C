@@ -13,7 +13,7 @@ int main(const int argc, const char * argv[]){
   const double pemax = 4.0;
 
   TString path = argv[2];
-  TString filename = path + "breakthetacut.root";
+  TString filename = path + "breakbtbcut.root";
   
   Long64_t Nsim;
   if (argc < 4) Nsim = 100000000;
@@ -184,7 +184,7 @@ int main(const int argc, const char * argv[]){
       }
     }
 
-    
+
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
     if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       kf[4] = pbreak;
@@ -361,6 +361,11 @@ int Cut(const TLorentzVector p, const TLorentzVector Kp, const TLorentzVector Km
   if (p.P() > 0.8) return 0;
   if (Kp.P() > 0.5) return 0;
   if (Km.P() >0.5) return 0;
-  if (p.Theta() > M_PI / 3.0) return 0;
+  TLorentzVector Pall = p + Kp + Km;
+  TLorentzVector PKK = Kp + Km;
+  TLorentzVector Pp = p;
+  PKK.Boost(-Pall.BoostVector());
+  Pp.Boost(-Pall.BoostVector());
+  if (Pp.Angle(PKK.Vect()) < M_PI * 3.0 / 4.0) return 0;
   return 1;
 }

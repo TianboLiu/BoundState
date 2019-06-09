@@ -11,6 +11,7 @@ int main(const int argc, const char * argv[]){
   }
 
   const double pemin = atof(argv[1]);
+  const double pemax = 4.0;
 
   TString path = argv[2];
   TString filename = path + "twopinew.root";
@@ -87,7 +88,7 @@ int main(const int argc, const char * argv[]){
     kf[2].SetXYZT(px, py, pz, E);
     infile >> temp >> temp >> temp >> temp >> temp >> temp >> px >> py >> pz >> E >> temp >> temp >> temp >> temp;
     kf[3].SetXYZT(px, py, pz, E);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       if (kf[0].Theta() / M_PI * 180.0 > 4.5) continue;
       if (kf[0].Theta() / M_PI * 180.0 < 2.5) continue;
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "pi+") * DETECTOR::Smear(&kf[3], "pi-");

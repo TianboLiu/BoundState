@@ -29,59 +29,72 @@ int main(const int argc, const char * argv[]){
 
   TFile * fs = new TFile(filename.Data(), "RECREATE");
 
-  TH1D * h0 = new TH1D("MpKK_BoundStateKK", "", 2200, 1.88, 2.32);
+  TH1D * h0 = new TH1D("MpKK_BoundStateAll", "", 2200, 1.88, 2.32);
+  TH1D * h1 = new TH1D("MpKK_BoundStateKK", "", 2200, 1.88, 2.32);
   TH1D * h2 = new TH1D("MpKK_phi", "", 2200, 1.88, 2.32);
   TH1D * h3 = new TH1D("MpKK_Lambda1520", "", 2200, 1.88, 2.32);
   TH1D * h4 = new TH1D("MpKK_directKK", "", 2200, 1.88, 2.32);
 
-  TH1D * h0a = new TH1D("MpKp_BoundStateKK", "", 2200, 1.38, 1.82);
+  TH1D * h0a = new TH1D("MpKp_BoundStateAll", "", 2200, 1.38, 1.82);
+  TH1D * h1a = new TH1D("MpKp_BoundStateKK", "", 2200, 1.38, 1.82);
   TH1D * h2a = new TH1D("MpKp_phi", "", 2200, 1.38, 1.82);
   TH1D * h3a = new TH1D("MpKp_Lambda1520", "", 2200, 1.38, 1.82);
   TH1D * h4a = new TH1D("MpKp_directKK", "", 2200, 1.38, 1.82);
 
-  TH1D * h0b = new TH1D("MpKm_BoundStateKK", "", 2200, 1.38, 1.82);
+  TH1D * h0b = new TH1D("MpKm_BoundStateAll", "", 2200, 1.38, 1.82);
+  TH1D * h1b = new TH1D("MpKm_BoundStateKK", "", 2200, 1.38, 1.82);
   TH1D * h2b = new TH1D("MpKm_phi", "", 2200, 1.38, 1.82);
   TH1D * h3b = new TH1D("MpKm_Lambda1520", "", 2200, 1.38, 1.82);
   TH1D * h4b = new TH1D("MpKm_directKK", "", 2200, 1.38, 1.82);
 
-  TH1D * h0c = new TH1D("MKK_BoundStateKK", "", 2200, 0.98, 1.42);
+  TH1D * h0c = new TH1D("MKK_BoundStateAll", "", 2200, 0.98, 1.42);
+  TH1D * h1c = new TH1D("MKK_BoundStateKK", "", 2200, 0.98, 1.42);
   TH1D * h2c = new TH1D("MKK_phi", "", 2200, 0.98, 1.42);
   TH1D * h3c = new TH1D("MKK_Lambda1520", "", 2200, 0.98, 1.42);
   TH1D * h4c = new TH1D("MKK_directKK", "", 2200, 0.98, 1.42);
 
-  TH1D * h0d = new TH1D("Missing_BoundStateKK", "", 2200, 183.8, 186.0);
+  TH1D * h0d = new TH1D("Missing_BoundStateAll", "", 2200, 183.8, 186.0);
+  TH1D * h1d = new TH1D("Missing_BoundStateKK", "", 2200, 183.8, 186.0);
   TH1D * h2d = new TH1D("Missing_phi", "", 2200, 183.8, 186.0);
   TH1D * h3d = new TH1D("Missing_Lambda1520", "", 2200, 183.8, 186.0);
   TH1D * h4d = new TH1D("Missing_directKK", "", 2200, 183.8, 186.0);
 
   h0->SetDirectory(fs);
+  h1->SetDirectory(fs);
   h2->SetDirectory(fs);
   h3->SetDirectory(fs);
   h4->SetDirectory(fs);
  
   h0a->SetDirectory(fs);
+  h1a->SetDirectory(fs);
   h2a->SetDirectory(fs);
   h3a->SetDirectory(fs);
   h4a->SetDirectory(fs);
  
   h0b->SetDirectory(fs);
+  h1b->SetDirectory(fs);
   h2b->SetDirectory(fs);
   h3b->SetDirectory(fs);
   h4b->SetDirectory(fs);
  
   h0c->SetDirectory(fs);
+  h1c->SetDirectory(fs);
   h2c->SetDirectory(fs);
   h3c->SetDirectory(fs);
   h4c->SetDirectory(fs);
 
   h0d->SetDirectory(fs);
+  h1d->SetDirectory(fs);
   h2d->SetDirectory(fs);
   h3d->SetDirectory(fs);
   h4d->SetDirectory(fs);
  
-  TH2D * d0a = new TH2D("Momentum_p_Kp_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
-  TH2D * d0b = new TH2D("Momentum_p_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
-  TH2D * d0c = new TH2D("Momentum_Kp_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d0a = new TH2D("Momentum_p_Kp_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d0b = new TH2D("Momentum_p_Km_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d0c = new TH2D("Momentum_Kp_Km_BoundStateAll", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1a = new TH2D("Momentum_p_Kp_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1b = new TH2D("Momentum_p_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
+  TH2D * d1c = new TH2D("Momentum_Kp_Km_BoundStateKK", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
   TH2D * d2a = new TH2D("Momentum_p_Kp_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
   TH2D * d2b = new TH2D("Momentum_p_Km_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
   TH2D * d2c = new TH2D("Momentum_Kp_Km_phi", "", 100, 0.0, 2.0, 100, 0.0, 2.0);
@@ -95,6 +108,9 @@ int main(const int argc, const char * argv[]){
   d0a->SetDirectory(fs);
   d0b->SetDirectory(fs);
   d0c->SetDirectory(fs);
+  d1a->SetDirectory(fs);
+  d1b->SetDirectory(fs);
+  d1c->SetDirectory(fs);
   d2a->SetDirectory(fs);
   d2b->SetDirectory(fs);
   d2c->SetDirectory(fs);
@@ -105,9 +121,12 @@ int main(const int argc, const char * argv[]){
   d4b->SetDirectory(fs);
   d4c->SetDirectory(fs);
   
-  TH2D * r0a = new TH2D("PTheta_p_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
-  TH2D * r0b = new TH2D("PTheta_Kp_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
-  TH2D * r0c = new TH2D("PTheta_Km_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r0a = new TH2D("PTheta_p_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r0b = new TH2D("PTheta_Kp_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r0c = new TH2D("PTheta_Km_BoundStateAll", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1a = new TH2D("PTheta_p_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1b = new TH2D("PTheta_Kp_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
+  TH2D * r1c = new TH2D("PTheta_Km_BoundStateKK", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
   TH2D * r2a = new TH2D("PTheta_p_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
   TH2D * r2b = new TH2D("PTheta_Kp_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
   TH2D * r2c = new TH2D("PTheta_Km_phi", "", 90, 0.0, 90.0, 100, 0.0, 2.0);
@@ -122,6 +141,9 @@ int main(const int argc, const char * argv[]){
   r0a->SetDirectory(fs);
   r0b->SetDirectory(fs);
   r0c->SetDirectory(fs);
+  r1a->SetDirectory(fs);
+  r1b->SetDirectory(fs);
+  r1c->SetDirectory(fs);
   r2a->SetDirectory(fs);
   r2b->SetDirectory(fs);
   r2c->SetDirectory(fs);
@@ -141,7 +163,6 @@ int main(const int argc, const char * argv[]){
     
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
     if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      kf[4] = pbreak;
       weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
       if (Cut(kf[4], kf[2], kf[3])){
 	PP = kf[2] + kf[3] + kf[4];
@@ -160,6 +181,30 @@ int main(const int argc, const char * argv[]){
 	r0a->Fill(kf[4].Theta() * deg, kf[4].P(), weight);
 	r0b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
 	r0c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      }
+    }
+
+    weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
+      kf[4] = pbreak;
+      weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
+      if (Cut(kf[4], kf[2], kf[3])){
+	PP = kf[2] + kf[3] + kf[4];
+	Pa = kf[2] + kf[4];
+	Pb = kf[3] + kf[4];
+	Pc = kf[2] + kf[3];
+	Pd = ki[0] + kgold - kf[0] - PP;
+	h1->Fill(PP.M(), weight);
+	h1a->Fill(Pa.M(), weight);
+	h1b->Fill(Pb.M(), weight);
+	h1c->Fill(Pc.M(), weight);
+	h1d->Fill(Pd.M(), weight);
+	d1a->Fill(kf[2].P(), kf[4].P(), weight);
+	d1b->Fill(kf[3].P(), kf[4].P(), weight);
+	d1c->Fill(kf[2].P(), kf[3].P(), weight);
+	r1a->Fill(kf[4].Theta() * deg, kf[4].P(), weight);
+	r1b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
+	r1c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
       }
     }
 
@@ -239,26 +284,31 @@ int main(const int argc, const char * argv[]){
   }
 
   h0->Scale(1.0/Nsim);
+  h1->Scale(1.0/Nsim);
   h2->Scale(1.0/Nsim);
   h3->Scale(1.0/Nsim);
   h4->Scale(1.0/Nsim);
  
   h0a->Scale(1.0/Nsim);
+  h1a->Scale(1.0/Nsim);
   h2a->Scale(1.0/Nsim);
   h3a->Scale(1.0/Nsim);
   h4a->Scale(1.0/Nsim);
  
   h0b->Scale(1.0/Nsim);
+  h1b->Scale(1.0/Nsim);
   h2b->Scale(1.0/Nsim);
   h3b->Scale(1.0/Nsim);
   h4b->Scale(1.0/Nsim);
  
   h0c->Scale(1.0/Nsim);
+  h1c->Scale(1.0/Nsim);
   h2c->Scale(1.0/Nsim);
   h3c->Scale(1.0/Nsim);
   h4c->Scale(1.0/Nsim);
 
   h0d->Scale(1.0/Nsim);
+  h1d->Scale(1.0/Nsim);
   h2d->Scale(1.0/Nsim);
   h3d->Scale(1.0/Nsim);
   h4d->Scale(1.0/Nsim);
@@ -266,6 +316,9 @@ int main(const int argc, const char * argv[]){
   d0a->Scale(1.0/Nsim);
   d0b->Scale(1.0/Nsim);
   d0c->Scale(1.0/Nsim);
+  d1a->Scale(1.0/Nsim);
+  d1b->Scale(1.0/Nsim);
+  d1c->Scale(1.0/Nsim);
   d2a->Scale(1.0/Nsim);
   d2b->Scale(1.0/Nsim);
   d2c->Scale(1.0/Nsim);
@@ -279,6 +332,9 @@ int main(const int argc, const char * argv[]){
   r0a->Scale(1.0/Nsim);
   r0b->Scale(1.0/Nsim);
   r0c->Scale(1.0/Nsim);
+  r1a->Scale(1.0/Nsim);
+  r1b->Scale(1.0/Nsim);
+  r1c->Scale(1.0/Nsim);
   r2a->Scale(1.0/Nsim);
   r2b->Scale(1.0/Nsim);
   r2c->Scale(1.0/Nsim);
