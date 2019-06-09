@@ -2056,24 +2056,23 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -30){//invariant mass smeared break
-    TFile * fs0 = new TFile(loadpath + "smeared.root", "r");
     TFile * fs = new TFile(loadpath + "break.root", "r");
-    TH1D * h0 = (TH1D *) fs0->Get("MpKK_BoundStateAll");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
-    TH1D * h0a = (TH1D *) fs0->Get("MpKp_BoundStateAll");
+    TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h1a = (TH1D *) fs->Get("MpKp_BoundStateKK");
     TH1D * h2a = (TH1D *) fs->Get("MpKp_phi");
     TH1D * h3a = (TH1D *) fs->Get("MpKp_Lambda1520");
     TH1D * h4a = (TH1D *) fs->Get("MpKp_directKK");
-    TH1D * h0b = (TH1D *) fs0->Get("MpKm_BoundStateAll");
+    TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h1b = (TH1D *) fs->Get("MpKm_BoundStateKK");
     TH1D * h2b = (TH1D *) fs->Get("MpKm_phi");
     TH1D * h3b = (TH1D *) fs->Get("MpKm_Lambda1520");
     TH1D * h4b = (TH1D *) fs->Get("MpKm_directKK");
-    TH1D * h0c = (TH1D *) fs0->Get("MKK_BoundStateAll");
+    TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
     TH1D * h1c = (TH1D *) fs->Get("MKK_BoundStateKK");
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
@@ -2174,19 +2173,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -31){//Momentum smeared break
-    TFile * fs0 = new TFile(loadpath + "smeared.root", "r");
     TFile * fs = new TFile(loadpath + "break.root", "r");
-    TH2D * d0a = (TH2D *) fs0->Get("Momentum_p_Kp_BoundStateAll");
+    TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
     TH2D * d3a = (TH2D *) fs->Get("Momentum_p_Kp_Lambda1520");
     TH2D * d4a = (TH2D *) fs->Get("Momentum_p_Kp_KK");
-    TH2D * d0b = (TH2D *) fs0->Get("Momentum_p_Km_BoundStateAll");
+    TH2D * d0b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateAll");
     TH2D * d1b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateKK");
     TH2D * d2b = (TH2D *) fs->Get("Momentum_p_Km_phi");
     TH2D * d3b = (TH2D *) fs->Get("Momentum_p_Km_Lambda1520");
     TH2D * d4b = (TH2D *) fs->Get("Momentum_p_Km_KK");
-    TH2D * d0c = (TH2D *) fs0->Get("Momentum_Kp_Km_BoundStateAll");
+    TH2D * d0c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateAll");
     TH2D * d1c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateKK");
     TH2D * d2c = (TH2D *) fs->Get("Momentum_Kp_Km_phi");
     TH2D * d3c = (TH2D *) fs->Get("Momentum_Kp_Km_Lambda1520");
@@ -2431,11 +2429,10 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -32){//P-theta smeared break
-    TFile * fs0 = new TFile(loadpath + "smeared.root", "r");
     TFile * fs =  new TFile(loadpath + "break.root", "r");
-    TH2D * r0a = (TH2D *) fs0->Get("PTheta_p_BoundStateAll");
-    TH2D * r0b = (TH2D *) fs0->Get("PTheta_Kp_BoundStateAll");
-    TH2D * r0c = (TH2D *) fs0->Get("PTheta_Km_BoundStateAll");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
     TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
     TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
     TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
@@ -2530,24 +2527,23 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -40){//invariant mass cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakcut.root", "r");
-    TH1D * h0 = (TH1D *) fs0->Get("MpKK_BoundStateAll");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
-    TH1D * h0a = (TH1D *) fs0->Get("MpKp_BoundStateAll");
+    TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h1a = (TH1D *) fs->Get("MpKp_BoundStateKK");
     TH1D * h2a = (TH1D *) fs->Get("MpKp_phi");
     TH1D * h3a = (TH1D *) fs->Get("MpKp_Lambda1520");
     TH1D * h4a = (TH1D *) fs->Get("MpKp_directKK");
-    TH1D * h0b = (TH1D *) fs0->Get("MpKm_BoundStateAll");
+    TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h1b = (TH1D *) fs->Get("MpKm_BoundStateKK");
     TH1D * h2b = (TH1D *) fs->Get("MpKm_phi");
     TH1D * h3b = (TH1D *) fs->Get("MpKm_Lambda1520");
     TH1D * h4b = (TH1D *) fs->Get("MpKm_directKK");
-    TH1D * h0c = (TH1D *) fs0->Get("MKK_BoundStateAll");
+    TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
     TH1D * h1c = (TH1D *) fs->Get("MKK_BoundStateKK");
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
@@ -2648,19 +2644,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -41){//Momentum cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakcut.root", "r");
-    TH2D * d0a = (TH2D *) fs0->Get("Momentum_p_Kp_BoundStateAll");
+    TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
     TH2D * d3a = (TH2D *) fs->Get("Momentum_p_Kp_Lambda1520");
     TH2D * d4a = (TH2D *) fs->Get("Momentum_p_Kp_KK");
-    TH2D * d0b = (TH2D *) fs0->Get("Momentum_p_Km_BoundStateAll");
+    TH2D * d0b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateAll");
     TH2D * d1b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateKK");
     TH2D * d2b = (TH2D *) fs->Get("Momentum_p_Km_phi");
     TH2D * d3b = (TH2D *) fs->Get("Momentum_p_Km_Lambda1520");
     TH2D * d4b = (TH2D *) fs->Get("Momentum_p_Km_KK");
-    TH2D * d0c = (TH2D *) fs0->Get("Momentum_Kp_Km_BoundStateAll");
+    TH2D * d0c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateAll");
     TH2D * d1c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateKK");
     TH2D * d2c = (TH2D *) fs->Get("Momentum_Kp_Km_phi");
     TH2D * d3c = (TH2D *) fs->Get("Momentum_Kp_Km_Lambda1520");
@@ -2905,11 +2900,10 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -42){//P-theta cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakcut.root", "r");
-    TH2D * r0a = (TH2D *) fs0->Get("PTheta_p_BoundStateAll");
-    TH2D * r0b = (TH2D *) fs0->Get("PTheta_Kp_BoundStateAll");
-    TH2D * r0c = (TH2D *) fs0->Get("PTheta_Km_BoundStateAll");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
     TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
     TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
     TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
@@ -3004,24 +2998,23 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -401){//invariant mass cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
-    TH1D * h0 = (TH1D *) fs0->Get("MpKK_BoundStateAll");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
-    TH1D * h0a = (TH1D *) fs0->Get("MpKp_BoundStateAll");
+    TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h1a = (TH1D *) fs->Get("MpKp_BoundStateKK");
     TH1D * h2a = (TH1D *) fs->Get("MpKp_phi");
     TH1D * h3a = (TH1D *) fs->Get("MpKp_Lambda1520");
     TH1D * h4a = (TH1D *) fs->Get("MpKp_directKK");
-    TH1D * h0b = (TH1D *) fs0->Get("MpKm_BoundStateAll");
+    TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h1b = (TH1D *) fs->Get("MpKm_BoundStateKK");
     TH1D * h2b = (TH1D *) fs->Get("MpKm_phi");
     TH1D * h3b = (TH1D *) fs->Get("MpKm_Lambda1520");
     TH1D * h4b = (TH1D *) fs->Get("MpKm_directKK");
-    TH1D * h0c = (TH1D *) fs0->Get("MKK_BoundStateAll");
+    TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
     TH1D * h1c = (TH1D *) fs->Get("MKK_BoundStateKK");
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
@@ -3122,19 +3115,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -411){//Momentum cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
-    TH2D * d0a = (TH2D *) fs0->Get("Momentum_p_Kp_BoundStateAll");
+    TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
     TH2D * d3a = (TH2D *) fs->Get("Momentum_p_Kp_Lambda1520");
     TH2D * d4a = (TH2D *) fs->Get("Momentum_p_Kp_KK");
-    TH2D * d0b = (TH2D *) fs0->Get("Momentum_p_Km_BoundStateAll");
+    TH2D * d0b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateAll");
     TH2D * d1b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateKK");
     TH2D * d2b = (TH2D *) fs->Get("Momentum_p_Km_phi");
     TH2D * d3b = (TH2D *) fs->Get("Momentum_p_Km_Lambda1520");
     TH2D * d4b = (TH2D *) fs->Get("Momentum_p_Km_KK");
-    TH2D * d0c = (TH2D *) fs0->Get("Momentum_Kp_Km_BoundStateAll");
+    TH2D * d0c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateAll");
     TH2D * d1c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateKK");
     TH2D * d2c = (TH2D *) fs->Get("Momentum_Kp_Km_phi");
     TH2D * d3c = (TH2D *) fs->Get("Momentum_Kp_Km_Lambda1520");
@@ -3379,11 +3371,10 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -421){//P-theta cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
-    TH2D * r0a = (TH2D *) fs0->Get("PTheta_p_BoundStateAll");
-    TH2D * r0b = (TH2D *) fs0->Get("PTheta_Kp_BoundStateAll");
-    TH2D * r0c = (TH2D *) fs0->Get("PTheta_Km_BoundStateAll");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
     TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
     TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
     TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
@@ -3478,24 +3469,23 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -402){//invariant mass cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
-    TH1D * h0 = (TH1D *) fs0->Get("MpKK_BoundStateAll");
+    TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
-    TH1D * h0a = (TH1D *) fs0->Get("MpKp_BoundStateAll");
+    TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
     TH1D * h1a = (TH1D *) fs->Get("MpKp_BoundStateKK");
     TH1D * h2a = (TH1D *) fs->Get("MpKp_phi");
     TH1D * h3a = (TH1D *) fs->Get("MpKp_Lambda1520");
     TH1D * h4a = (TH1D *) fs->Get("MpKp_directKK");
-    TH1D * h0b = (TH1D *) fs0->Get("MpKm_BoundStateAll");
+    TH1D * h0b = (TH1D *) fs->Get("MpKm_BoundStateAll");
     TH1D * h1b = (TH1D *) fs->Get("MpKm_BoundStateKK");
     TH1D * h2b = (TH1D *) fs->Get("MpKm_phi");
     TH1D * h3b = (TH1D *) fs->Get("MpKm_Lambda1520");
     TH1D * h4b = (TH1D *) fs->Get("MpKm_directKK");
-    TH1D * h0c = (TH1D *) fs0->Get("MKK_BoundStateAll");
+    TH1D * h0c = (TH1D *) fs->Get("MKK_BoundStateAll");
     TH1D * h1c = (TH1D *) fs->Get("MKK_BoundStateKK");
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
@@ -3596,19 +3586,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -412){//Momentum cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
-    TH2D * d0a = (TH2D *) fs0->Get("Momentum_p_Kp_BoundStateAll");
+    TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
     TH2D * d3a = (TH2D *) fs->Get("Momentum_p_Kp_Lambda1520");
     TH2D * d4a = (TH2D *) fs->Get("Momentum_p_Kp_KK");
-    TH2D * d0b = (TH2D *) fs0->Get("Momentum_p_Km_BoundStateAll");
+    TH2D * d0b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateAll");
     TH2D * d1b = (TH2D *) fs->Get("Momentum_p_Km_BoundStateKK");
     TH2D * d2b = (TH2D *) fs->Get("Momentum_p_Km_phi");
     TH2D * d3b = (TH2D *) fs->Get("Momentum_p_Km_Lambda1520");
     TH2D * d4b = (TH2D *) fs->Get("Momentum_p_Km_KK");
-    TH2D * d0c = (TH2D *) fs0->Get("Momentum_Kp_Km_BoundStateAll");
+    TH2D * d0c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateAll");
     TH2D * d1c = (TH2D *) fs->Get("Momentum_Kp_Km_BoundStateKK");
     TH2D * d2c = (TH2D *) fs->Get("Momentum_Kp_Km_phi");
     TH2D * d3c = (TH2D *) fs->Get("Momentum_Kp_Km_Lambda1520");
@@ -3853,11 +3842,10 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -422){//P-theta cut
-    TFile * fs0 = new TFile(loadpath + "cut.root", "r");
     TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
-    TH2D * r0a = (TH2D *) fs0->Get("PTheta_p_BoundStateAll");
-    TH2D * r0b = (TH2D *) fs0->Get("PTheta_Kp_BoundStateAll");
-    TH2D * r0c = (TH2D *) fs0->Get("PTheta_Km_BoundStateAll");
+    TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
+    TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
+    TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
     TH2D * r1a = (TH2D *) fs->Get("PTheta_p_BoundStateKK");
     TH2D * r1b = (TH2D *) fs->Get("PTheta_Kp_BoundStateKK");
     TH2D * r1c = (TH2D *) fs->Get("PTheta_Km_BoundStateKK");
