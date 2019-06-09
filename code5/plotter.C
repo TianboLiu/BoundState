@@ -2027,7 +2027,7 @@ int main(const int argc, const char * argv[]){
 
   if (opt == 7){//
     TFile * fs = new TFile(loadpath + "cut.root", "r");
-    TFile * fsp = new TFile(loadpath + "breakcut.root", "r");
+    TFile * fsp = new TFile(loadpath + "breakthetacut.root", "r");
     TFile * f2pi = new TFile(loadpath + "twopinew.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
@@ -2035,6 +2035,7 @@ int main(const int argc, const char * argv[]){
     TH1D * h3 = (TH1D *) fs->Get("MpKK_Lambda1520");
     TH1D * h4 = (TH1D *) fs->Get("MpKK_directKK");
     TH1D * h5 = (TH1D *) f2pi->Get("MpKK_PiPi");
+    TH1D * h0p = (TH1D *) fsp->Get("MpKK_BoundStateAll");
     TH1D * h1p = (TH1D *) fsp->Get("MpKK_BoundStateKK");
     TH1D * h2p = (TH1D *) fsp->Get("MpKK_phi");
     TH1D * h3p = (TH1D *) fsp->Get("MpKK_Lambda1520");
@@ -2048,6 +2049,7 @@ int main(const int argc, const char * argv[]){
     cout << "phi:    " << h2->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Lambda: " << h3->Integral(bin1, bin2) * lumi * time << endl;
     cout << "KK:     " << h4->Integral(bin1, bin2) * lumi * time << endl;
+    cout << "Signal: " << h0p->Integral(bin1, bin2) * lumi * time << endl;
     cout << "BoundKK:" << h1p->Integral(bin1, bin2) * lumi * time << endl;
     cout << "phi:    " << h2p->Integral(bin1, bin2) * lumi * time << endl;
     cout << "Lambda: " << h3p->Integral(bin1, bin2) * lumi * time << endl;
