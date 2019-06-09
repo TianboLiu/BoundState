@@ -10,6 +10,7 @@ int main(const int argc, const char * argv[]){
   }
 
   const double pemin = atof(argv[1]);
+  const double pemax = 4.0;
 
   TString path = argv[2];
   TString filename = path + "cut.root";
@@ -158,7 +159,7 @@ int main(const int argc, const char * argv[]){
     if (i%1000000 == 0) cout << i << endl;
  
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
       if (Cut(kf[4], kf[2], kf[3])){
 	PP = kf[2] + kf[3] + kf[4];
@@ -181,7 +182,7 @@ int main(const int argc, const char * argv[]){
     }
 
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
 	PP = kf[1] + kf[2] + kf[3];
@@ -204,7 +205,7 @@ int main(const int argc, const char * argv[]){
     }
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
 	PP = kf[1] + kf[2] + kf[3];
@@ -227,7 +228,7 @@ int main(const int argc, const char * argv[]){
     }
       
     weight = GENERATE::Event_eNKK_L1520(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
 	PP = kf[1] + kf[2] + kf[3];
@@ -250,7 +251,7 @@ int main(const int argc, const char * argv[]){
     }
       
     weight = GENERATE::Event_eNKK_KK(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
 	PP = kf[1] + kf[2] + kf[3];

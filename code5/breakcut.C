@@ -10,6 +10,7 @@ int main(const int argc, const char * argv[]){
   }
 
   const double pemin = atof(argv[1]);
+  const double pemax = 4.0;
 
   TString path = argv[2];
   TString filename = path + "breakcut.root";
@@ -139,7 +140,7 @@ int main(const int argc, const char * argv[]){
     pbreak.SetXYZM(pbreak.Px(), pbreak.Py(), pbreak.Pz(), Mp);
     
     weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       kf[4] = pbreak;
       weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
       if (Cut(kf[4], kf[2], kf[3])){
@@ -164,7 +165,7 @@ int main(const int argc, const char * argv[]){
 
 
     weight = GENERATE::Event_eNKK_Phi(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       kf[1] = pbreak;
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
@@ -188,7 +189,7 @@ int main(const int argc, const char * argv[]){
     }
       
     weight = GENERATE::Event_eNKK_L1520(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       kf[1] = pbreak;
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
@@ -212,7 +213,7 @@ int main(const int argc, const char * argv[]){
     }
       
     weight = GENERATE::Event_eNKK_KK(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin){
+    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
       kf[1] = pbreak;
       weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
       if (Cut(kf[1], kf[2], kf[3])){
