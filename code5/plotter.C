@@ -1914,7 +1914,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 5){//Two pions new
-    TFile * fs = new TFile(loadpath + "cut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
     TFile * f2pi = new TFile(loadpath + "twopinew.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h0a = (TH1D *) fs->Get("MpKp_BoundStateAll");
