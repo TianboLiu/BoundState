@@ -2,27 +2,23 @@
 
 int main(const int argc, const char * argv[]){
 
-  if (argc < 3) {
-    cout << "./smeared <pemin> <savepath> <Nsim>" << endl;
+  if (argc < 2) {
+    cout << "./smeared <savepath> <Nsim>" << endl;
     return 0;
   }
-
-  const double pemin = atof(argv[1]);
-  const double pemax = 4.0;
   
-  TString path = argv[2];
-  TString filename = path + "break.root";
+  TString path = argv[1];
+  TString filename = path + "break-photon.root";
   
   Long64_t Nsim;
-  if (argc < 4) Nsim = 10000000;
-  else Nsim = atoi(argv[3]);
+  if (argc < 3) Nsim = 10000000;
+  else Nsim = atoi(argv[2]);
 
   Initialize();
 
-  TLorentzVector ki[2], kf[5];
+  TLorentzVector ki[2], kf[4];
   TLorentzVector kgold;
   double weight = 0;
-  ki[0].SetXYZT(0, 0, sqrt(4.4 * 4.4 - PARTICLE::e.M() * PARTICLE::e.M()), 4.4);
   kgold.SetXYZT(0, 0, 0, Mp * 197.0);
 
   TFile * fs = new TFile(filename.Data(), "RECREATE");
@@ -153,119 +149,122 @@ int main(const int argc, const char * argv[]){
   r4c->SetDirectory(fs);
 
   TLorentzVector PP, Pa, Pb, Pc, Pd, pbreak;
+  double range[2] = {1.30, 1.60};
   for (Long64_t i = 0; i < Nsim; i++){
     if (i%1000000 == 0) cout << i << endl;
+
+    GENERATE::BremsstrahlungPhoton(ki, range);
 
     GENERATE::NucleonGold(&pbreak);
     pbreak.SetXYZM(pbreak.Px(), pbreak.Py(), pbreak.Pz(), Mp);
  
-    weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
-      PP = kf[2] + kf[3] + kf[4];
-      Pa = kf[2] + kf[4];
-      Pb = kf[3] + kf[4];
-      Pc = kf[2] + kf[3];
-      Pd = ki[0] + kgold - kf[0] - PP;
+    weight = GENERATE::Event_NKKN_BoundState(ki, kf);
+    if (weight > 0){
+      weight *= DETECTOR::Smear(&kf[1], "K+") * DETECTOR::Smear(&kf[2], "K-") * DETECTOR::Smear(&kf[3], "p");
+      PP = kf[1] + kf[2] + kf[3];
+      Pa = kf[1] + kf[3];
+      Pb = kf[2] + kf[3];
+      Pc = kf[1] + kf[2];
+      Pd = ki[0] + kgold - PP;
       h0->Fill(PP.M(), weight);
       h0a->Fill(Pa.M(), weight);
       h0b->Fill(Pb.M(), weight);
       h0c->Fill(Pc.M(), weight);
       h0d->Fill(Pd.M(), weight);
-      d0a->Fill(kf[2].P(), kf[4].P(), weight);
-      d0b->Fill(kf[3].P(), kf[4].P(), weight);
-      d0c->Fill(kf[2].P(), kf[3].P(), weight);
-      r0a->Fill(kf[4].Theta() * deg, kf[4].P(), weight);
-      r0b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
-      r0c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      d0a->Fill(kf[1].P(), kf[3].P(), weight);
+      d0b->Fill(kf[2].P(), kf[3].P(), weight);
+      d0c->Fill(kf[1].P(), kf[2].P(), weight);
+      r0a->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      r0b->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r0c->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
     }
 
-    weight = GENERATE::Event_eNKKN_BoundState(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      kf[4] = pbreak;
-      weight *= DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-") * DETECTOR::Smear(&kf[4], "p");
-      PP = kf[2] + kf[3] + kf[4];
-      Pa = kf[2] + kf[4];
-      Pb = kf[3] + kf[4];
-      Pc = kf[2] + kf[3];
-      Pd = ki[0] + kgold - kf[0] - PP;
+    weight = GENERATE::Event_NKKN_BoundState(ki, kf);
+    if (weight > 0){
+      kf[3] = pbreak;
+      weight *= DETECTOR::Smear(&kf[1], "K+") * DETECTOR::Smear(&kf[2], "K-") * DETECTOR::Smear(&kf[3], "p");
+      PP = kf[1] + kf[2] + kf[3];
+      Pa = kf[1] + kf[3];
+      Pb = kf[2] + kf[3];
+      Pc = kf[1] + kf[2];
+      Pd = ki[0] + kgold - PP;
       h1->Fill(PP.M(), weight);
       h1a->Fill(Pa.M(), weight);
       h1b->Fill(Pb.M(), weight);
       h1c->Fill(Pc.M(), weight);
       h1d->Fill(Pd.M(), weight);
-      d1a->Fill(kf[2].P(), kf[4].P(), weight);
-      d1b->Fill(kf[3].P(), kf[4].P(), weight);
-      d1c->Fill(kf[2].P(), kf[3].P(), weight);
-      r1a->Fill(kf[4].Theta() * deg, kf[4].P(), weight);
-      r1b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
-      r1c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      d1a->Fill(kf[1].P(), kf[3].P(), weight);
+      d1b->Fill(kf[2].P(), kf[3].P(), weight);
+      d1c->Fill(kf[1].P(), kf[2].P(), weight);
+      r1a->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      r1b->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r1c->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
     }
 
-    weight = GENERATE::Event_eNKK_Phi(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      kf[1] = pbreak;
-      weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
-      PP = kf[1] + kf[2] + kf[3];
-      Pa = kf[1] + kf[2];
-      Pb = kf[1] + kf[3];
-      Pc = kf[2] + kf[3];
-      Pd = ki[0] + kgold - kf[0] - PP;
+    weight = GENERATE::Event_NKK_Phi(ki, kf);
+    if (weight > 0){
+      kf[0] = pbreak;
+      weight *= DETECTOR::Smear(&kf[0], "p") * DETECTOR::Smear(&kf[1], "K+") * DETECTOR::Smear(&kf[2], "K-");
+      PP = kf[0] + kf[1] + kf[2];
+      Pa = kf[0] + kf[1];
+      Pb = kf[0] + kf[2];
+      Pc = kf[1] + kf[2];
+      Pd = ki[0] + kgold - PP;
       h2->Fill(PP.M(), weight);
       h2a->Fill(Pa.M(), weight);
       h2b->Fill(Pb.M(), weight);
       h2c->Fill(Pc.M(), weight);
       h2d->Fill(Pd.M(), weight);
-      d2a->Fill(kf[2].P(), kf[1].P(), weight);
-      d2b->Fill(kf[3].P(), kf[1].P(), weight);
-      d2c->Fill(kf[2].P(), kf[3].P(), weight);
-      r2a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
-      r2b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
-      r2c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      d2a->Fill(kf[1].P(), kf[0].P(), weight);
+      d2b->Fill(kf[2].P(), kf[0].P(), weight);
+      d2c->Fill(kf[1].P(), kf[2].P(), weight);
+      r2a->Fill(kf[0].Theta() * deg, kf[0].P(), weight);
+      r2b->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r2c->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
     }
 
-    weight = GENERATE::Event_eNKK_L1520(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      kf[1] = pbreak;
-      weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
-      PP = kf[1] + kf[2] + kf[3];
-      Pa = kf[1] + kf[2];
-      Pb = kf[1] + kf[3];
-      Pc = kf[2] + kf[3];
-      Pd = ki[0] + kgold - kf[0] - PP;
+    weight = GENERATE::Event_NKK_L1520(ki, kf);
+    if (weight > 0){
+      kf[0] = pbreak;
+      weight *= DETECTOR::Smear(&kf[0], "p") * DETECTOR::Smear(&kf[1], "K+") * DETECTOR::Smear(&kf[2], "K-");
+      PP = kf[0] + kf[1] + kf[2];
+      Pa = kf[0] + kf[1];
+      Pb = kf[0] + kf[2];
+      Pc = kf[1] + kf[2];
+      Pd = ki[0] + kgold - PP;
       h3->Fill(PP.M(), weight);
       h3a->Fill(Pa.M(), weight);
       h3b->Fill(Pb.M(), weight);
       h3c->Fill(Pc.M(), weight);
       h3d->Fill(Pd.M(), weight);
-      d3a->Fill(kf[2].P(), kf[1].P(), weight);
-      d3b->Fill(kf[3].P(), kf[1].P(), weight);
-      d3c->Fill(kf[2].P(), kf[3].P(), weight);
-      r3a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
-      r3b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
-      r3c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      d3a->Fill(kf[1].P(), kf[0].P(), weight);
+      d3b->Fill(kf[2].P(), kf[0].P(), weight);
+      d3c->Fill(kf[1].P(), kf[2].P(), weight);
+      r3a->Fill(kf[0].Theta() * deg, kf[0].P(), weight);
+      r3b->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r3c->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
     }
  
-    weight = GENERATE::Event_eNKK_KK(ki, kf);
-    if (weight > 0 && kf[0].P() > pemin && kf[0].P() < pemax){
-      kf[1] = pbreak;
-      weight *= DETECTOR::Smear(&kf[1], "p") * DETECTOR::Smear(&kf[2], "K+") * DETECTOR::Smear(&kf[3], "K-");
-      PP = kf[1] + kf[2] + kf[3];
-      Pa = kf[1] + kf[2];
-      Pb = kf[1] + kf[3];
-      Pc = kf[2] + kf[3];
-      Pd = ki[0] + kgold - kf[0] - PP;
+    weight = GENERATE::Event_NKK_KK(ki, kf);
+    if (weight > 0){
+      kf[0] = pbreak;
+      weight *= DETECTOR::Smear(&kf[0], "p") * DETECTOR::Smear(&kf[1], "K+") * DETECTOR::Smear(&kf[2], "K-");
+      PP = kf[0] + kf[1] + kf[2];
+      Pa = kf[0] + kf[1];
+      Pb = kf[0] + kf[2];
+      Pc = kf[1] + kf[2];
+      Pd = ki[0] + kgold - PP;
       h4->Fill(PP.M(), weight);
       h4a->Fill(Pa.M(), weight);
       h4b->Fill(Pb.M(), weight);
       h4c->Fill(Pc.M(), weight);
       h4d->Fill(Pd.M(), weight);
-      d4a->Fill(kf[2].P(), kf[1].P(), weight);
-      d4b->Fill(kf[3].P(), kf[1].P(), weight);
-      d4c->Fill(kf[2].P(), kf[3].P(), weight);
-      r4a->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
-      r4b->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
-      r4c->Fill(kf[3].Theta() * deg, kf[3].P(), weight);
+      d4a->Fill(kf[1].P(), kf[0].P(), weight);
+      d4b->Fill(kf[2].P(), kf[0].P(), weight);
+      d4c->Fill(kf[1].P(), kf[2].P(), weight);
+      r4a->Fill(kf[0].Theta() * deg, kf[0].P(), weight);
+      r4b->Fill(kf[1].Theta() * deg, kf[1].P(), weight);
+      r4c->Fill(kf[2].Theta() * deg, kf[2].P(), weight);
     }
 
   }

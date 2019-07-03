@@ -2058,7 +2058,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -30){//invariant mass smeared break
-    TFile * fs = new TFile(loadpath + "break.root", "r");
+    TFile * fs = new TFile(loadpath + "break-photon.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
@@ -2175,7 +2175,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -31){//Momentum smeared break
-    TFile * fs = new TFile(loadpath + "break.root", "r");
+    TFile * fs = new TFile(loadpath + "break-photon.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
@@ -2431,7 +2431,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -32){//P-theta smeared break
-    TFile * fs =  new TFile(loadpath + "break.root", "r");
+    TFile * fs =  new TFile(loadpath + "break-photon.root", "r");
     TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
     TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
     TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
@@ -2528,8 +2528,8 @@ int main(const int argc, const char * argv[]){
     c0->Print(savepath + "PThetabreak.pdf)", "pdf");//
   }
 
-  if (opt == -40){//invariant mass cut
-    TFile * fs = new TFile(loadpath + "breakcut.root", "r");
+  if (opt == -40){//invariant mass cuttt
+    TFile * fs = new TFile(loadpath + "breakcut-photon.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
@@ -2646,7 +2646,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -41){//Momentum cut
-    TFile * fs = new TFile(loadpath + "breakcut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakcut-photon.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
@@ -2902,7 +2902,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -42){//P-theta cut
-    TFile * fs = new TFile(loadpath + "breakcut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakcut-photon.root", "r");
     TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
     TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
     TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
@@ -3000,7 +3000,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -401){//invariant mass cut
-    TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakthetacut-photon.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
@@ -3117,7 +3117,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -411){//Momentum cut
-    TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakthetacut-photon.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
@@ -3373,7 +3373,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -421){//P-theta cut
-    TFile * fs = new TFile(loadpath + "breakthetacut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakthetacut-photon.root", "r");
     TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
     TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
     TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
@@ -3471,7 +3471,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -402){//invariant mass cut
-    TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakbtbcut-photon.root", "r");
     TH1D * h0 = (TH1D *) fs->Get("MpKK_BoundStateAll");
     TH1D * h1 = (TH1D *) fs->Get("MpKK_BoundStateKK");
     TH1D * h2 = (TH1D *) fs->Get("MpKK_phi");
@@ -3588,7 +3588,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -412){//Momentum cut
-    TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakbtbcut-photon.root", "r");
     TH2D * d0a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateAll");
     TH2D * d1a = (TH2D *) fs->Get("Momentum_p_Kp_BoundStateKK");
     TH2D * d2a = (TH2D *) fs->Get("Momentum_p_Kp_phi");
@@ -3844,7 +3844,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -422){//P-theta cut
-    TFile * fs = new TFile(loadpath + "breakbtbcut.root", "r");
+    TFile * fs = new TFile(loadpath + "breakbtbcut-photon.root", "r");
     TH2D * r0a = (TH2D *) fs->Get("PTheta_p_BoundStateAll");
     TH2D * r0b = (TH2D *) fs->Get("PTheta_Kp_BoundStateAll");
     TH2D * r0c = (TH2D *) fs->Get("PTheta_Km_BoundStateAll");
