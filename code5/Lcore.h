@@ -384,6 +384,27 @@ namespace GENERATE{
   TRandom3 random(0);
   TGenPhaseSpace GenPhase;
   double Weight = 0.0;
+
+  double Bremsstrahlung(const double * k, const double * par){//non-normalized bremsstrahlung photon
+    //E0: electron beam energy; k: photon energy
+    double E0 = par[0];
+    double y = k[0] / E0;
+    if (y < 0.01) {
+      std::cerr << "Out of range in Bremsstrahlung!" << std::endl;
+      return -1.0;
+    }
+    double result = 1.0 / (y * E0) * (4.0 / 3.0 - 4.0 / 3.0 * y + y * y);
+    return result;
+  }
+  
+  TF1 TF_fBremsstrahlung("fBremsstrahlung", Bremsstrahlung, 1.0, 2.0, 1);//set photon energy distribution
+
+  double BremsstrahlungPhoton(TLorentzVector * q, const double * k){//Generate a Bremsstrahlung photon
+    //q: photon; k: Emin, Emax
+    double E0 = TF_fBremsstrahlung.GetRandom(k[0], k[1]);
+    q[0].SetXYZT(0.0, 0.0, E0, E0);
+    return 1.0;
+  }
   
   int NucleonGold(TLorentzVector * P){
     double p = GOLD::TF_fMomentum.GetRandom();
@@ -801,6 +822,61 @@ namespace GENERATE{
     return weight[0];
   }
 
+  double Event_NKKN_BoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: q; kf: N', [K+, K-, p]
+    TLorentzVector kk[2];
+    BoundStatePhotoproductionGold(ki, kk, weight);
+    kf[0] = kk[0];//N'
+    const double MK = PARTICLE::K.M();
+    double mass[3] = {Mp, MK, MK};
+    GenPhase.SetDecay(kk[1], 3, mass);
+    weight[0] *= GenPhase.Generate() * fNKK(kk[1].M());
+    kf[1] = *GenPhase.GetDecay(1);//K+
+    kf[2] = *GenPhase.GetDecay(2);//K-
+    kf[3] = *GenPhase.GetDecay(0);//p
+    weight[0] *= 0.465;//Branch ratio to pK+K-
+    return weight[0];
+  }
+
+  double Event_NKK_Phi(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: q; kf: N', [K+, K-]
+    TLorentzVector kk[2];
+    PhiPhotoproductionGold(ki, kk, weight);
+    kf[0] = kk[1];//N'
+    const double MK = PARTICLE::K.M();
+    double mass[2] = {MK, MK};
+    GenPhase.SetDecay(kk[0], 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//K+
+    kf[2] = *GenPhase.GetDecay(1);//K-
+    weight[0] *= 0.489;//Branch ratio to K+K-
+    weight[0] *= 79.0 / 197.0;//require proton
+    return weight[0];
+  }
+
+  double Event_NKK_KK(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: q; kf: N', K+, K-
+    KKPhotoproductionGold(ki, kf, weight);
+    weight[0] *= 79.0 / 197.0;//require proton
+    return weight[0];
+  }
+
+  double Event_NKK_L1520(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: q; kf: N', K+, K-
+    TLorentzVector kk[2];
+    L1520PhotoproductionGold(ki, kk, weight);
+    kf[1] = kk[0];//K+
+    const double MK = PARTICLE::K.M();
+    double mass[2] = {Mp, MK};
+    GenPhase.SetDecay(kk[1], 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//p
+    kf[2] = *GenPhase.GetDecay(1);//K-
+    weight[0] *= 0.45 / 2.0;//Branch ratio to pK-
+    weight[0] *= 79.0 / 197.0;//require proton
+    return weight[0];
+  }
+  
   double Event_eNKKN_BoundState(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
     //ki: e; kf: e', N', [K+, K-, p]
     TLorentzVector kk[3];
@@ -883,6 +959,8 @@ namespace GENERATE{
   }
 
   int SetGENERATE(){
+    TF_fBremsstrahlung.SetParameter(0, 11.0);//Set electron energy
+    TF_fBremsstrahlung.SetNpx(500);
     dSigmaPhi = &PHIMODEL::dSigmaPhi_clas;
     //dSigmaPhi = &dSigmaPhi_old;
     SetfNKK();
