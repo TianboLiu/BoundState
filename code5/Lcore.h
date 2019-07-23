@@ -24,6 +24,7 @@
 #include "Math/Integrator.h"
 #include "Math/IntegratorMultiDim.h"
 #include "Math/AllIntegrationTypes.h"
+#include "Math/SpecFuncMathCore.h"
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -413,6 +414,54 @@ namespace GENERATE{
     double dE = GOLD::TF_fEnergy.GetRandom();
     P->SetXYZT(p * sqrt(1.0 - cth * cth) * cos(phi), p * sqrt(1.0 - cth * cth) * sin(phi), p * cth, sqrt(p * p + Mp * Mp) - dE);
     return 0;
+  }
+
+  double FormFactor(const double tau, const double Q2){//twist-tau form factor
+    if (Q2 < 0){
+      cout << "Timelike region Q2!" << endl;
+    }
+    return ROOT::Math::beta(tau - 1.0, 0.5 + Q2 / (4.0 * pow(0.5337, 2))) / ROOT::Math::beta(tau - 1.0, 0.5);
+  }
+
+  double GEp(const double Q2){//proton electric form factor model
+    double F1p = 1.1612 * FormFactor(3.0, Q2) - 0.1612 * FormFactor(4.0, Q2) + 0.0011 * FormFactor(5.0, Q2) - 0.0011 * FormFactor(6.0, Q2);
+    double F2p = 1.4400 * FormFactor(4.0, Q2) + 0.3528 * FormFactor(6.0, Q2);
+    return F1p - Q2 / (4.0 * Mp * Mp) * F2p;
+  }
+
+  double GMp(const double Q2){//proton magnetic form factor model
+    double F1p = 1.1612 * FormFactor(3.0, Q2) - 0.1612 * FormFactor(4.0, Q2) + 0.0011 * FormFactor(5.0, Q2) - 0.0011 * FormFactor(6.0, Q2);
+    double F2p = 1.4400 * FormFactor(4.0, Q2) + 0.3528 * FormFactor(6.0, Q2);
+    return F1p + F2p;
+  }
+
+  double Event_ep_QE(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){//quasi-elastic ep event from gold target
+    //ki: e; kf: e', p
+    TLorentzVector P;
+    NucleonGold(&P);//off-shell proton
+    TLorentzVector l = ki[0];//incoming electron
+    l.Boost(-P.BoostVector());//boost to proton rest frame
+    TLorentzVector lp(0,0,1,1);//scattered electron, temporary value
+    lp.SetTheta(acos(random.Uniform(-1.0, 1.0)));//polar angle
+    lp.SetPhi(random.Uniform(-M_PI, M_PI));//azimuthal angle
+    double th = lp.Angle(l.Vect());//angle w.r.t. the incoming electron in the proton rest frame
+    double El = (pow(P.M(), 2) + 2.0 * l.E() * P.M() - pow(Mp, 2)) / (2.0 * (P.M() + l.E() * (1.0 - cos(th))));//energy of scattered electron
+    lp.SetRho(El);//set momentum, electron mass neglected
+    lp.SetE(El);
+    TLorentzVector q = l - lp;//virtual photon
+    double Q2 = -q * q;
+    double alpha_em = 1.0 / 137.0;
+    double sigma0 = 4.0 * pow(alpha_em, 2) * pow(cos(th/2.0), 2) * pow(lp.E(), 3) / l.E() / pow(Q2, 2);//point-like cross section, GeV^-2
+    double tau = Q2 / (4.0 * Mp * Mp);
+    double epsilon = 1.0 / (1.0 + 2.0 * (1.0 + tau) * pow(tan(th/2.0), 2));//photon polarization
+    double sigma = sigma0 * (epsilon * pow(GEp(Q2), 2) + tau * pow(GMp(Q2), 2)) / (epsilon * (1.0 + tau));//cross section, GeV^-2
+    double volume = 4.0 * M_PI;//phase space
+    weight[0] = sigma * volume;//weighting factor
+    weight[0] *= 79.0 / 197.0;//proton fraction in gold
+    lp.Boost(P.BoostVector());//boost to lab frame
+    kf[0] = lp;//scattered electron
+    kf[1] = ki[0] + P - kf[0];//outgoing proton
+    return weight[0];
   }
 
   double (*dSigmaPhi)(const double, const double, const double);
