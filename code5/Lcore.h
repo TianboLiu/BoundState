@@ -1045,6 +1045,12 @@ namespace DETECTOR{
   TH2D * res_Km_alert_p;
   TH2D * res_Km_alert_theta;
   TH2D * res_Km_alert_phi;
+  TH2D * res_pip_alert_p;
+  TH2D * res_pip_alert_theta;
+  TH2D * res_pip_alert_phi;
+  TH2D * res_pim_alert_p;
+  TH2D * res_pim_alert_theta;
+  TH2D * res_pim_alert_phi;
   TH2D * res_proton_alert_p;
   TH2D * res_proton_alert_theta;
   TH2D * res_proton_alert_phi;
@@ -1072,6 +1078,12 @@ namespace DETECTOR{
     res_Km_alert_p = (TH2D *) fres1->Get("h1");
     res_Km_alert_theta = (TH2D *) fres1->Get("h2");
     res_Km_alert_phi = (TH2D *) fres1->Get("h3");
+    res_pip_alert_p = (TH2D *) fres1->Get("h1");
+    res_pip_alert_theta = (TH2D *) fres1->Get("h2");
+    res_pip_alert_phi = (TH2D *) fres1->Get("h3");
+    res_pim_alert_p = (TH2D *) fres1->Get("h1");
+    res_pim_alert_theta = (TH2D *) fres1->Get("h2");
+    res_pim_alert_phi = (TH2D *) fres1->Get("h3");
     res_proton_alert_p = (TH2D *) fres2->Get("h1");
     res_proton_alert_theta = (TH2D *) fres2->Get("h2");
     res_proton_alert_phi = (TH2D *) fres2->Get("h3");
@@ -1146,6 +1158,16 @@ namespace DETECTOR{
 	resp = res_Km_alert_p;
 	restheta = res_Km_alert_theta;
 	resphi = res_Km_alert_phi;
+      }
+      else if (strcmp(part, "pi+") == 0){
+        resp = res_pip_alert_p;
+        restheta = res_pip_alert_theta;
+        resphi = res_pip_alert_phi;
+      }
+      else if (strcmp(part, "pi-") == 0){
+        resp = res_pim_alert_p;
+        restheta = res_pim_alert_theta;
+        resphi = res_pim_alert_phi;
       }
       else
 	return 0;
