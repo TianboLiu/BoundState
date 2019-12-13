@@ -144,22 +144,22 @@ namespace JPSIMODEL{
   double (*dSigmaJpsi)(const double, const double);
   
   double dSigmaJpsi_2g(const double x, const double t){//Brodsky et al. PLB498 (2001) 23-28
-    double N2g = 7.5671e3 * 2.56819e-6;
+    double N2g = 7.5671e3;
     double v = 1.0 / (16.0 * M_PI);
-    double R = 1.0 / 0.197327;//GeV^-1
+    double R = 1.0;
     double M = 3.0969;//GeV
-    double result = N2g * v * pow(1.0 - x, 2) * exp(1.13 * t) / pow(R * M, 2);//GeV^-4
-    return result;//ds/dt in unit GeV^-4
+    double result = N2g * v * pow(1.0 - x, 2) * exp(1.13 * t) / pow(R * M, 2);//nb GeV^-2
+    return result * 1e-7 / pow(0.197327, 2);//ds/dt in unit GeV^-4
   }
 
   double dSigmaJpsi_23g(const double x, const double t){//Brodsky et al. PLB498 (2001) 23-28
-    double N2g = 6.499e3 * 2.56819e-6;
-    double N3g = 2.894e3 * 2.56819e-6;
+    double N2g = 6.499e3;
+    double N3g = 2.894e3;
     double v = 1.0 / (16.0 * M_PI);
-    double R = 1.0 / 0.197327;//GeV^-1
+    double R = 1.0;
     double M = 3.0969;//GeV
-    double result = N2g * v * pow(1.0 - x, 2) * exp(1.13 * t) / (R * R * M * M) + N3g * v * exp(1.13 * t) / pow(R * M, 4);//GeV^-4
-    return result;//ds/dt in unit GeV^-4
+    double result = N2g * v * pow(1.0 - x, 2) * exp(1.13 * t) / (R * R * M * M) + N3g * v * exp(1.13 * t) / pow(R * M, 4);//nb GeV^-2
+    return result * 1e-7 / pow(0.197327, 2);//ds/dt in unit GeV^-4
   }
 
   int SetModel(const char * model = "2g"){
@@ -185,26 +185,32 @@ namespace GENERATE{
   TF1 * TF_fMomentum;
   TF1 * TF_fEnergy;
 
-  double Bremsstrahlung(const double * k, const double * par){//non-normalized bremsstrahlung photon
+  double Bremsstrahlung(const double * y, const double * par){//ds/dy approximate expression
     //E0: electron beam energy; k: photon energy
-    double E0 = par[0];
-    double y = k[0] / E0;
-    if (y < 0.01) {
+    if (y[0] < 0.01) {// Infrared cut
       std::cerr << "Out of range in Bremsstrahlung!" << std::endl;
       return -1.0;
     }
-    double result = 1.0 / (y * E0) * (4.0 / 3.0 - 4.0 / 3.0 * y + y * y);
+    double result = (4.0 / 3.0 - 4.0 / 3.0 * y[0] + y[0] * y[0]) / y[0];
     return result;
   }
   
-  double BremsstrahlungPhoton(TLorentzVector * q, const double * k){//Generate a Bremsstrahlung photon
-    //q: photon; k: Emin, Emax
-    double E0 = TF_fBremsstrahlung->GetRandom(k[0], k[1]);
-    q[0].SetXYZT(0.0, 0.0, E0, E0);
-    return 1.0;
+  double BremsstrahlungPhoton(TLorentzVector * q, const double kmin, const double kmax, const double E){//Generate a Bremsstrahlung photon ! Assume d / X0 = 0.01 radiator!
+    //q: photon; E: electron beam energy; [kmin, kmax]: photon energy range
+    double ymin = kmin / E;
+    double ymax = kmax / E;
+    double y = TF_fBremsstrahlung->GetRandom(ymin, ymax);
+    q[0].SetXYZT(0.0, 0.0, y * E, y * E);
+    return 0.01 * (4.0 / 3.0 * log(ymax / ymin) - 4.0 / 3.0 * (ymax - ymin) + 1.0 / 2.0 * (ymax * ymax - ymin * ymin));
+  }
+
+  int SetBremsstrahlung(){
+    TF_fBremsstrahlung = new TF1("fBremsstrahlung", Bremsstrahlung, 0.01, 1.0, 0);
+    TF_fBremsstrahlung->SetNpx(1000);
+    return 0;
   }
   
-  int GetNucleon(TLorentzVector * P){
+  double GetNucleon(TLorentzVector * P){
     if (NUCLEAR::flag > 0){
       double p = TF_fMomentum->GetRandom();
       double cth = random.Uniform(-1.0, 1.0);
@@ -286,7 +292,7 @@ namespace GENERATE{
   double Event_gN2Nee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: gamma, N; kf: N', [e+, e-]
     TLorentzVector kf1[2];//Jpsi, N'
-    double weight = JpsiElectroproduction(ki, kf1);
+    double weight = JpsiPhotoproduction(ki, kf1);
     kf[0] = kf1[1];//N'
     double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
     GenPhase.SetDecay(kf1[0], 2, mass);
@@ -320,9 +326,11 @@ namespace DETECTOR{
 
   TRandom3 random(0);
 
-  TFile * facc1, * facc2, * facc3;
-  TFile * fres1, * fres2;
+  TFile * facc_clas, * facc_solid, * facc_alert;
+  TFile * fres_clas, * fres_solid, * fres_alert1, * fres_alert2;
+  
   TH3F * acc_ele_clas;
+  TH3F * acc_pos_clas;
   TH3F * acc_pip_clas;
   TH3F * acc_pim_clas;
   TH3F * acc_Kp_clas;
@@ -333,54 +341,48 @@ namespace DETECTOR{
   TH2D * acc_pip_alert;
   TH2D * acc_Km_alert;
   TH2D * acc_pim_alert;
-  TH2D * res_Kp_alert_p;
-  TH2D * res_Kp_alert_theta;
-  TH2D * res_Kp_alert_phi;
-  TH2D * res_Km_alert_p;
-  TH2D * res_Km_alert_theta;
-  TH2D * res_Km_alert_phi;
-  TH2D * res_pip_alert_p;
-  TH2D * res_pip_alert_theta;
-  TH2D * res_pip_alert_phi;
-  TH2D * res_pim_alert_p;
-  TH2D * res_pim_alert_theta;
-  TH2D * res_pim_alert_phi;
-  TH2D * res_proton_alert_p;
-  TH2D * res_proton_alert_theta;
-  TH2D * res_proton_alert_phi;
+  TH2D * res_Kp_alert_p, * res_Kp_alert_theta, * res_Kp_alert_phi;
+  TH2D * res_Km_alert_p, * res_Km_alert_theta, * res_Km_alert_phi;
+  TH2D * res_pip_alert_p, * res_pip_alert_theta, * res_pip_alert_phi;
+  TH2D * res_pim_alert_p, * res_pim_alert_theta, * res_pim_alert_phi;
+  TH2D * res_proton_alert_p, * res_proton_alert_theta, * res_proton_alert_phi;
 
-  int SetDETECTOR(){
-    facc1 = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
-    facc2 = new TFile("acceptance/acceptance_ele_vertex_cP3375.root", "r");
-    facc3 = new TFile("acceptance/acc_alert_20190427.root", "r");
-    fres1 = new TFile("acceptance/res_kp_20190429.root", "r");
-    fres2 = new TFile("acceptance/res_proton_20190429.root", "r");
-    acc_pip_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
-    acc_pim_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
-    acc_ele_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_ele");
-    acc_proton_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
-    acc_Kp_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pip");
-    acc_Km_clas = (TH3F *) facc1->Get("acceptance_PThetaPhi_pim");
-    acc_proton_alert = (TH2D *) facc3->Get("h0");
-    acc_Kp_alert = (TH2D *) facc3->Get("h1");
-    acc_pip_alert = (TH2D *) facc3->Get("h2");
-    acc_Km_alert = (TH2D *) facc3->Get("h3");
-    acc_pim_alert = (TH2D *) facc3->Get("h4");
-    res_Kp_alert_p = (TH2D *) fres1->Get("h1");
-    res_Kp_alert_theta = (TH2D *) fres1->Get("h2");
-    res_Kp_alert_phi = (TH2D *) fres1->Get("h3");
-    res_Km_alert_p = (TH2D *) fres1->Get("h1");
-    res_Km_alert_theta = (TH2D *) fres1->Get("h2");
-    res_Km_alert_phi = (TH2D *) fres1->Get("h3");
-    res_pip_alert_p = (TH2D *) fres1->Get("h1");
-    res_pip_alert_theta = (TH2D *) fres1->Get("h2");
-    res_pip_alert_phi = (TH2D *) fres1->Get("h3");
-    res_pim_alert_p = (TH2D *) fres1->Get("h1");
-    res_pim_alert_theta = (TH2D *) fres1->Get("h2");
-    res_pim_alert_phi = (TH2D *) fres1->Get("h3");
-    res_proton_alert_p = (TH2D *) fres2->Get("h1");
-    res_proton_alert_theta = (TH2D *) fres2->Get("h2");
-    res_proton_alert_phi = (TH2D *) fres2->Get("h3");
+  int SetDetector(const char * detector = 0){
+    if (strcmp(detector, "CLAS12") == 0){
+      facc_clas = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
+      acc_pip_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");
+      acc_pim_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pim");
+      acc_ele_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_ele");
+      acc_pos_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");//!!!!
+      acc_proton_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");//!!!!
+      acc_Kp_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");//!!!!
+      acc_Km_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pim");//!!!!
+    }
+    else if (strcmp(detector, "ALERT") == 0){
+      facc_alert = new TFile("acceptance/acc_alert_20190427.root", "r");
+      fres_alert1 = new TFile("acceptance/res_kp_20190429.root", "r");
+      fres_alert2 = new TFile("acceptance/res_proton_20190429.root", "r");    
+      acc_proton_alert = (TH2D *) facc_alert->Get("h0");
+      acc_Kp_alert = (TH2D *) facc_alert->Get("h1");
+      acc_pip_alert = (TH2D *) facc_alert->Get("h2");
+      acc_Km_alert = (TH2D *) facc_alert->Get("h3");
+      acc_pim_alert = (TH2D *) facc_alert->Get("h4");
+      res_Kp_alert_p = (TH2D *) fres_alert1->Get("h1");
+      res_Kp_alert_theta = (TH2D *) fres_alert1->Get("h2");
+      res_Kp_alert_phi = (TH2D *) fres_alert1->Get("h3");
+      res_Km_alert_p = (TH2D *) fres_alert1->Get("h1");
+      res_Km_alert_theta = (TH2D *) fres_alert1->Get("h2");
+      res_Km_alert_phi = (TH2D *) fres_alert1->Get("h3");
+      res_pip_alert_p = (TH2D *) fres_alert1->Get("h1");
+      res_pip_alert_theta = (TH2D *) fres_alert1->Get("h2");
+      res_pip_alert_phi = (TH2D *) fres_alert1->Get("h3");
+      res_pim_alert_p = (TH2D *) fres_alert1->Get("h1");
+      res_pim_alert_theta = (TH2D *) fres_alert1->Get("h2");
+      res_pim_alert_phi = (TH2D *) fres_alert1->Get("h3");
+      res_proton_alert_p = (TH2D *) fres_alert2->Get("h1");
+      res_proton_alert_theta = (TH2D *) fres_alert2->Get("h2");
+      res_proton_alert_phi = (TH2D *) fres_alert2->Get("h3");
+    } 
     return 0;
   }
 
@@ -391,7 +393,8 @@ namespace DETECTOR{
     double phi = P.Phi() * 180.0 / M_PI;
     if (phi < 0) phi = phi + 360.0;
     TH3F * acc;
-    if (strcmp(part, "e") == 0) acc = acc_ele_clas;
+    if (strcmp(part, "e") == 0 || strcmp(part, "e-") == 0) acc = acc_ele_clas;
+    else if (strcmp(part, "e+") == 0) acc = acc_pos_clas;
     else if (strcmp(part, "p") == 0) acc = acc_proton_clas;
     else if (strcmp(part, "K+") == 0) acc = acc_Kp_clas;
     else if (strcmp(part, "K-") == 0) acc = acc_Km_clas;
