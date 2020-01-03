@@ -35,6 +35,7 @@ int main(const int argc, const char * argv[]){
   TH2D * hMomentum1 = new TH2D("Pe+Pe-_Jpsi", ";P[e^{+}] (GeV);P[e^{-}] (GeV)", 100, 0.0, 10.0, 100, 0.0, 10.0);
   TH2D * hThetaPelectron1 = new TH2D("ThetaP_e-_Jpsi", ";#theta[e^{-}] (deg);P[e^{-}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hThetaPpositron1 = new TH2D("ThetaP_e+_Jpsi", ";#theta[e^{+}] (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
+  TH2D * hThetaPproton1 = new TH2D("ThetaP_proton_Jpsi", ";#theta[p] (deg);P[p] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hAngleP1 = new TH2D("AngleP_Jpsi", ";#alpha<e^{+}e^{-}> (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH1D * hFermiP1 = new TH1D("FermiP_Jpsi", ";P[N] (GeV);Events / hour", 100, 0.0, 1.0);
   TH1D * hFermiPz1 = new TH1D("FermiPz_Jpsi", ";Pz[N] (GeV);Events / hour", 100, -1.0, 1.0);
@@ -44,6 +45,7 @@ int main(const int argc, const char * argv[]){
   hMomentum1->SetDirectory(fraw);
   hThetaPelectron1->SetDirectory(fraw);
   hThetaPpositron1->SetDirectory(fraw);
+  hThetaPproton1->SetDirectory(fraw);
   hAngleP1->SetDirectory(fraw);
   hFermiP1->SetDirectory(fraw);
   hFermiPz1->SetDirectory(fraw);
@@ -56,6 +58,7 @@ int main(const int argc, const char * argv[]){
   TH2D * hMomentum2 = new TH2D("Pe+Pe-_Jpsi", ";P[e^{+}] (GeV);P[e^{-}] (GeV)", 100, 0.0, 10.0, 100, 0.0, 10.0);
   TH2D * hThetaPelectron2 = new TH2D("ThetaP_e-_Jpsi", ";#theta[e^{-}] (deg);P[e^{-}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hThetaPpositron2 = new TH2D("ThetaP_e+_Jpsi", ";#theta[e^{+}] (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
+  TH2D * hThetaPproton2 = new TH2D("ThetaP_proton_Jpsi", ";#theta[p] (deg);P[p] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hAngleP2 = new TH2D("AngleP_Jpsi", ";#alpha<e^{+}e^{-}> (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH1D * hFermiP2 = new TH1D("FermiP_Jpsi", ";P[N] (GeV);Events / hour", 100, 0.0, 1.0);
   TH1D * hFermiPz2 = new TH1D("FermiPz_Jpsi", ";Pz[N] (GeV);Events / hour", 100, -1.0, 1.0);
@@ -65,6 +68,7 @@ int main(const int argc, const char * argv[]){
   hMomentum2->SetDirectory(fsub);
   hThetaPelectron2->SetDirectory(fsub);
   hThetaPpositron2->SetDirectory(fsub);
+  hThetaPproton2->SetDirectory(fsub);
   hAngleP2->SetDirectory(fsub);
   hFermiP2->SetDirectory(fsub);
   hFermiPz2->SetDirectory(fsub);
@@ -77,6 +81,7 @@ int main(const int argc, const char * argv[]){
   TH2D * hMomentum3 = new TH2D("Pe+Pe-_Jpsi", ";P[e^{+}] (GeV);P[e^{-}] (GeV)", 100, 0.0, 10.0, 100, 0.0, 10.0);
   TH2D * hThetaPelectron3 = new TH2D("ThetaP_e-_Jpsi", ";#theta[e^{-}] (deg);P[e^{-}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hThetaPpositron3 = new TH2D("ThetaP_e+_Jpsi", ";#theta[e^{+}] (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
+  TH2D * hThetaPproton3 = new TH2D("ThetaP_proton_Jpsi", ";#theta[p] (deg);P[p] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hAngleP3 = new TH2D("AngleP_Jpsi", ";#alpha<e^{+}e^{-}> (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH1D * hFermiP3 = new TH1D("FermiP_Jpsi", ";P[N] (GeV);Events / hour", 100, 0.0, 1.0);
   TH1D * hFermiPz3 = new TH1D("FermiPz_Jpsi", ";Pz[N] (GeV);Events / hour", 100, -1.0, 1.0);
@@ -86,6 +91,7 @@ int main(const int argc, const char * argv[]){
   hMomentum3->SetDirectory(fdetected);
   hThetaPelectron3->SetDirectory(fdetected);
   hThetaPpositron3->SetDirectory(fdetected);
+  hThetaPproton3->SetDirectory(fdetected);
   hAngleP3->SetDirectory(fdetected);
   hFermiP3->SetDirectory(fdetected);
   hFermiPz3->SetDirectory(fdetected);
@@ -98,6 +104,7 @@ int main(const int argc, const char * argv[]){
   TH2D * hMomentum4 = new TH2D("Pe+Pe-_Jpsi", ";P[e^{+}] (GeV);P[e^{-}] (GeV)", 100, 0.0, 10.0, 100, 0.0, 10.0);
   TH2D * hThetaPelectron4 = new TH2D("ThetaP_e-_Jpsi", ";#theta[e^{-}] (deg);P[e^{-}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hThetaPpositron4 = new TH2D("ThetaP_e+_Jpsi", ";#theta[e^{+}] (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
+  TH2D * hThetaPproton4 = new TH2D("ThetaP_proton_Jpsi", ";#theta[p] (deg);P[p] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH2D * hAngleP4 = new TH2D("AngleP_Jpsi", ";#alpha<e^{+}e^{-}> (deg);P[e^{+}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
   TH1D * hFermiP4 = new TH1D("FermiP_Jpsi", ";P[N] (GeV);Events / hour", 100, 0.0, 1.0);
   TH1D * hFermiPz4 = new TH1D("FermiPz_Jpsi", ";Pz[N] (GeV);Events / hour", 100, -1.0, 1.0);
@@ -107,6 +114,7 @@ int main(const int argc, const char * argv[]){
   hMomentum4->SetDirectory(fdetectedsub);
   hThetaPelectron4->SetDirectory(fdetectedsub);
   hThetaPpositron4->SetDirectory(fdetectedsub);
+  hThetaPproton4->SetDirectory(fdetectedsub);
   hAngleP4->SetDirectory(fdetectedsub);
   hFermiP4->SetDirectory(fdetectedsub);
   hFermiPz4->SetDirectory(fdetectedsub);
@@ -133,6 +141,7 @@ int main(const int argc, const char * argv[]){
       hMomentum1->Fill( kf[1].P(), kf[2].P(), weight);
       hThetaPelectron1->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight);
       hThetaPpositron1->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight);
+      hThetaPproton1->Fill( kf[0].Theta()/M_PI*180, kf[0].P(), weight);
       hAngleP1->Fill( kf[2].Angle(kf[1].Vect())/M_PI*180, kf[1].P(), weight);
       hFermiP1->Fill( ki[1].P(), weight);
       hFermiPz1->Fill( ki[1].Pz(), weight);
@@ -143,6 +152,7 @@ int main(const int argc, const char * argv[]){
       hMomentum3->Fill( kf[1].P(), kf[2].P(), weight * acceptance);
       hThetaPelectron3->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight * acceptance);
       hThetaPpositron3->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight * acceptance);
+      hThetaPproton3->Fill( kf[0].Theta()/M_PI*180, kf[0].P(), weight * acceptance);
       hAngleP3->Fill( kf[2].Angle(kf[1].Vect())/M_PI*180, kf[1].P(), weight * acceptance);
       hFermiP3->Fill( ki[1].P(), weight * acceptance);
       hFermiPz3->Fill( ki[1].Pz(), weight * acceptance);
@@ -154,6 +164,7 @@ int main(const int argc, const char * argv[]){
 	hMomentum2->Fill( kf[1].P(), kf[2].P(), weight);
 	hThetaPelectron2->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight);
 	hThetaPpositron2->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight);
+	hThetaPproton2->Fill( kf[0].Theta()/M_PI*180, kf[0].P(), weight);
 	hAngleP2->Fill( kf[2].Angle(kf[1].Vect())/M_PI*180, kf[1].P(), weight);
 	hFermiP2->Fill( ki[1].P(), weight);
 	hFermiPz2->Fill( ki[1].Pz(), weight);
@@ -164,6 +175,7 @@ int main(const int argc, const char * argv[]){
 	hMomentum4->Fill( kf[1].P(), kf[2].P(), weight * acceptance);
 	hThetaPelectron4->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight * acceptance);
 	hThetaPpositron4->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight * acceptance);
+	hThetaPproton4->Fill( kf[0].Theta()/M_PI*180, kf[0].P(), weight * acceptance);
 	hAngleP4->Fill( kf[2].Angle(kf[1].Vect())/M_PI*180, kf[1].P(), weight * acceptance);
 	hFermiP4->Fill( ki[1].P(), weight * acceptance);
 	hFermiPz4->Fill( ki[1].Pz(), weight * acceptance);
@@ -178,6 +190,7 @@ int main(const int argc, const char * argv[]){
   hMomentum1->Scale(lumi*time/Nsim);
   hThetaPelectron1->Scale(lumi*time/Nsim);
   hThetaPpositron1->Scale(lumi*time/Nsim);
+  hThetaPproton1->Scale(lumi*time/Nsim);
   hAngleP1->Scale(lumi*time/Nsim);
   hFermiP1->Scale(lumi*time/Nsim);
   hFermiPz1->Scale(lumi*time/Nsim);
@@ -190,6 +203,7 @@ int main(const int argc, const char * argv[]){
   hMomentum2->Scale(lumi*time/Nsim);
   hThetaPelectron2->Scale(lumi*time/Nsim);
   hThetaPpositron2->Scale(lumi*time/Nsim);
+  hThetaPproton2->Scale(lumi*time/Nsim);
   hAngleP2->Scale(lumi*time/Nsim);
   hFermiP2->Scale(lumi*time/Nsim);
   hFermiPz2->Scale(lumi*time/Nsim);
@@ -202,6 +216,7 @@ int main(const int argc, const char * argv[]){
   hMomentum3->Scale(lumi*time/Nsim);
   hThetaPelectron3->Scale(lumi*time/Nsim);
   hThetaPpositron3->Scale(lumi*time/Nsim);
+  hThetaPproton3->Scale(lumi*time/Nsim);
   hAngleP3->Scale(lumi*time/Nsim);
   hFermiP3->Scale(lumi*time/Nsim);
   hFermiPz3->Scale(lumi*time/Nsim);
@@ -214,6 +229,7 @@ int main(const int argc, const char * argv[]){
   hMomentum4->Scale(lumi*time/Nsim);
   hThetaPelectron4->Scale(lumi*time/Nsim);
   hThetaPpositron4->Scale(lumi*time/Nsim);
+  hThetaPproton4->Scale(lumi*time/Nsim);
   hAngleP4->Scale(lumi*time/Nsim);
   hFermiP4->Scale(lumi*time/Nsim);
   hFermiPz4->Scale(lumi*time/Nsim);

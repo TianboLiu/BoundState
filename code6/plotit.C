@@ -50,6 +50,7 @@ int main(const int argc, const char * argv[]){
     TH2D * hMomentum = (TH2D *) fs->Get("Pe+Pe-_Jpsi");
     TH2D * hThetaPelectron = (TH2D *) fs->Get("ThetaP_e-_Jpsi");
     TH2D * hThetaPpositron = (TH2D *) fs->Get("ThetaP_e+_Jpsi");
+    TH2D * hThetaPproton = (TH2D *) fs->Get("ThetaP_proton_Jpsi");
     TH2D * hAngleP = (TH2D *) fs->Get("AngleP_Jpsi");
     TH1D * hFermiP = (TH1D *) fs->Get("FermiP_Jpsi");
     TH1D * hFermiPz = (TH1D *) fs->Get("FermiPz_Jpsi");
@@ -75,6 +76,10 @@ int main(const int argc, const char * argv[]){
 
     SetStyle(hThetaPpositron);
     hThetaPpositron->DrawClone("colz");
+    c0->Print(savefile, "pdf");
+
+    SetStyle(hThetaPproton);
+    hThetaPproton->DrawClone("colz");
     c0->Print(savefile, "pdf");
 
     SetStyle(hAngleP);

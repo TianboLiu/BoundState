@@ -4,40 +4,25 @@ int main(const int argc, const char * argv[]){
 
   // Set simulation
   gRandom->SetSeed(0);
-  Long64_t Nsim = 100000000;
+  Long64_t Nsim = 1000000;
 
   // Electron beam energy and luminosity
-  double Ebeam = 10.6;//GeV
-  double lumi = 2.0e35 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
-  double time = 3600.0;//s
+  double Ebeam = 20.0;//GeV
+  double lumi = 1.0e33 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
+  double time = 1.0;//s
   
   // Set nuclear
-  NUCLEAR::SetNuclear("C12");  
-  GENERATE::TF_fMomentum = new TF1("fp", NUCLEAR::fMomentum, 0.0, 1.0, 0);
-  GENERATE::TF_fMomentum->SetNpx(1000);
-  GENERATE::TF_fEnergy = new TF1("fE", NUCLEAR::fEnergy, 0.0, 0.3, 0);
-  GENERATE::TF_fEnergy->SetNpx(1000);
-  
+  NUCLEAR::SetNuclear("p");  
+   
   // Set Jpsi production model
   JPSIMODEL::SetModel("23g");
 
   // Set scattered electron range
-  GENERATE::cthrange[0] = cos(4.5/180.0 * M_PI);
-  GENERATE::cthrange[1] = cos(2.5/180.0 * M_PI);
-  GENERATE::perange[0] = 0.5;//GeV
-  GENERATE::perange[1] = 5.0;//GeV
-
-  TFile * fs = new TFile("result/test.root", "RECREATE");
   
   TH1D * hMJpsi = new TH1D("Mass_e+e-_Jpsi", "", 100, 2.6, 3.6);
-  TH2D * hMomentum = new TH2D("Pe+Pe-_Jpsi", "", 100, 0.0, 10.0, 100, 0.0, 10.0);
-  TH2D * hThetaPelectron = new TH2D("ThetaP_e-_Jpsi", "", 90, 0.0, 180.0, 100, 0.0, 10.0);
-  TH2D * hThetaPpositron = new TH2D("ThetaP_e+_Jpsi", "", 90, 0.0, 180.0, 100, 0.0, 10.0);
-  TH2D * hAngleP = new TH2D("AngleP_Jpsi", "", 90, 0.0, 180.0, 100, 0.0, 10.0);
-
   
   TLorentzVector ki[2], kf[4];
-  ki[0].SetXYZM(0, 0, Ebeam, PARTICLE::e.M());
+  ki[0].SetXYZT(0, 0, Ebeam, Ebeam);
   double weight = 0.0;
   double acceptance = 0.0;
 
@@ -45,27 +30,20 @@ int main(const int argc, const char * argv[]){
     if (i % (Nsim/10) == 0) cout << i/(Nsim/10)*10 << "%" << endl;
     
     weight = GENERATE::GetNucleon(&ki[1]);
-    weight *= GENERATE::Event_eN2eNee_Jpsi(ki, kf); 
+    weight *= GENERATE::Event_gN2Nee_Jpsi(ki, kf); 
 
     if (weight > 0.0){
-      hMJpsi->Fill( (kf[2]+kf[3]).M(), weight);
-      hMomentum->Fill( kf[2].P(), kf[3].P(), weight);
-      hThetaPelectron->Fill( kf[3].Theta()/M_PI*180, kf[3].P(), weight);
-      hThetaPpositron->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight);
-      hAngleP->Fill( kf[3].Angle(kf[2].Vect())/M_PI*180, kf[2].P(), weight);
+      acceptance = 1.0;
       
+      hMJpsi->Fill( (kf[1]+kf[2]).M(), weight * acceptance);
     }
     
   }
 
   hMJpsi->Scale(lumi*time/Nsim);
-  hMomentum->Scale(lumi*time/Nsim);
-  hThetaPelectron->Scale(lumi*time/Nsim);
-  hThetaPpositron->Scale(lumi*time/Nsim);
-  hAngleP->Scale(lumi*time/Nsim);
 
-  fs->Write();
+  cout << hMJpsi->Integral() << endl;
+
   
-
   return 0;
 }
