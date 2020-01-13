@@ -333,6 +333,13 @@ namespace GENERATE{
     GenPhase.Generate();
     kf[1] = *GenPhase.GetDecay(0);//e+
     kf[2] = *GenPhase.GetDecay(1);//e-
+    TLorentzVector Pc = kf1[0] + kf1[1];//total V+N
+    TLorentzVector PV = kf1[0];//V
+    TLorentzVector P1 = kf[1];//e+
+    PV.Boost(-Pc.BoostVector());
+    P1.Boost(-Pc.BoostVector());
+    P1.Boost(-PV.BoostVector());
+    double theta = P1.Angle(PV.Vect());
     double branch = 5.971e-2;//Branch ratio to e+e-
     return weight * branch;
   }
