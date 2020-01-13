@@ -4,10 +4,10 @@ int main(const int argc, const char * argv[]){
 
   // Set simulation
   gRandom->SetSeed(0);
-  Long64_t Nsim = 1000000;
+  Long64_t Nsim = 100;
 
   // Electron beam energy and luminosity
-  double Ebeam = 20.0;//GeV
+  double Ebeam = 11.0;//GeV
   double lumi = 1.0e33 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
   double time = 1.0;//s
   
@@ -17,9 +17,11 @@ int main(const int argc, const char * argv[]){
   // Set Jpsi production model
   JPSIMODEL::SetModel("23g");
 
+  PHIMODEL::SetModel("fit");
+
   // Set scattered electron range
   
-  TH1D * hMJpsi = new TH1D("Mass_e+e-_Jpsi", "", 100, 2.6, 3.6);
+  TH1D * hMJpsi = new TH1D("Mass_e+e-_Jpsi", "", 100, 0.0, 2.0);
   
   TLorentzVector ki[2], kf[4];
   ki[0].SetXYZT(0, 0, Ebeam, Ebeam);
@@ -30,12 +32,13 @@ int main(const int argc, const char * argv[]){
     if (i % (Nsim/10) == 0) cout << i/(Nsim/10)*10 << "%" << endl;
     
     weight = GENERATE::GetNucleon(&ki[1]);
-    weight *= GENERATE::Event_gN2Nee_Jpsi(ki, kf); 
+    weight *= GENERATE::Event_gN2Nee_Phi(ki, kf); 
 
     if (weight > 0.0){
       acceptance = 1.0;
       
       hMJpsi->Fill( (kf[1]+kf[2]).M(), weight * acceptance);
+      cout << weight << "  " << (kf[1] + kf[2]).M() << endl;
     }
     
   }

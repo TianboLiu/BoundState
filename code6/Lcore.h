@@ -139,7 +139,7 @@ namespace NUCLEAR{
   
 }
 
-namespace JPSIMODEL{
+namespace JPSIMODEL{//Model of J/psi production
 
   double (*dSigmaJpsi)(const double, const double);
   
@@ -175,6 +175,34 @@ namespace JPSIMODEL{
   }
 }
 
+namespace PHIMODEL{//Model of phi production
+
+  double (* dSigmaPhi)(const double, const double);
+
+  double dSigmaPhi_fit(const double dW, const double cth){
+    if (dW <= 0) return 0;
+    double par[5] = {0.232612, 1.95038, 4.02454, 1.52884, 0.525636};
+    double b1 = par[3] * pow(dW * (dW + 2.0 * (Mp + PARTICLE::phi.M())), par[4]);
+    double a2 = par[2] * dW;
+    double a0 = par[0] * atan(par[1] * par[1] * (dW * (dW + 2.0 * (Mp + PARTICLE::phi.M()))));
+    double r0 = exp(b1 * cth) * b1 / (2.0 * sinh(b1));
+    double r2 = cth * cth * exp(b1 * cth) * pow(b1, 3) / (2.0 * (b1 * b1 + 2.0) * sinh(b1) - 4.0 * b1 * cosh(b1));
+    double ds = a0 * (r0 + a2 * r2) / (1.0 + a2) / (2.0 * M_PI) / 389.379;//ds/dOmega in unit GeV^-2
+    return ds;//GeV^-2
+  }
+
+  int SetModel(const char * model = "fit"){
+    if (strcmp(model, "fit") == 0)
+      dSigmaPhi = &dSigmaPhi_fit;
+    else {
+      cout << "No matching model! Set to fit model!" << endl;
+      dSigmaPhi = &dSigmaPhi_fit;
+    }
+    return 0;
+  }
+
+}
+
 namespace GENERATE{
 
   TRandom3 random(0);
@@ -185,6 +213,8 @@ namespace GENERATE{
   TF1 * TF_fMomentum;
   TF1 * TF_fEnergy;
 
+  /* Bremsstrahlung photon */
+  
   double Bremsstrahlung(const double * y, const double * par){//ds/dy approximate expression
     //E0: electron beam energy; k: photon energy
     if (y[0] < 0.01) {// Infrared cut
@@ -209,6 +239,8 @@ namespace GENERATE{
     TF_fBremsstrahlung->SetNpx(1000);
     return 0;
   }
+
+  /* Nucleon from a nuclear target */
   
   double GetNucleon(TLorentzVector * P){
     if (NUCLEAR::flag > 0){
@@ -230,6 +262,8 @@ namespace GENERATE{
     return 1.0;
   }
 
+  /* J/psi productions */
+  
   double JpsiPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: gamma, N; kf: Jpsi, N'
     TLorentzVector Pout = ki[0] + ki[1];//Total
@@ -318,6 +352,67 @@ namespace GENERATE{
     return weight * branch;
   }
 
+  /* phi productions */
+
+  double PhiPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: gamma, N; kf: phi, N'
+    TLorentzVector Pout = ki[0] + ki[1];//Total
+    double W = Pout.M();
+    double Mphi = PARTICLE::phi.RandomM();
+    if (W < Mphi + Mp) return 0;//below the threshold
+    double mass[2] = {Mphi, Mp};
+    GenPhase.SetDecay(Pout, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//phi
+    kf[1] = *GenPhase.GetDecay(1);//N'
+    double dW = W - Mphi - Mp;
+    double k = sqrt(pow(W * W - kf[0] * kf[0] - kf[1] * kf[1], 2) - 4.0 * (kf[0] * kf[0]) * (kf[1] * kf[1])) / (2.0 * W);
+    double q = sqrt(pow(W * W - ki[0] * ki[0] - ki[1] * ki[1], 2) - 4.0 * (ki[0] * ki[0]) * (ki[1] * ki[1])) / (2.0 * W);
+    double cth = (sqrt(ki[0] * ki[0] + q * q) * sqrt(kf[0] * kf[0] + k * k) - ki[0] * kf[0]) / (q * k);
+    double flux = sqrt(pow(ki[0] * ki[1], 2) - (ki[0] * ki[0]) * (ki[1] * ki[1])) / (Mp * ki[0].P());
+    double volume = 4.0 * M_PI;
+    double weight = PHIMODEL::dSigmaPhi(dW, cth) * flux * volume;//ds/dOmega * volume(4pi)
+    return weight;//GeV^-2
+  }
+
+  double PhiElectroproduction(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e, N; kf: e', phi, N'
+    double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
+    if (weight1 == 0) return 0;
+    TLorentzVector ki2[2] = {kf[1], ki[1]};//Initial state: virtual photon N
+    double weight2 = PhiPhotoproduction(ki2, &kf[1]);//Generate phi N' from virtual photon production
+    return weight1 * weight2;
+  }
+
+  double Event_gN2Nee_Phi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: gamma, N; kf: N', [e+, e-]
+    TLorentzVector kf1[2];//phi, N'
+    double weight = PhiPhotoproduction(ki, kf1);
+    kf[0] = kf1[1];//N'
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(kf1[0], 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//e+
+    kf[2] = *GenPhase.GetDecay(1);//e-
+    double branch = 2.973e-4;//Branch ratio to e+e-
+    return weight * branch;
+  }
+
+  double Event_eN2eNee_Phi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e, N; kf: e', N', [e+, e-]
+    TLorentzVector kf1[3];//e', phi, N'
+    double weight = PhiElectroproduction(ki, kf1);
+    kf[0] = kf1[0];//e'
+    kf[1] = kf1[2];//N'
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(kf1[1], 2, mass);
+    GenPhase.Generate();
+    kf[2] = *GenPhase.GetDecay(0);//e+
+    kf[3] = *GenPhase.GetDecay(1);//e-
+    double branch = 2.973e-4;
+    return weight * branch;
+  }
+
 
 }
 
@@ -328,19 +423,9 @@ namespace DETECTOR{
 
   TFile * facc_clas, * facc_solid, * facc_alert;
   TFile * fres_clas, * fres_solid, * fres_alert1, * fres_alert2;
-  
-  TH3F * acc_ele_clas;
-  TH3F * acc_pos_clas;
-  TH3F * acc_pip_clas;
-  TH3F * acc_pim_clas;
-  TH3F * acc_Kp_clas;
-  TH3F * acc_Km_clas;
-  TH3F * acc_proton_clas;
-  TH2D * acc_proton_alert;
-  TH2D * acc_Kp_alert;
-  TH2D * acc_pip_alert;
-  TH2D * acc_Km_alert;
-  TH2D * acc_pim_alert;
+  TH3F * acc_ele_clas, * acc_pos_clas, * acc_pip_clas, * acc_pim_clas, * acc_Kp_clas, * acc_Km_clas, * acc_proton_clas;
+  TH2D * acc_ele_solid, * acc_pos_solid, * acc_proton_solid;
+  TH2D * acc_proton_alert, * acc_Kp_alert, * acc_pip_alert, * acc_Km_alert, * acc_pim_alert;
   TH2D * res_Kp_alert_p, * res_Kp_alert_theta, * res_Kp_alert_phi;
   TH2D * res_Km_alert_p, * res_Km_alert_theta, * res_Km_alert_phi;
   TH2D * res_pip_alert_p, * res_pip_alert_theta, * res_pip_alert_phi;
@@ -349,7 +434,7 @@ namespace DETECTOR{
 
   int SetDetector(const char * detector = 0){
     if (strcmp(detector, "CLAS12") == 0){
-      facc_clas = new TFile("acceptance/clasev_acceptance_binP20MeVTheta1degPhi1deg.root", "r");
+      facc_clas = new TFile("acceptance/clasev_acceptance.root", "r");
       acc_pip_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");
       acc_pim_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pim");
       acc_ele_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_ele");
@@ -357,6 +442,12 @@ namespace DETECTOR{
       acc_proton_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");//!!!!
       acc_Kp_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pip");//!!!!
       acc_Km_clas = (TH3F *) facc_clas->Get("acceptance_PThetaPhi_pim");//!!!!
+    }
+    else if (strcmp(detector, "SoLID") == 0){
+      facc_solid = new TFile("acceptance/acceptance_solid_JPsi_electron_target315_output.root", "r");
+      acc_ele_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
+      acc_pos_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
+      acc_proton_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
     }
     else if (strcmp(detector, "ALERT") == 0){
       facc_alert = new TFile("acceptance/acc_alert_20190427.root", "r");
@@ -385,7 +476,7 @@ namespace DETECTOR{
     } 
     return 0;
   }
-
+  
   double AcceptanceCLAS12(const TLorentzVector P, const char * part){
     double p = P.P();
     double theta = P.Theta() * 180.0 / M_PI;
@@ -406,6 +497,20 @@ namespace DETECTOR{
     int binz = acc->GetZaxis()->FindBin(p);
     double result = acc->GetBinContent(binx, biny, binz);
     if (strcmp(part, "K+") == 0 || strcmp(part, "K-") == 0) result *= exp(-6.5 / Phys::c / PARTICLE::K.Tau() / P.Beta() / P.Gamma());//kaon decay
+    return result;
+  }  
+
+  double AcceptanceSoLID(const TLorentzVector P, const char * part){
+    double p = P.P();
+    double theta = P.Theta() * 180.0 / M_PI;
+    TH2D * acc;
+    if (strcmp(part, "e") == 0 || strcmp(part, "e-") == 0) acc = acc_ele_solid;
+    else if (strcmp(part, "e+") == 0) acc = acc_pos_solid;
+    else if (strcmp(part, "p") == 0) acc = acc_proton_solid;
+    else return 0;
+    int binx = acc->GetXaxis()->FindBin(theta);
+    int biny = acc->GetYaxis()->FindBin(p);
+    double result = acc->GetBinContent(binx, biny);
     return result;
   }
 
