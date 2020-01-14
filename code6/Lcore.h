@@ -340,8 +340,10 @@ namespace GENERATE{
     P1.Boost(-Pc.BoostVector());
     P1.Boost(-PV.BoostVector());
     double theta = P1.Angle(PV.Vect());
+    double r = 0.29;
+    double wth = 3.0 / 8.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cos(theta),2));
     double branch = 5.971e-2;//Branch ratio to e+e-
-    return weight * branch;
+    return weight * wth * branch;
   }
   
   double Event_eN2eNee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
@@ -355,8 +357,17 @@ namespace GENERATE{
     GenPhase.Generate();
     kf[2] = *GenPhase.GetDecay(0);//e+
     kf[3] = *GenPhase.GetDecay(1);//e-
+    TLorentzVector Pc = kf1[1] + kf1[2];//total V+N
+    TLorentzVector PV = kf1[1];//V
+    TLorentzVector P1 = kf[2];//e+
+    PV.Boost(-Pc.BoostVector());
+    P1.Boost(-Pc.BoostVector());
+    P1.Boost(-PV.BoostVector());
+    double theta = P1.Angle(PV.Vect());
+    double r = 0.29;
+    double wth = 3.0 / 8.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cos(theta),2));
     double branch = 5.971e-2;//Branch ratio to e+e-
-    return weight * branch;
+    return weight * wth * branch;
   }
 
   /* phi productions */
