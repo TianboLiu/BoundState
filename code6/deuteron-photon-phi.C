@@ -9,8 +9,8 @@ int main(const int argc, const char * argv[]){
   if (argc > 1) Nsim = atoi(argv[1]);
 
   // Electron beam energy and luminosity
-  double Ebeam = 10.6;//GeV
-  double lumi = 2.0e35 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
+  double Ebeam = 11.0;//GeV
+  double lumi = 1.2e37 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
   double time = 3600.0;//s
 
   // Set Acceptance
@@ -27,7 +27,7 @@ int main(const int argc, const char * argv[]){
   // Set bremsstrahlung photon
   GENERATE::SetBremsstrahlung();
   double kmin = 1.0;
-  double kmax = 10.59;
+  double kmax = 10.99;
 
   // raw
   TFile * fraw = new TFile("result-photon-phi/Draw.root", "RECREATE");  

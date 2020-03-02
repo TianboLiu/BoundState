@@ -28,6 +28,7 @@
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3D.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TGraph.h"
@@ -198,6 +199,136 @@ namespace PHIMODEL{//Model of phi production
       cout << "No matching model! Set to fit model!" << endl;
       dSigmaPhi = &dSigmaPhi_fit;
     }
+    return 0;
+  }
+
+}
+
+
+namespace JPSIHE4{//Harry's model for J/psi production from He4
+
+  TRandom3 random(0);
+
+  TFile * fJpsiHe4 = new TFile("harrymodel/harrymodel-jpsi.root", "r");
+  TH2D * hds[11];
+  TH3D * hpmin, * hpmax;
+  double Egarray[11] = {6.2, 6.5, 6.8, 7.1, 7.4, 7.7, 8.0, 8.3, 8.6, 8.9, 9.2};
+  double logsarray[11];
+  ROOT::Math::Interpolator Eglogs(11, ROOT::Math::Interpolation::kCSPLINE);
+  
+  double sigma(const double Eg){
+    double result = 1.0e-7 / pow(0.197367,2) * exp(Eglogs.Eval(Eg));
+    return result;// in unit GeV^-2
+  }
+
+  double GetJpsi(const double Eg, TLorentzVector * kj){
+    double k, theta, phi;
+    if (Eg < 6.2)
+      return 0;
+    else if (Eg > 6.2 && Eg < 6.35)
+      hds[0]->GetRandom2(k, theta);
+    else if (Eg > 6.35 && Eg < 6.65)
+      hds[1]->GetRandom2(k, theta);
+    else if (Eg > 6.65 && Eg < 6.95)
+      hds[2]->GetRandom2(k, theta);
+    else if (Eg > 6.95 && Eg < 7.25)
+      hds[3]->GetRandom2(k, theta);
+    else if (Eg > 7.25 && Eg < 7.55)
+      hds[4]->GetRandom2(k, theta);
+    else if (Eg > 7.55 && Eg < 7.85)
+      hds[5]->GetRandom2(k, theta);
+    else if (Eg > 7.85 && Eg < 8.15)
+      hds[6]->GetRandom2(k, theta);
+    else if (Eg > 8.15 && Eg < 8.45)
+      hds[7]->GetRandom2(k, theta);
+    else if (Eg > 8.45 && Eg < 8.75)
+      hds[8]->GetRandom2(k, theta);
+    else if (Eg > 8.75 && Eg < 9.05)
+      hds[9]->GetRandom2(k, theta);
+    else if (Eg > 9.05)
+      hds[10]->GetRandom2(k, theta);
+    else
+      return 0;
+    theta = theta / 180.0 * M_PI;
+    phi = random.Uniform(-M_PI, M_PI);
+    kj->SetXYZM(k * sin(theta) * cos(phi), k * sin(theta) * sin(phi), k * cos(theta), PARTICLE::Jpsi.RandomM());
+    return sigma(Eg);
+  }
+    
+
+  int SetModel(const char * model = "all"){
+    if (strcmp(model, "all") == 0){
+      hds[0] = (TH2D *) fJpsiHe4->Get("ds_E=6.2");
+      hds[1] = (TH2D *) fJpsiHe4->Get("ds_E=6.5");
+      hds[2] = (TH2D *) fJpsiHe4->Get("ds_E=6.8");
+      hds[3] = (TH2D *) fJpsiHe4->Get("ds_E=7.1");
+      hds[4] = (TH2D *) fJpsiHe4->Get("ds_E=7.4");
+      hds[5] = (TH2D *) fJpsiHe4->Get("ds_E=7.7");
+      hds[6] = (TH2D *) fJpsiHe4->Get("ds_E=8.0");
+      hds[7] = (TH2D *) fJpsiHe4->Get("ds_E=8.3");
+      hds[8] = (TH2D *) fJpsiHe4->Get("ds_E=8.6");
+      hds[9] = (TH2D *) fJpsiHe4->Get("ds_E=8.9");
+      hds[10] = (TH2D *) fJpsiHe4->Get("ds_E=9.2");
+      hpmin = (TH3D *) fJpsiHe4->Get("pmin");
+      hpmax = (TH3D *) fJpsiHe4->Get("pmax");
+    }
+    else if (strcmp(model, "c300") == 0){
+      hds[0] = (TH2D *) fJpsiHe4->Get("ds_E=6.2_c300");
+      hds[1] = (TH2D *) fJpsiHe4->Get("ds_E=6.5_c300");
+      hds[2] = (TH2D *) fJpsiHe4->Get("ds_E=6.8_c300");
+      hds[3] = (TH2D *) fJpsiHe4->Get("ds_E=7.1_c300");
+      hds[4] = (TH2D *) fJpsiHe4->Get("ds_E=7.4_c300");
+      hds[5] = (TH2D *) fJpsiHe4->Get("ds_E=7.7_c300");
+      hds[6] = (TH2D *) fJpsiHe4->Get("ds_E=8.0_c300");
+      hds[7] = (TH2D *) fJpsiHe4->Get("ds_E=8.3_c300");
+      hds[8] = (TH2D *) fJpsiHe4->Get("ds_E=8.6_c300");
+      hds[9] = (TH2D *) fJpsiHe4->Get("ds_E=8.9_c300");
+      hds[10] = (TH2D *) fJpsiHe4->Get("ds_E=9.2_c300");
+      hpmin = (TH3D *) fJpsiHe4->Get("pmin_c300");
+      hpmax = (TH3D *) fJpsiHe4->Get("pmax_c300");
+    }
+    else
+      return 0;
+    for (int i = 0; i < 11; i++)
+      logsarray[i] = log(hds[i]->Integral() * 0.01 * 2.0 / 180.0 * M_PI + 1e-50);
+    Eglogs.SetData(11, Egarray, logsarray);
+    return 0;
+  }
+
+}
+
+namespace PHIHE4{//Harry's model for phi production form He4
+
+  TFile * fphiHe4 = new TFile("harrymodel/harrymodel-phi.root", "r");
+  TH2D * hE13 = (TH2D *) fphiHe4->Get("E=1.3");
+  TH2D * hE14 = (TH2D *) fphiHe4->Get("E=1.4");
+  TH2D * hE15 = (TH2D *) fphiHe4->Get("E=1.5");
+  TH2D * hE16 = (TH2D *) fphiHe4->Get("E=1.6");
+  TH2D * hE17 = (TH2D *) fphiHe4->Get("E=1.7");
+  TH2D * hE18 = (TH2D *) fphiHe4->Get("E=1.8");
+  TH2D * hE19 = (TH2D *) fphiHe4->Get("E=1.9");
+  TH2D * hE20 = (TH2D *) fphiHe4->Get("E=2.0");
+
+  double sE13 = hE13->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE14 = hE14->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE15 = hE15->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE16 = hE16->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE17 = hE17->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE18 = hE18->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE19 = hE19->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+  double sE20 = hE20->Integral() * 0.005 * 2.0 / 180.0 * M_PI;
+
+  double Egarray[8] = {1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
+  double logsarray[8] = {log(sE13), log(sE14), log(sE15), log(sE16), log(sE17), log(sE18), log(sE19), log(sE20)};
+  ROOT::Math::Interpolator Eglogs(8, ROOT::Math::Interpolation::kCSPLINE);
+
+  double sigma(const double Eg){
+    double result = 1.0e-7 / pow(0.197367,2) * exp(Eglogs.Eval(Eg));
+    return result;// in unit GeV^-2
+  }
+  
+  int SetModel(){
+    Eglogs.SetData(8, Egarray, logsarray);
     return 0;
   }
 
@@ -431,6 +562,143 @@ namespace GENERATE{
     return weight * branch;
   }
 
+  double Event_g4He2ee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: g; kf: [e+, e-]
+    double Eg = ki[0].E();
+    TLorentzVector j;
+    double weight = JPSIHE4::GetJpsi(Eg, &j);
+    if (weight == 0) return 0;
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//e+
+    kf[1] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight * branch;
+  }
+
+  double Event_e4He2eee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e; kf: e', [e+, e-]
+    double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
+    if (weight1 == 0) return 0;
+    TLorentzVector q = ki[0] - kf[0];
+    //double s = pow(q.E() + 4.0 * Mp, 2) - pow(q.P(), 2);
+    //double Eg = (s - pow(4.0 * Mp, 2)) / (2.0 * 4.0 * Mp);
+    double Eg = q.E();
+    TLorentzVector j;
+    double weight2 = JPSIHE4::GetJpsi(Eg, &j);
+    if (weight2 == 0) return 0;
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//e+
+    kf[2] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight1 * weight2 * branch;
+  }
+
+  double Event_g4He2ee_Phi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: g; kf: [e+, e-]
+    double Eg = ki[0].E();
+    double k, theta, phi;
+    if (Eg > 1.95){
+      PHIHE4::hE20->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.85){
+      PHIHE4::hE19->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.75){
+      PHIHE4::hE18->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.65){
+      PHIHE4::hE17->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.55){
+      PHIHE4::hE16->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.45){
+      PHIHE4::hE15->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.35){
+      PHIHE4::hE14->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.3){
+      PHIHE4::hE13->GetRandom2(k, theta);
+    }
+    else
+      return 0;
+    theta = theta / 180.0 * M_PI;
+    phi = random.Uniform(-M_PI, M_PI);
+    TLorentzVector j;
+    j.SetXYZM(k * sin(theta) * cos(phi), k * sin(theta) * sin(phi), k * cos(theta), PARTICLE::phi.RandomM());
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//e+
+    kf[1] = *GenPhase.GetDecay(1);//e-
+    double branch = 2.973e-4;
+    double weight = PHIHE4::sigma(Eg);
+    return weight * branch;
+  }
+
+  double Event_e4He2eee_Phi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e; kf: e', [e+, e-]
+    double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
+    if (weight1 == 0) return 0;
+    TLorentzVector q = ki[0] - kf[0];
+    double s = pow(q.E() + 4.0 * Mp, 2) - pow(q.P(), 2);
+    double Eg = (s - pow(4.0 * Mp, 2)) / (2.0 * 4.0 * Mp);
+    double k, theta, phi;
+    if (Eg > 1.95){
+      PHIHE4::hE20->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.85){
+      PHIHE4::hE19->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.75){
+      PHIHE4::hE18->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.65){
+      PHIHE4::hE17->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.55){
+      PHIHE4::hE16->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.45){
+      PHIHE4::hE15->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.35){
+      PHIHE4::hE14->GetRandom2(k, theta);
+    }
+    else if (Eg > 1.3){
+      PHIHE4::hE13->GetRandom2(k, theta);
+    }
+    else
+      return 0;
+    theta = theta / 180.0 * M_PI;
+    phi = random.Uniform(-M_PI, M_PI);
+    TLorentzVector j;
+    j.SetXYZM(k * sin(theta) * cos(phi), k * sin(theta) * sin(phi), k * cos(theta), PARTICLE::phi.RandomM());
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//e+
+    kf[2] = *GenPhase.GetDecay(1);//e-
+    double branch = 2.973e-4;
+    double weight2 = PHIHE4::sigma(Eg);
+    return weight1 * weight2 * branch;
+  }
+
+    
+
 
 }
 
@@ -495,7 +763,7 @@ namespace DETECTOR{
     return 0;
   }
   
-  double AcceptanceCLAS12(const TLorentzVector P, const char * part){
+  double AcceptanceCLAS12FD(const TLorentzVector P, const char * part){
     double p = P.P();
     double theta = P.Theta() * 180.0 / M_PI;
     if (theta > 35.0) return 0;//only forward detector
@@ -516,7 +784,15 @@ namespace DETECTOR{
     double result = acc->GetBinContent(binx, biny, binz);
     if (strcmp(part, "K+") == 0 || strcmp(part, "K-") == 0) result *= exp(-6.5 / Phys::c / PARTICLE::K.Tau() / P.Beta() / P.Gamma());//kaon decay
     return result;
-  }  
+  }
+
+  double AcceptanceCLAS12CD(const TLorentzVector P, const char * part){
+    double p = P.P();
+    double theta = P.Theta() * 180.0 / M_PI;
+    if (theta < 35.0 || theta > 125.0) return 0;
+    if (p > 0.3) return 1;
+    return 0;
+  } 
 
   double AcceptanceSoLID(const TLorentzVector P, const char * part){
     double p = P.P();
@@ -550,7 +826,7 @@ namespace DETECTOR{
   }
 
   double Acceptance(const TLorentzVector P, const char * part){
-    double acc_clas = AcceptanceCLAS12(P, part);
+    double acc_clas = AcceptanceCLAS12FD(P, part);
     double acc_alert = AcceptanceALERT(P, part);
     return 1.0 - (1.0 - acc_clas) * (1.0 - acc_alert);
   }
@@ -600,7 +876,7 @@ namespace DETECTOR{
       P->SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
       return acc;
     }
-    acc = AcceptanceCLAS12(P[0], part);
+    acc = AcceptanceCLAS12FD(P[0], part);
     if (acc > 0){
       res[0] = 0.01;
       res[1] = 0.001;

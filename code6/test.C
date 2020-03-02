@@ -4,12 +4,12 @@ int main(const int argc, const char * argv[]){
 
   // Set simulation
   gRandom->SetSeed(0);
-  Long64_t Nsim = 100;
+  Long64_t Nsim = 10000000;
 
   // Electron beam energy and luminosity
   double Ebeam = 11.0;//GeV
-  double lumi = 1.0e33 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
-  double time = 1.0;//s
+  double lumi = 1.2e37 * 1.0e-26 * pow(0.197327, 2);//GeV^2 s^-1 eN
+  double time = 3600.0;//s
   
   // Set nuclear
   NUCLEAR::SetNuclear("p");  
@@ -38,7 +38,7 @@ int main(const int argc, const char * argv[]){
       acceptance = 1.0;
       
       hMJpsi->Fill( (kf[1]+kf[2]).M(), weight * acceptance);
-      cout << weight << "  " << (kf[1] + kf[2]).M() << endl;
+      //cout << weight << "  " << (kf[1] + kf[2]).M() << endl;
     }
     
   }
