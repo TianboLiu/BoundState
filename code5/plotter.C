@@ -28,6 +28,19 @@ int main(const int argc, const char * argv[]){
   hB->GetYaxis()->SetLabelSize(0.06);
   hB->GetYaxis()->SetNdivisions(6, 5, 0);
   hB->SetStats(0);
+
+  TH1D * hBM = new TH1D("hBM", "", 200, 180.0, 190.0);
+  hBM->GetXaxis()->CenterTitle(true);
+  hBM->GetXaxis()->SetTitleSize(0.06);
+  hBM->GetXaxis()->SetTitleOffset(1.15);
+  hBM->GetXaxis()->SetLabelSize(0.06);
+  hBM->GetXaxis()->SetNdivisions(6, 5, 0);
+  hBM->GetYaxis()->CenterTitle(true);
+  hBM->GetYaxis()->SetTitleSize(0.06);
+  hBM->GetYaxis()->SetTitleOffset(1.15);
+  hBM->GetYaxis()->SetLabelSize(0.06);
+  hBM->GetYaxis()->SetNdivisions(6, 5, 0);
+  hBM->SetStats(0);
     
   if (opt == 10){//invariant mass vertex
     TFile * fs = new TFile(loadpath + "raw.root", "r");
@@ -51,6 +64,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -72,11 +90,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -136,6 +160,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Massraw.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -522,6 +563,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -543,11 +589,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -607,6 +659,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Massdetected.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -993,6 +1062,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -1014,11 +1088,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -1078,6 +1158,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Masssmeared.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -1464,6 +1561,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -1485,11 +1587,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -1549,6 +1657,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Masscut.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -2011,8 +2136,8 @@ int main(const int argc, const char * argv[]){
     TH1D * h4p = (TH1D *) fsp->Get("MpKK_directKK");
     h5->Scale(0.01);
     double mispid = 2500.0;
-    int bin1 = h0->FindBin(1.935 + 1.0e-10);
-    int bin2 = h0->FindBin(1.965 - 1.0e-10);
+    int bin1 = h0->FindBin(1.940 + 1.0e-10);
+    int bin2 = h0->FindBin(1.960 - 1.0e-10);
     cout << "Signal: " << h0->Integral(bin1, bin2) * lumi * time << endl;
     cout << "BoundKK:" << h1->Integral(bin1, bin2) * lumi * time << endl;
     cout << "phi:    " << h2->Integral(bin1, bin2) * lumi * time << endl;
@@ -2079,6 +2204,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -2100,11 +2230,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -2164,6 +2300,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Massbreak.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -2550,6 +2703,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -2571,11 +2729,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -2635,6 +2799,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Massbreakcut.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
@@ -3021,6 +3202,11 @@ int main(const int argc, const char * argv[]){
     TH1D * h2c = (TH1D *) fs->Get("MKK_phi");
     TH1D * h3c = (TH1D *) fs->Get("MKK_Lambda1520");
     TH1D * h4c = (TH1D *) fs->Get("MKK_directKK");
+    TH1D * h0d = (TH1D *) fs->Get("Missing_BoundStateAll");
+    TH1D * h1d = (TH1D *) fs->Get("Missing_BoundStateKK");
+    TH1D * h2d = (TH1D *) fs->Get("Missing_phi");
+    TH1D * h3d = (TH1D *) fs->Get("Missing_Lambda1520");
+    TH1D * h4d = (TH1D *) fs->Get("Missing_directKK");
     //
     h0->Scale(lumi*time/h0->GetXaxis()->GetBinWidth(1)/1000);
     h1->Scale(lumi*time/h1->GetXaxis()->GetBinWidth(1)/1000);
@@ -3042,11 +3228,17 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(lumi*time/h2c->GetXaxis()->GetBinWidth(1)/1000);
     h3c->Scale(lumi*time/h3c->GetXaxis()->GetBinWidth(1)/1000);
     h4c->Scale(lumi*time/h4c->GetXaxis()->GetBinWidth(1)/1000);
+    h0d->Scale(lumi*time/h0d->GetXaxis()->GetBinWidth(1)/1000);
+    h1d->Scale(lumi*time/h1d->GetXaxis()->GetBinWidth(1)/1000);
+    h2d->Scale(lumi*time/h2d->GetXaxis()->GetBinWidth(1)/1000);
+    h3d->Scale(lumi*time/h3d->GetXaxis()->GetBinWidth(1)/1000);
+    h4d->Scale(lumi*time/h4d->GetXaxis()->GetBinWidth(1)/1000);
     //
     h0->SetLineColor(1); h1->SetLineColor(4); h2->SetLineColor(2); h3->SetLineColor(6); h4->SetLineColor(7);
     h0a->SetLineColor(1); h1a->SetLineColor(4); h2a->SetLineColor(2); h3a->SetLineColor(6); h4a->SetLineColor(7);
     h0b->SetLineColor(1); h1b->SetLineColor(4); h2b->SetLineColor(2); h3b->SetLineColor(6); h4b->SetLineColor(7);
     h0c->SetLineColor(1); h1c->SetLineColor(4); h2c->SetLineColor(2); h3c->SetLineColor(6); h4c->SetLineColor(7);
+    h0d->SetLineColor(1); h1d->SetLineColor(4); h2d->SetLineColor(2); h3d->SetLineColor(6); h4d->SetLineColor(7);
     //
     TLegend * leg = new TLegend(0.6, 0.7, 0.9, 0.9);
     leg->AddEntry(h0, "pKK from N-#phi", "l");
@@ -3106,6 +3298,23 @@ int main(const int argc, const char * argv[]){
     h2c->Scale(1/50.);h2c->DrawClone("same");
     h3c->DrawClone("same");
     h4c->DrawClone("same");
+    leg->Clear();
+    leg->AddEntry(h0, "pKK from N-#phi", "l");
+    leg->AddEntry(h1, "only KK from N-#phi", "l");
+    leg->AddEntry(h2, "#phi production / 50", "l");
+    leg->AddEntry(h3, "#Lambda(1520) production", "l");
+    leg->AddEntry(h4, "direct KK production", "l");
+    leg->DrawClone("same");
+    c0->Print(savepath + "Massbreakthetacut.pdf","pdf");//
+    hBM->SetMaximum(h2d->GetMaximum() * 1.2);
+    hBM->SetAxisRange(183.5, 185.0, "X");
+    hBM->GetXaxis()->SetTitle("Missing mass (GeV)");
+    hBM->DrawClone("axis");
+    h0d->DrawClone("same");
+    h1d->DrawClone("same");
+    h2d->DrawClone("same");
+    h3d->DrawClone("same");
+    h4d->DrawClone("same");
     leg->Clear();
     leg->AddEntry(h0, "pKK from N-#phi", "l");
     leg->AddEntry(h1, "only KK from N-#phi", "l");
