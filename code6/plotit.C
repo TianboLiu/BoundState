@@ -206,6 +206,46 @@ int main(const int argc, const char * argv[]){
 
   }
 
+  if (opt == 111){
+    TFile * fs = new TFile(loadfile.Data(), "r");
+    TH1D * hMJpsi = (TH1D *) fs->Get("Mass_e+e-_Jpsi");
+    TH2D * hMomentum = (TH2D *) fs->Get("Pe+Pe-_Jpsi");
+    TH2D * hThetaPelectron = (TH2D *) fs->Get("ThetaP_e-_Jpsi");
+    TH2D * hThetaPpositron = (TH2D *) fs->Get("ThetaP_e+_Jpsi");
+    TH2D * hThetaPJpsi = (TH2D *) fs->Get("ThetaPJpsi");
+    //TH1D * hPmin = (TH1D *) fs->Get("Pmin_Jpsi");
+        
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    c0->SetLogz();
+
+    SetStyle(hMJpsi);
+    hMJpsi->DrawClone("");
+    c0->Print(savefile + "(", "pdf");
+
+    SetStyle(hMomentum);
+    hMomentum->DrawClone("colz");
+    c0->Print(savefile, "pdf");
+
+    SetStyle(hThetaPelectron);
+    hThetaPelectron->DrawClone("colz");
+    c0->Print(savefile, "pdf");
+
+    SetStyle(hThetaPpositron);
+    hThetaPpositron->DrawClone("colz");
+    c0->Print(savefile, "pdf");
+
+    SetStyle(hThetaPJpsi);
+    hThetaPJpsi->DrawClone("colz");
+    c0->Print(savefile + ")", "pdf");
+
+    //SetStyle(hPmin);
+    //hPmin->DrawClone("colz");
+    //c0->Print(savefile + ")", "pdf");
+
+  }
+
   if (opt == 22){
     TFile * fs = new TFile(loadfile.Data(), "r");
     TH1D * hMPhi = (TH1D *) fs->Get("Mass_e+e-_Phi");

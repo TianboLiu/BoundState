@@ -282,6 +282,395 @@ int main(const int argc, const char * argv[]){
 
   }
 
+  if (opt == 2){//jpsi cut
+    double q, k, theta, ds, pmin, pmax, tmp;
+    char dum[300];
+    
+    TFile * fs = new TFile("harrymodel-jpsi-cut.root", "RECREATE");
+    
+    TH2D * c1E62 = new TH2D("cut1_E=6.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E62->SetDirectory(fs);
+    TH2D * c1E64 = new TH2D("cut1_E=6.4","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E64->SetDirectory(fs);
+    TH2D * c1E66 = new TH2D("cut1_E=6.6","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E66->SetDirectory(fs);
+    TH2D * c1E68 = new TH2D("cut1_E=6.8","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E68->SetDirectory(fs);
+    TH2D * c1E70 = new TH2D("cut1_E=7.0","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E70->SetDirectory(fs);
+    TH2D * c1E72 = new TH2D("cut1_E=7.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E72->SetDirectory(fs);
+    TH2D * c1E74 = new TH2D("cut1_E=7.4","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E74->SetDirectory(fs);
+    TH2D * c1E76 = new TH2D("cut1_E=7.6","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E76->SetDirectory(fs);
+    TH2D * c1E78 = new TH2D("cut1_E=7.8","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E78->SetDirectory(fs);
+    TH2D * c1E80 = new TH2D("cut1_E=8.0","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E80->SetDirectory(fs);
+    TH2D * c1E82 = new TH2D("cut1_E=8.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1E82->SetDirectory(fs);
+
+    TH3D * c1pmin = new TH3D("cut1_pmin", "", 11, 6.05, 9.35, 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1pmin->SetDirectory(fs);
+    TH3D * c1pmax = new TH3D("cut1_pmax", "", 11, 6.05, 9.35, 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c1pmax->SetDirectory(fs);
+
+    ifstream f1E62("cut-1-jpsi-6.2.dat");
+    f1E62.getline(dum, 300);
+    while(f1E62 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E62->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E62.close();
+
+    ifstream f1E64("cut-1-jpsi-6.4.dat");
+    f1E64.getline(dum, 300);
+    while(f1E64 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E64->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E64.close();
+
+    ifstream f1E66("cut-1-jpsi-6.6.dat");
+    f1E66.getline(dum, 300);
+    while(f1E66 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E66->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E66.close();
+
+    ifstream f1E68("cut-1-jpsi-6.8.dat");
+    f1E68.getline(dum, 300);
+    while(f1E68 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E68->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E68.close();
+
+    ifstream f1E70("cut-1-jpsi-7.0.dat");
+    f1E70.getline(dum, 300);
+    while(f1E70 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E70->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E70.close();
+
+    ifstream f1E72("cut-1-jpsi-7.2.dat");
+    f1E72.getline(dum, 300);
+    while(f1E72 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E72->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E72.close();
+    
+    ifstream f1E74("cut-1-jpsi-7.4.dat");
+    f1E74.getline(dum, 300);
+    while(f1E74 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E74->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E74.close();
+
+    ifstream f1E76("cut-1-jpsi-7.6.dat");
+    f1E76.getline(dum, 300);
+    while(f1E76 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E76->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E76.close();
+
+    ifstream f1E78("cut-1-jpsi-7.8.dat");
+    f1E78.getline(dum, 300);
+    while(f1E78 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E78->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E78.close();
+
+    ifstream f1E80("cut-1-jpsi-8.0.dat");
+    f1E80.getline(dum, 300);
+    while(f1E80 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E80->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E80.close();
+
+    ifstream f1E82("cut-1-jpsi-8.2.dat");
+    f1E82.getline(dum, 300);
+    while(f1E82 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E82->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c1pmin->Fill(q, k, theta+eps, pmin);
+      c1pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f1E82.close();
+
+
+
+    TH2D * c2E62 = new TH2D("cut2_E=6.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E62->SetDirectory(fs);
+    TH2D * c2E64 = new TH2D("cut2_E=6.4","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E64->SetDirectory(fs);
+    TH2D * c2E66 = new TH2D("cut2_E=6.6","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E66->SetDirectory(fs);
+    TH2D * c2E68 = new TH2D("cut2_E=6.8","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E68->SetDirectory(fs);
+    TH2D * c2E70 = new TH2D("cut2_E=7.0","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E70->SetDirectory(fs);
+    TH2D * c2E72 = new TH2D("cut2_E=7.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E72->SetDirectory(fs);
+    TH2D * c2E74 = new TH2D("cut2_E=7.4","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E74->SetDirectory(fs);
+    TH2D * c2E76 = new TH2D("cut2_E=7.6","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E76->SetDirectory(fs);
+    TH2D * c2E78 = new TH2D("cut2_E=7.8","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E78->SetDirectory(fs);
+    TH2D * c2E80 = new TH2D("cut2_E=8.0","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E80->SetDirectory(fs);
+    TH2D * c2E82 = new TH2D("cut2_E=8.2","", 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2E82->SetDirectory(fs);
+
+    TH3D * c2pmin = new TH3D("cut2_pmin", "", 11, 6.05, 9.35, 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2pmin->SetDirectory(fs);
+    TH3D * c2pmax = new TH3D("cut2_pmax", "", 11, 6.05, 9.35, 700, 3.0, 10.0, 11, 0.0, 22.0);
+    c2pmax->SetDirectory(fs);
+
+    ifstream f2E62("cut-2-jpsi-6.2.dat");
+    f2E62.getline(dum, 300);
+    while(f2E62 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E62->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E62.close();
+
+    ifstream f2E64("cut-2-jpsi-6.4.dat");
+    f2E64.getline(dum, 300);
+    while(f2E64 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E64->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E64.close();
+
+    ifstream f2E66("cut-2-jpsi-6.6.dat");
+    f2E66.getline(dum, 300);
+    while(f2E66 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E66->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E66.close();
+
+    ifstream f2E68("cut-2-jpsi-6.8.dat");
+    f2E68.getline(dum, 300);
+    while(f2E68 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E68->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E68.close();
+
+    ifstream f2E70("cut-2-jpsi-7.0.dat");
+    f2E70.getline(dum, 300);
+    while(f2E70 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E70->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E70.close();
+
+    ifstream f2E72("cut-2-jpsi-7.2.dat");
+    f2E72.getline(dum, 300);
+    while(f2E72 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E72->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E72.close();
+    
+    ifstream f2E74("cut-2-jpsi-7.4.dat");
+    f2E74.getline(dum, 300);
+    while(f2E74 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E74->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E74.close();
+
+    ifstream f2E76("cut-2-jpsi-7.6.dat");
+    f2E76.getline(dum, 300);
+    while(f2E76 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E76->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E76.close();
+
+    ifstream f2E78("cut-2-jpsi-7.8.dat");
+    f2E78.getline(dum, 300);
+    while(f2E78 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E78->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E78.close();
+
+    ifstream f2E80("cut-2-jpsi-8.0.dat");
+    f2E80.getline(dum, 300);
+    while(f2E80 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E80->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E80.close();
+
+    ifstream f2E82("cut-2-jpsi-8.2.dat");
+    f2E82.getline(dum, 300);
+    while(f2E82 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E82->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+      c2pmin->Fill(q, k, theta+eps, pmin);
+      c2pmax->Fill(q, k, theta+eps, pmax);
+    }
+    f2E82.close();
+
+
+    
+
+    fs->Write();
+
+  }
+
+  if (opt == 3){//jpsi cut deuteron
+    double q, k, theta, ds, pmin, pmax, tmp;
+    char dum[300];
+    
+    TFile * fs = new TFile("harrymodel-2h-jpsi-cut.root", "RECREATE");
+    
+    TH2D * c1E72 = new TH2D("cut1_E=7.2","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E72->SetDirectory(fs);
+    TH2D * c1E74 = new TH2D("cut1_E=7.4","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E74->SetDirectory(fs);
+    TH2D * c1E76 = new TH2D("cut1_E=7.6","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E76->SetDirectory(fs);
+    TH2D * c1E78 = new TH2D("cut1_E=7.8","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E78->SetDirectory(fs);
+    TH2D * c1E80 = new TH2D("cut1_E=8.0","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E80->SetDirectory(fs);
+    TH2D * c1E82 = new TH2D("cut1_E=8.2","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c1E82->SetDirectory(fs);
+
+    ifstream f1E72("cut-1-2h-jpsi-7.2.dat");
+    f1E72.getline(dum, 300);
+    while(f1E72 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E72->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E72.close();
+    
+    ifstream f1E74("cut-1-2h-jpsi-7.4.dat");
+    f1E74.getline(dum, 300);
+    while(f1E74 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E74->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E74.close();
+
+    ifstream f1E76("cut-1-2h-jpsi-7.6.dat");
+    f1E76.getline(dum, 300);
+    while(f1E76 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E76->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E76.close();
+
+    ifstream f1E78("cut-1-2h-jpsi-7.8.dat");
+    f1E78.getline(dum, 300);
+    while(f1E78 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E78->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E78.close();
+
+    ifstream f1E80("cut-1-2h-jpsi-8.0.dat");
+    f1E80.getline(dum, 300);
+    while(f1E80 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E80->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E80.close();
+
+    ifstream f1E82("cut-1-2h-jpsi-8.2.dat");
+    f1E82.getline(dum, 300);
+    while(f1E82 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c1E82->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f1E82.close();
+
+
+    TH2D * c2E72 = new TH2D("cut2_E=7.2","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E72->SetDirectory(fs);
+    TH2D * c2E74 = new TH2D("cut2_E=7.4","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E74->SetDirectory(fs);
+    TH2D * c2E76 = new TH2D("cut2_E=7.6","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E76->SetDirectory(fs);
+    TH2D * c2E78 = new TH2D("cut2_E=7.8","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E78->SetDirectory(fs);
+    TH2D * c2E80 = new TH2D("cut2_E=8.0","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E80->SetDirectory(fs);
+    TH2D * c2E82 = new TH2D("cut2_E=8.2","", 700, 3.0, 10.0, 6, 0.0, 12.0);
+    c2E82->SetDirectory(fs);
+
+    ifstream f2E72("cut-2-2h-jpsi-7.2.dat");
+    f2E72.getline(dum, 300);
+    while(f2E72 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E72->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E72.close();
+    
+    ifstream f2E74("cut-2-2h-jpsi-7.4.dat");
+    f2E74.getline(dum, 300);
+    while(f2E74 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E74->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E74.close();
+
+    ifstream f2E76("cut-2-2h-jpsi-7.6.dat");
+    f2E76.getline(dum, 300);
+    while(f2E76 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E76->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E76.close();
+
+    ifstream f2E78("cut-2-2h-jpsi-7.8.dat");
+    f2E78.getline(dum, 300);
+    while(f2E78 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E78->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E78.close();
+
+    ifstream f2E80("cut-2-2h-jpsi-8.0.dat");
+    f2E80.getline(dum, 300);
+    while(f2E80 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E80->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E80.close();
+
+    ifstream f2E82("cut-2-2h-jpsi-8.2.dat");
+    f2E82.getline(dum, 300);
+    while(f2E82 >> k >> ds >> q >> theta >> pmin >> pmax >> tmp >> tmp){
+      c2E82->Fill(k, theta+eps, ds * sin((theta+1.0) / 180.0 * M_PI) * 2.0 * M_PI + zero);
+    }
+    f2E82.close();
+
+    fs->Write();
+  }
+
 
   if (false){
     double q, k, theta, ds, pmin, pmax, tmp;

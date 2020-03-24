@@ -209,6 +209,166 @@ namespace JPSIHE4{//Harry's model for J/psi production from He4
 
   TRandom3 random(0);
 
+  TFile * fJpsiHe4 = new TFile("harrymodel/harrymodel-jpsi-cut.root", "r");
+  TH2D * hds[11];
+  TH3D * hpmin, * hpmax;
+  double Egarray[11] = {6.2, 6.4, 6.6, 6.8, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.2};
+  double logsarray[11];
+  ROOT::Math::Interpolator Eglogs(11, ROOT::Math::Interpolation::kCSPLINE);
+  
+  double sigma(const double Eg){
+    double result = 1.0e-7 / pow(0.197367,2) * exp(Eglogs.Eval(Eg));
+    return result;// in unit GeV^-2
+  }
+
+  double GetJpsi(const double Eg, TLorentzVector * kj){
+    double k, theta, phi;
+    if (Eg < 6.2)
+      return 0;
+    else if (Eg > 6.2 && Eg < 6.3)
+      hds[0]->GetRandom2(k, theta);
+    else if (Eg > 6.3 && Eg < 6.5)
+      hds[1]->GetRandom2(k, theta);
+    else if (Eg > 6.5 && Eg < 6.7)
+      hds[2]->GetRandom2(k, theta);
+    else if (Eg > 6.7 && Eg < 6.9)
+      hds[3]->GetRandom2(k, theta);
+    else if (Eg > 6.9 && Eg < 7.1)
+      hds[4]->GetRandom2(k, theta);
+    else if (Eg > 7.1 && Eg < 7.3)
+      hds[5]->GetRandom2(k, theta);
+    else if (Eg > 7.3 && Eg < 7.5)
+      hds[6]->GetRandom2(k, theta);
+    else if (Eg > 7.5 && Eg < 7.7)
+      hds[7]->GetRandom2(k, theta);
+    else if (Eg > 7.7 && Eg < 7.9)
+      hds[8]->GetRandom2(k, theta);
+    else if (Eg > 7.9 && Eg < 8.1)
+      hds[9]->GetRandom2(k, theta);
+    else if (Eg > 8.1)
+      hds[10]->GetRandom2(k, theta);
+    else
+      return 0;
+    theta = theta / 180.0 * M_PI;
+    phi = random.Uniform(-M_PI, M_PI);
+    kj->SetXYZM(k * sin(theta) * cos(phi), k * sin(theta) * sin(phi), k * cos(theta), PARTICLE::Jpsi.RandomM());
+    return sigma(Eg);
+  }
+    
+
+  int SetModel(const char * model = "cut1"){
+    if (strcmp(model, "cut1") == 0){
+      hds[0] = (TH2D *) fJpsiHe4->Get("cut1_E=6.2");
+      hds[1] = (TH2D *) fJpsiHe4->Get("cut1_E=6.4");
+      hds[2] = (TH2D *) fJpsiHe4->Get("cut1_E=6.6");
+      hds[3] = (TH2D *) fJpsiHe4->Get("cut1_E=6.8");
+      hds[4] = (TH2D *) fJpsiHe4->Get("cut1_E=7.0");
+      hds[5] = (TH2D *) fJpsiHe4->Get("cut1_E=7.2");
+      hds[6] = (TH2D *) fJpsiHe4->Get("cut1_E=7.4");
+      hds[7] = (TH2D *) fJpsiHe4->Get("cut1_E=7.6");
+      hds[8] = (TH2D *) fJpsiHe4->Get("cut1_E=7.8");
+      hds[9] = (TH2D *) fJpsiHe4->Get("cut1_E=8.0");
+      hds[10] = (TH2D *) fJpsiHe4->Get("cut1_E=8.2");
+      hpmin = (TH3D *) fJpsiHe4->Get("cut1_pmin");
+      hpmax = (TH3D *) fJpsiHe4->Get("cut1_pmax");
+    }
+    else if (strcmp(model, "cut2") == 0){
+      hds[0] = (TH2D *) fJpsiHe4->Get("cut2_E=6.2");
+      hds[1] = (TH2D *) fJpsiHe4->Get("cut2_E=6.4");
+      hds[2] = (TH2D *) fJpsiHe4->Get("cut2_E=6.6");
+      hds[3] = (TH2D *) fJpsiHe4->Get("cut2_E=6.8");
+      hds[4] = (TH2D *) fJpsiHe4->Get("cut2_E=7.0");
+      hds[5] = (TH2D *) fJpsiHe4->Get("cut2_E=7.2");
+      hds[6] = (TH2D *) fJpsiHe4->Get("cut2_E=7.4");
+      hds[7] = (TH2D *) fJpsiHe4->Get("cut2_E=7.6");
+      hds[8] = (TH2D *) fJpsiHe4->Get("cut2_E=7.8");
+      hds[9] = (TH2D *) fJpsiHe4->Get("cut2_E=8.0");
+      hds[10] = (TH2D *) fJpsiHe4->Get("cut2_E=8.2");
+      hpmin = (TH3D *) fJpsiHe4->Get("cut2_pmin");
+      hpmax = (TH3D *) fJpsiHe4->Get("cut2_pmax");
+    }
+    else
+      return 0;
+    for (int i = 0; i < 11; i++)
+      logsarray[i] = log(hds[i]->Integral() * 0.01 * 2.0 / 180.0 * M_PI + 1e-50);
+    Eglogs.SetData(11, Egarray, logsarray);
+    return 0;
+  }
+
+}
+
+namespace JPSID{//Harry's model for J/psi production from Deuteron
+
+  TRandom3 random(0);
+
+  TFile * fJpsiD = new TFile("harrymodel/harrymodel-2h-jpsi-cut.root", "r");
+  TH2D * hds[6];
+  TH3D * hpmin, * hpmax;
+  double Egarray[6] = {7.2, 7.4, 7.6, 7.8, 8.0, 8.2};
+  double logsarray[6];
+  ROOT::Math::Interpolator Eglogs(6, ROOT::Math::Interpolation::kCSPLINE);
+  
+  double sigma(const double Eg){
+    double result = 1.0e-7 / pow(0.197367,2) * exp(Eglogs.Eval(Eg));
+    return result;// in unit GeV^-2
+  }
+
+  double GetJpsi(const double Eg, TLorentzVector * kj){
+    double k, theta, phi;
+    if (Eg < 7.2)
+      return 0;
+    else if (Eg > 7.2 && Eg < 7.3)
+      hds[0]->GetRandom2(k, theta);
+    else if (Eg > 7.3 && Eg < 7.5)
+      hds[1]->GetRandom2(k, theta);
+    else if (Eg > 7.5 && Eg < 7.7)
+      hds[2]->GetRandom2(k, theta);
+    else if (Eg > 7.7 && Eg < 7.9)
+      hds[3]->GetRandom2(k, theta);
+    else if (Eg > 7.9 && Eg < 8.1)
+      hds[4]->GetRandom2(k, theta);
+    else if (Eg > 8.1)
+      hds[5]->GetRandom2(k, theta);
+    else
+      return 0;
+    theta = theta / 180.0 * M_PI;
+    phi = random.Uniform(-M_PI, M_PI);
+    kj->SetXYZM(k * sin(theta) * cos(phi), k * sin(theta) * sin(phi), k * cos(theta), PARTICLE::Jpsi.RandomM());
+    return sigma(Eg);
+  }
+    
+
+  int SetModel(const char * model = "cut1"){
+    if (strcmp(model, "cut1") == 0){
+      hds[0] = (TH2D *) fJpsiD->Get("cut1_E=7.2");
+      hds[1] = (TH2D *) fJpsiD->Get("cut1_E=7.4");
+      hds[2] = (TH2D *) fJpsiD->Get("cut1_E=7.6");
+      hds[3] = (TH2D *) fJpsiD->Get("cut1_E=7.8");
+      hds[4] = (TH2D *) fJpsiD->Get("cut1_E=8.0");
+      hds[5] = (TH2D *) fJpsiD->Get("cut1_E=8.2");
+    }
+    else if (strcmp(model, "cut2") == 0){
+      hds[0] = (TH2D *) fJpsiD->Get("cut2_E=7.2");
+      hds[1] = (TH2D *) fJpsiD->Get("cut2_E=7.4");
+      hds[2] = (TH2D *) fJpsiD->Get("cut2_E=7.6");
+      hds[3] = (TH2D *) fJpsiD->Get("cut2_E=7.8");
+      hds[4] = (TH2D *) fJpsiD->Get("cut2_E=8.0");
+      hds[5] = (TH2D *) fJpsiD->Get("cut2_E=8.2");
+    }
+    else
+      return 0;
+    for (int i = 0; i < 6; i++)
+      logsarray[i] = log(hds[i]->Integral() * 0.01 * 2.0 / 180.0 * M_PI + 1e-50);
+    Eglogs.SetData(6, Egarray, logsarray);
+    return 0;
+  }
+
+}
+
+namespace JPSIHE4_old{//Harry's model for J/psi production from He4
+
+  TRandom3 random(0);
+
   TFile * fJpsiHe4 = new TFile("harrymodel/harrymodel-jpsi.root", "r");
   TH2D * hds[11];
   TH3D * hpmin, * hpmax;
@@ -579,6 +739,23 @@ namespace GENERATE{
     return weight * branch;
   }
 
+  double Event_gD2ee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: g; kf: [e+, e-]
+    double Eg = ki[0].E();
+    TLorentzVector j;
+    double weight = JPSID::GetJpsi(Eg, &j);
+    if (weight == 0) return 0;
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//e+
+    kf[1] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight * branch;
+  }
+
   double Event_e4He2eee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: e; kf: e', [e+, e-]
     double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
@@ -589,6 +766,28 @@ namespace GENERATE{
     double Eg = q.E();
     TLorentzVector j;
     double weight2 = JPSIHE4::GetJpsi(Eg, &j);
+    if (weight2 == 0) return 0;
+    j.RotateY(ki[0].Theta());
+    j.RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(j, 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//e+
+    kf[2] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight1 * weight2 * branch;
+  }
+
+  double Event_eD2eee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e; kf: e', [e+, e-]
+    double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
+    if (weight1 == 0) return 0;
+    TLorentzVector q = ki[0] - kf[0];
+    //double s = pow(q.E() + 4.0 * Mp, 2) - pow(q.P(), 2);
+    //double Eg = (s - pow(4.0 * Mp, 2)) / (2.0 * 4.0 * Mp);
+    double Eg = q.E();
+    TLorentzVector j;
+    double weight2 = JPSID::GetJpsi(Eg, &j);
     if (weight2 == 0) return 0;
     j.RotateY(ki[0].Theta());
     j.RotateZ(ki[0].Phi());
