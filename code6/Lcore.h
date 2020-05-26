@@ -365,6 +365,59 @@ namespace JPSID{//Harry's model for J/psi production from Deuteron
 
 }
 
+namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff cross section
+
+  TRandom3 random(0);
+
+  TFile * fJpsiD = new TFile("harrymodel/harrymodel-jpsi-d-4D.root", "r");
+  TH3D * hds72[10];
+  TH3D * hds82[10];
+  TH3D * hp72[10];
+  TH3D * hp82[10];
+
+  double GetJpsip(const double Eg, TLorentzVector * kj){
+    double k, theta_k, theta_p, phi_p, p, ds, phi;
+    double deg = M_PI / 180.0;
+    phi = random.Uniform(-M_PI, M_PI);
+    phi_p = random.Uniform(-180.0, 180.0);
+    int idx = (int) ((abs(phi_p) + 10) / 20);
+    if (Eg < 7.2)
+      return 0;
+    else if (Eg > 7.2 && Eg < 7.7){
+      hds72[idx]->GetRandom3(k, theta_k, theta_p);
+      p = hp72[idx]->GetBinContent(hp72[idx]->FindBin(k, theta_k, theta_p));
+      ds = hds72[idx]->Integral();
+    }
+    else if (Eg > 7.7 && Eg < 8.2){
+      hds82[idx]->GetRandom3(k, theta_k, theta_p);
+      p = hp82[idx]->GetBinContent(hp82[idx]->FindBin(k, theta_k, theta_p));
+      ds = hds82[idx]->Integral();
+    }
+    else
+      return 0;
+    theta_k = theta_k * deg;
+    theta_p = theta_p * deg;
+    phi_p = phi_p * deg;
+    kj[0].SetXYZM(k * sin(theta_k), 0.0, k * cos(theta_k), PARTICLE::Jpsi.RandomM());
+    kj[1].SetXYZM(p * sin(theta_p) * cos(phi_p), p * sin(theta_p) * sin(phi_p), p * cos(theta_p), Mp);
+    kj[0].RotateZ(phi);
+    kj[1].RotateZ(phi);
+    return ds * 1.0e-7 / pow(0.197367,2);
+  }
+    
+
+  int SetModel(const char * model = "default"){
+    for (int i = 1; i <= 10; i++){
+      hds72[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.2_idx%d",i));
+      hp72[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.2_idx%d",i));
+      hds82[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.2_idx%d",i));
+      hp82[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.2_idx%d",i));
+    }
+    return 0;
+  }
+
+}
+
 namespace JPSIHE4_old{//Harry's model for J/psi production from He4
 
   TRandom3 random(0);
@@ -744,6 +797,8 @@ namespace GENERATE{
     return weight * branch;
   }
 
+  /* Harry's model */
+
   double Event_g4He2ee_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: g; kf: [e+, e-]
     double Eg = ki[0].E();
@@ -774,6 +829,26 @@ namespace GENERATE{
     GenPhase.Generate();
     kf[0] = *GenPhase.GetDecay(0);//e+
     kf[1] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight * branch;
+  }
+
+  double Event_gD2eep_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: g; kf: [e+, e-], p
+    double Eg = ki[0].E();
+    TLorentzVector kj[2];
+    double weight = JPSID4d::GetJpsip(Eg, kj);
+    if (weight == 0) return 0;
+    kj[0].RotateY(ki[0].Theta());
+    kj[0].RotateZ(ki[0].Phi());
+    kj[1].RotateY(ki[0].Theta());
+    kj[1].RotateZ(ki[0].Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(kj[0], 2, mass);
+    GenPhase.Generate();
+    kf[0] = *GenPhase.GetDecay(0);//e+
+    kf[1] = *GenPhase.GetDecay(1);//e-
+    kf[2] = kj[1];//p
     double branch = 5.971e-2;
     return weight * branch;
   }
@@ -811,13 +886,38 @@ namespace GENERATE{
     TLorentzVector j;
     double weight2 = JPSID::GetJpsi(Eg, &j);
     if (weight2 == 0) return 0;
-    j.RotateY(ki[0].Theta());
-    j.RotateZ(ki[0].Phi());
+    j.RotateY(q.Theta());
+    j.RotateZ(q.Phi());
     double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
     GenPhase.SetDecay(j, 2, mass);
     GenPhase.Generate();
     kf[1] = *GenPhase.GetDecay(0);//e+
     kf[2] = *GenPhase.GetDecay(1);//e-
+    double branch = 5.971e-2;
+    return weight1 * weight2 * branch;
+  }
+
+  double Event_eD2eeep_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
+    //ki: e; kf: e', [e+, e-], p
+    double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
+    if (weight1 == 0) return 0;
+    TLorentzVector q = ki[0] - kf[0];
+    double s = pow(q.E() + 4.0 * Mp, 2) - pow(q.P(), 2);
+    double Eg = (s - pow(4.0 * Mp, 2)) / (2.0 * 4.0 * Mp);
+    //double Eg = q.E();
+    TLorentzVector kj[2];
+    double weight2 = JPSID4d::GetJpsip(Eg, kj);
+    if (weight2 == 0) return 0;
+    kj[0].RotateY(q.Theta());
+    kj[0].RotateZ(q.Phi());
+    kj[1].RotateY(q.Theta());
+    kj[1].RotateZ(q.Phi());
+    double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
+    GenPhase.SetDecay(kj[0], 2, mass);
+    GenPhase.Generate();
+    kf[1] = *GenPhase.GetDecay(0);//e+
+    kf[2] = *GenPhase.GetDecay(1);//e-
+    kf[3] = kj[1];//p
     double branch = 5.971e-2;
     return weight1 * weight2 * branch;
   }
@@ -1021,7 +1121,12 @@ namespace DETECTOR{
     TH2D * acc;
     if (strcmp(part, "e") == 0 || strcmp(part, "e-") == 0) acc = acc_ele_solid;
     else if (strcmp(part, "e+") == 0) acc = acc_pos_solid;
-    else if (strcmp(part, "p") == 0) acc = acc_proton_solid;
+    else if (strcmp(part, "p") == 0) {
+      if (theta > 8.0 && theta < 15.0 && p < 4.5)
+	acc = acc_proton_solid;
+      if (theta > 15.0 && theta < 26.0 && p < 2.0)
+	acc = acc_proton_solid;
+    }
     else return 0;
     int binx = acc->GetXaxis()->FindBin(theta);
     int biny = acc->GetYaxis()->FindBin(p);
