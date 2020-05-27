@@ -29,8 +29,8 @@ int main(const int argc, const char * argv[]){
 
   // Set scattered electron range
   double degtorad = M_PI / 180.0;
-  GENERATE::cthrange[0] = cos(10.0 * degtorad);
-  GENERATE::cthrange[1] = cos(0.0 * degtorad);
+  GENERATE::cthrange[0] = cos(30.0 * degtorad);
+  GENERATE::cthrange[1] = cos(5.0 * degtorad);
   GENERATE::perange[0] = 0.0;
   GENERATE::perange[1] = Ebeam - 7.2;
 
@@ -63,7 +63,7 @@ int main(const int argc, const char * argv[]){
     weight = GENERATE::GetNucleon(&ki[1]);
     weight *= GENERATE::Event_eD2eeep_Jpsi(ki, kf);
 
-    weight *= DETECTOR::AcceptanceSoLID(kf[1], "e+") * DETECTOR::AcceptanceSoLID(kf[2], "e-") * DETECTOR::AcceptanceSoLID(kf[3], "p");
+    weight *= DETECTOR::AcceptanceSoLID(kf[0], "e-") * DETECTOR::AcceptanceSoLID(kf[1], "e+") * DETECTOR::AcceptanceSoLID(kf[2], "e-") * DETECTOR::AcceptanceSoLID(kf[3], "p");
 
     if (weight > 0.0){
 

@@ -58,12 +58,12 @@ int main(const int argc, const char * argv[]){
   double weight = 0.0;
 
   for (Long64_t i = 0; i < Nsim; i++){
-    if (i % (Nsim/10) == 0) cout << i/(Nsim/10)*10 << "%" << endl;
+    if (i % (Nsim/100) == 0) cout << i/(Nsim/100) << "%" << endl;
 
     weight = GENERATE::GetNucleon(&ki[1]);
     weight *= GENERATE::Event_eD2eeep_Jpsi(ki, kf);
 
-    weight *= DETECTOR::AcceptanceSoLID(kf[1], "e+") * DETECTOR::AcceptanceSoLID(kf[2], "e-") * DETECTOR::AcceptanceSoLID(kf[3], "p");
+    weight *= DETECTOR::SmearSoLID(kf[1], "e+") * DETECTOR::SmearSoLID(kf[2], "e-") * DETECTOR::SmearSoLID(kf[3], "p");
 
     if (weight > 0.0){
 

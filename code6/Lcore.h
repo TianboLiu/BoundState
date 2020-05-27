@@ -1029,7 +1029,7 @@ namespace DETECTOR{
   TRandom3 random(0);
 
   TFile * facc_clas, * facc_solid, * facc_alert;
-  TFile * fres_clas, * fres_solid, * fres_alert1, * fres_alert2;
+  TFile * fres_clas, * fres_electron_solid, * fres_positron_solid, * fres_proton_solid, * fres_alert1, * fres_alert2;
   TH3F * acc_ele_clas, * acc_pos_clas, * acc_pip_clas, * acc_pim_clas, * acc_Kp_clas, * acc_Km_clas, * acc_proton_clas;
   TH2D * acc_ele_solid, * acc_pos_solid, * acc_proton_solid;
   TH2D * acc_proton_alert, * acc_Kp_alert, * acc_pip_alert, * acc_Km_alert, * acc_pim_alert;
@@ -1038,6 +1038,10 @@ namespace DETECTOR{
   TH2D * res_pip_alert_p, * res_pip_alert_theta, * res_pip_alert_phi;
   TH2D * res_pim_alert_p, * res_pim_alert_theta, * res_pim_alert_phi;
   TH2D * res_proton_alert_p, * res_proton_alert_theta, * res_proton_alert_phi;
+  TH2D * res_electron_solid_p, * res_electron_solid_theta, * res_electron_solid_phi;
+  TH2D * res_positron_solid_p, * res_positron_solid_theta, * res_positron_solid_phi;
+  TH2D * res_proton_solid_p, * res_proton_solid_theta, * res_proton_solid_phi;
+  
 
   int SetDetector(const char * detector = 0){
     if (strcmp(detector, "CLAS12") == 0){
@@ -1055,6 +1059,18 @@ namespace DETECTOR{
       acc_ele_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
       acc_pos_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
       acc_proton_solid = (TH2D *) facc_solid->Get("acceptance_ThetaP_overall");
+      fres_electron_solid = new TFile("acceptance/JPsi_electron_resolution_2d.root", "r");
+      fres_positron_solid = new TFile("acceptance/JPsi_electron_resolution_2d.root", "r");//!!!!
+      fres_proton_solid = new TFile("acceptance/JPsi_proton_resolution_2d.root", "r");
+      res_electron_solid_p = (TH2D *) fres_electron_solid->Get("p_resolution");
+      res_electron_solid_theta = (TH2D *) fres_electron_solid->Get("theta_resolution");
+      res_electron_solid_phi = (TH2D *) fres_electron_solid->Get("phi_resolution");
+      res_positron_solid_p = (TH2D *) fres_positron_solid->Get("p_resolution");
+      res_positron_solid_theta = (TH2D *) fres_positron_solid->Get("theta_resolution");
+      res_positron_solid_phi = (TH2D *) fres_positron_solid->Get("phi_resolution");
+      res_proton_solid_p = (TH2D *) fres_proton_solid->Get("p_resolution");
+      res_proton_solid_theta = (TH2D *) fres_proton_solid->Get("theta_resolution");
+      res_proton_solid_phi = (TH2D *) fres_proton_solid->Get("phi_resolution");
     }
     else if (strcmp(detector, "ALERT") == 0){
       facc_alert = new TFile("acceptance/acc_alert_20190427.root", "r");
@@ -1133,6 +1149,39 @@ namespace DETECTOR{
     double result = acc->GetBinContent(binx, biny);
     return result;
   }
+
+  double SmearSoLID(TLorentzVector &P, const char * part){
+    double acc = AcceptanceSoLID(P, part);
+    if (acc == 0) return acc;
+    double dp, dtheta, dphi;
+    double p = P.P();
+    double theta = P.Theta();
+    double phi = P.Phi();
+    double m = P.M();
+    if (strcmp(part, "e") == 0 || strcmp(part, "e-") == 0){
+      dp = res_electron_solid_p->GetBinContent(res_electron_solid_p->FindBin(p, theta * 180.0 / M_PI)) / 100.0;//dp / p
+      dtheta = res_electron_solid_theta->GetBinContent(res_electron_solid_theta->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+      dphi = res_electron_solid_phi->GetBinContent(res_electron_solid_phi->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+    }
+    else if (strcmp(part, "e+") == 0){
+      dp = res_positron_solid_p->GetBinContent(res_positron_solid_p->FindBin(p, theta * 180.0 / M_PI)) / 100.0;//dp / p
+      dtheta = res_positron_solid_theta->GetBinContent(res_positron_solid_theta->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+      dphi = res_positron_solid_phi->GetBinContent(res_positron_solid_phi->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+    }
+    else if (strcmp(part, "p") == 0){
+      dp = res_proton_solid_p->GetBinContent(res_proton_solid_p->FindBin(p, theta * 180.0 / M_PI)) / 100.0;//dp / p
+      dtheta = res_proton_solid_theta->GetBinContent(res_proton_solid_theta->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+      dphi = res_proton_solid_phi->GetBinContent(res_proton_solid_phi->FindBin(p, theta * 180.0 / M_PI)) / 1000.0;
+    }
+    else 
+      return acc;
+    p = p * random.Gaus(1.0, dp);
+    theta = random.Gaus(theta, dtheta);
+    phi = random.Gaus(phi, dphi);
+    P.SetXYZM(p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta), m);
+    return acc;
+  }
+    
 
   double AcceptanceALERT(const TLorentzVector P, const char * part){
     double p = P.P() * 1000.0;//MeV

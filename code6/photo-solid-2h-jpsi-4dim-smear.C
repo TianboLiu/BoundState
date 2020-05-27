@@ -9,12 +9,11 @@ double CalculateInternalMomentum(const double M){
 int main(const int argc, const char * argv[]){
 
   //gErrorIgnoreLevel = 5000;
-
   // Set simulation
   gRandom->SetSeed(0);
 
   if (argc < 5){
-    cout << "./electro-solid-2h-jpsi-cut <model> <Ebeam> <filename> <Nsim>" << endl;
+    cout << "./photo-solid-2h-jpsi-4dim <model> <Ebeam> <filename> <Nsim>" << endl;
     return 0;
   }
   Long64_t Nsim = atoi(argv[4]);
@@ -27,19 +26,18 @@ int main(const int argc, const char * argv[]){
   // Set Jpsi production model
   JPSID4d::SetModel(argv[1]);
 
-  // Set scattered electron range
-  double degtorad = M_PI / 180.0;
-  GENERATE::cthrange[0] = cos(10.0 * degtorad);
-  GENERATE::cthrange[1] = cos(0.0 * degtorad);
-  GENERATE::perange[0] = 0.0;
-  GENERATE::perange[1] = Ebeam - 7.2;
+  // Set bremsstrahlung photon
+  GENERATE::SetBremsstrahlung();
+  double kmin = 7.2;
+  double kmax = Ebeam;
 
-  // Set detector
+  // Set Acceptance
   DETECTOR::SetDetector("SoLID");
 
   TString filename = argv[3];
+
   // detected subthreshold 1
-  TFile * fsub = new TFile("result-electro/"+filename, "RECREATE");
+  TFile * fsub = new TFile("result-photon/"+filename, "RECREATE");
   TH1D * hMJpsi2 = new TH1D("Mass_e+e-_Jpsi", ";M[e^{+}e^{-}] (GeV);Events / hour", 100, 2.6, 3.6);
   TH2D * hMomentum2 = new TH2D("Pe+Pe-_Jpsi", ";P[e^{+}] (GeV);P[e^{-}] (GeV)", 100, 0.0, 10.0, 100, 0.0, 10.0);
   TH2D * hThetaPelectron2 = new TH2D("ThetaP_e-_Jpsi", ";#theta[e^{-}] (deg);P[e^{-}] (GeV)", 90, 0.0, 180.0, 100, 0.0, 10.0);
@@ -53,27 +51,28 @@ int main(const int argc, const char * argv[]){
   hThetaPJpsi2->SetDirectory(fsub);
   hkappa2->SetDirectory(fsub);
 
-  TLorentzVector ki[2], kf[4], q;
+  TLorentzVector ki[2], kf[4];
   ki[0].SetXYZM(0, 0, Ebeam, PARTICLE::e.M());
   double weight = 0.0;
+  //double acceptance = 0.0;
 
   for (Long64_t i = 0; i < Nsim; i++){
-    if (i % (Nsim/10) == 0) cout << i/(Nsim/10)*10 << "%" << endl;
+    if (i % (Nsim/100) == 0) cout << i/(Nsim/100) << "%" << endl;
+    
+    weight = GENERATE::BremsstrahlungPhoton(&ki[0], kmin, kmax, Ebeam) * 1.95 / 2;//15cm LD2 target
+    weight *= GENERATE::Event_gD2eep_Jpsi(ki, kf);
 
-    weight = GENERATE::GetNucleon(&ki[1]);
-    weight *= GENERATE::Event_eD2eeep_Jpsi(ki, kf);
-
-    weight *= DETECTOR::AcceptanceSoLID(kf[1], "e+") * DETECTOR::AcceptanceSoLID(kf[2], "e-") * DETECTOR::AcceptanceSoLID(kf[3], "p");
+    weight *= DETECTOR::SmearSoLID(kf[0], "e+") * DETECTOR::SmearSoLID(kf[1], "e-") * DETECTOR::SmearSoLID(kf[2], "p");
 
     if (weight > 0.0){
 
-      if (ki[0].E() - kf[0].E() < 8.2){
-	hMJpsi2->Fill( (kf[1]+kf[2]).M(), weight);
-	hMomentum2->Fill( kf[1].P(), kf[2].P(), weight);
-	hThetaPelectron2->Fill( kf[2].Theta()/M_PI*180, kf[2].P(), weight);
-	hThetaPpositron2->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight);
-	hThetaPJpsi2->Fill( (kf[1]+kf[2]).Theta()/M_PI*180, (kf[1]+kf[2]).P(), weight);
-	hkappa2->Fill( CalculateInternalMomentum((kf[1]+kf[2]+kf[3]).M()), weight);
+      if (ki[0].E() < 8.2){
+	hMJpsi2->Fill( (kf[0]+kf[1]).M(), weight);
+	hMomentum2->Fill( kf[0].P(), kf[1].P(), weight);
+	hThetaPelectron2->Fill( kf[1].Theta()/M_PI*180, kf[1].P(), weight);
+	hThetaPpositron2->Fill( kf[0].Theta()/M_PI*180, kf[0].P(), weight);
+	hThetaPJpsi2->Fill( (kf[0]+kf[1]).Theta()/M_PI*180, (kf[0]+kf[1]).P(), weight);
+	hkappa2->Fill( CalculateInternalMomentum((kf[0]+kf[1]+kf[2]).M()), weight);
       }
     }
     
