@@ -47,14 +47,18 @@ int main(const int argc, const char * argv[]){
   gStyle->SetOptStat(0);
 
   if (opt == 1){// Mass spectrum of e+e- system
-    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production
-    TFile * fs2 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
-    TFile * fs3 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production  
+    TFile * fs2 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs3 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
     TFile * fs4 = new TFile("result-electro/Dsolid-4dim-smear-202005.root", "r");//elecro-production smeared
+    TFile * fs5 = new TFile("result-electro/Dsolid-4dimA-202005.root", "r");//electro-production with scattered electron
+    TFile * fs6 = new TFile("result-electro/Dsolid-4dimA-smear-202005.root", "r");//elecro-production with scattered electron smeared
     TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-_Jpsi");
     TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-_Jpsi");
     TH1D * h3 = (TH1D *) fs3->Get("Mass_e+e-_Jpsi");
     TH1D * h4 = (TH1D *) fs4->Get("Mass_e+e-_Jpsi");
+    TH1D * h5 = (TH1D *) fs5->Get("Mass_e+e-_Jpsi");
+    TH1D * h6 = (TH1D *) fs6->Get("Mass_e+e-_Jpsi");
     
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
@@ -64,22 +68,32 @@ int main(const int argc, const char * argv[]){
     SetStyle(h2);
     SetStyle(h3);
     SetStyle(h4);
+    SetStyle(h5);
+    SetStyle(h6);
 
     h1->SetLineColor(1);
-    h2->SetLineColor(1);
-    h3->SetLineColor(4);
+    h2->SetLineColor(4);
+    h3->SetLineColor(1);
     h4->SetLineColor(4);
+    h5->SetLineColor(1);
+    h6->SetLineColor(4);
 
     h1->SetMaximum(5.0);
     h3->SetMaximum(5.0);
+    h5->SetMaximum(0.12);
 
     h1->DrawClone("");
-    h3->DrawClone("same");
+    h2->DrawClone("same");
 
     c0->Print("figures202005/mass.pdf(", "pdf");
 
-    h2->DrawClone("");
+    h3->DrawClone("");
     h4->DrawClone("same");
+
+    c0->Print("figures202005/mass.pdf", "pdf");
+
+    h5->DrawClone("");
+    h6->DrawClone("same");
 
     c0->Print("figures202005/mass.pdf)", "pdf");
 
@@ -87,14 +101,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 2){//momentum-theta distribution
-    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production
-    TFile * fs2 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
-    TFile * fs3 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production  
+    TFile * fs2 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs3 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
     TFile * fs4 = new TFile("result-electro/Dsolid-4dim-smear-202005.root", "r");//elecro-production smeared
+    TFile * fs5 = new TFile("result-electro/Dsolid-4dimA-202005.root", "r");//electro-production with scattered electron
+    TFile * fs6 = new TFile("result-electro/Dsolid-4dimA-smear-202005.root", "r");//elecro-production with scattered electron smeared
     TH2D * h1 = (TH2D *) fs1->Get("ThetaP_e-_Jpsi");
     TH2D * h2 = (TH2D *) fs2->Get("ThetaP_e-_Jpsi");
     TH2D * h3 = (TH2D *) fs3->Get("ThetaP_e-_Jpsi");
     TH2D * h4 = (TH2D *) fs4->Get("ThetaP_e-_Jpsi");
+    TH2D * h5 = (TH2D *) fs5->Get("ThetaP_e-_Jpsi");
+    TH2D * h6 = (TH2D *) fs6->Get("ThetaP_e-_Jpsi");
 
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
@@ -105,6 +123,8 @@ int main(const int argc, const char * argv[]){
     SetStyle(h2);
     SetStyle(h3);
     SetStyle(h4);
+    SetStyle(h5);
+    SetStyle(h6);
     
     h1->GetXaxis()->SetRangeUser(0,50);
     h1->GetYaxis()->SetRangeUser(0,7);
@@ -132,20 +152,38 @@ int main(const int argc, const char * argv[]){
     h4->SetMinimum(1e-4);
     h4->SetMaximum(5e-1);
     h4->DrawClone("colz");
+    c0->Print("figures202005/momentum-theta.pdf", "pdf");
+
+    h5->GetXaxis()->SetRangeUser(0,50);
+    h5->GetYaxis()->SetRangeUser(0,7);
+    h5->SetMinimum(1e-6);
+    h5->SetMaximum(5e-3);
+    h5->DrawClone("colz");
+    c0->Print("figures202005/momentum-theta.pdf", "pdf");
+
+    h6->GetXaxis()->SetRangeUser(0,50);
+    h6->GetYaxis()->SetRangeUser(0,7);
+    h6->SetMinimum(1e-6);
+    h6->SetMaximum(5e-3);
+    h6->DrawClone("colz");
     c0->Print("figures202005/momentum-theta.pdf)", "pdf");
 
     
   }
 
   if (opt == 3){//jpsi distribution
-    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production
-    TFile * fs2 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
-    TFile * fs3 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production  
+    TFile * fs2 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs3 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
     TFile * fs4 = new TFile("result-electro/Dsolid-4dim-smear-202005.root", "r");//elecro-production smeared
+    TFile * fs5 = new TFile("result-electro/Dsolid-4dimA-202005.root", "r");//electro-production with scattered electron
+    TFile * fs6 = new TFile("result-electro/Dsolid-4dimA-smear-202005.root", "r");//elecro-production with scattered electron smeared
     TH2D * h1 = (TH2D *) fs1->Get("ThetaPJpsi");
     TH2D * h2 = (TH2D *) fs2->Get("ThetaPJpsi");
     TH2D * h3 = (TH2D *) fs3->Get("ThetaPJpsi");
     TH2D * h4 = (TH2D *) fs4->Get("ThetaPJpsi");
+    TH2D * h5 = (TH2D *) fs5->Get("ThetaPJpsi");
+    TH2D * h6 = (TH2D *) fs6->Get("ThetaPJpsi");
 
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
@@ -156,6 +194,8 @@ int main(const int argc, const char * argv[]){
     SetStyle(h2);
     SetStyle(h3);
     SetStyle(h4);
+    SetStyle(h5);
+    SetStyle(h6);
     
     h1->GetXaxis()->SetRangeUser(0,12);
     h1->GetYaxis()->SetRangeUser(0,10);
@@ -183,18 +223,36 @@ int main(const int argc, const char * argv[]){
     h4->SetMinimum(1e-4);
     h4->SetMaximum(1e0);
     h4->DrawClone("colz");
+    c0->Print("figures202005/jpsi-distribution.pdf", "pdf");
+
+    h5->GetXaxis()->SetRangeUser(0,12);
+    h5->GetYaxis()->SetRangeUser(0,10);
+    h5->SetMinimum(1e-6);
+    h5->SetMaximum(1e-2);
+    h5->DrawClone("colz");
+    c0->Print("figures202005/jpsi-distribution.pdf", "pdf");
+
+    h6->GetXaxis()->SetRangeUser(0,12);
+    h6->GetYaxis()->SetRangeUser(0,10);
+    h6->SetMinimum(1e-6);
+    h6->SetMaximum(1e-2);
+    h6->DrawClone("colz");
     c0->Print("figures202005/jpsi-distribution.pdf)", "pdf");
   }
 
   if (opt == 4){//internal momentum kappa
-    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production
-    TFile * fs2 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
-    TFile * fs3 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs1 = new TFile("result-photon/Dsolid-4dim-202005.root", "r");//photo-production  
+    TFile * fs2 = new TFile("result-photon/Dsolid-4dim-smear-202005.root", "r");//photo-production smeared
+    TFile * fs3 = new TFile("result-electro/Dsolid-4dim-202005.root", "r");//elecro-production
     TFile * fs4 = new TFile("result-electro/Dsolid-4dim-smear-202005.root", "r");//elecro-production smeared
+    TFile * fs5 = new TFile("result-electro/Dsolid-4dimA-202005.root", "r");//electro-production with scattered electron
+    TFile * fs6 = new TFile("result-electro/Dsolid-4dimA-smear-202005.root", "r");//elecro-production with scattered electron smeared 
     TH1D * h1 = (TH1D *) fs1->Get("kappa_Jpsi");
     TH1D * h2 = (TH1D *) fs2->Get("kappa_Jpsi");
     TH1D * h3 = (TH1D *) fs3->Get("kappa_Jpsi");
     TH1D * h4 = (TH1D *) fs4->Get("kappa_Jpsi");
+    TH1D * h5 = (TH1D *) fs5->Get("kappa_Jpsi");
+    TH1D * h6 = (TH1D *) fs6->Get("kappa_Jpsi");
 
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
@@ -204,22 +262,32 @@ int main(const int argc, const char * argv[]){
     SetStyle(h2);
     SetStyle(h3);
     SetStyle(h4);
+    SetStyle(h5);
+    SetStyle(h6);
 
     h1->SetLineColor(1);
-    h2->SetLineColor(1);
-    h3->SetLineColor(4);
+    h2->SetLineColor(4);
+    h3->SetLineColor(1);
     h4->SetLineColor(4);
+    h5->SetLineColor(1);
+    h6->SetLineColor(4);
 
     h1->SetMaximum(0.15);
     h3->SetMaximum(0.15);
+    h5->SetMaximum(0.005);
 
     h1->DrawClone("");
-    h3->DrawClone("same");
+    h2->DrawClone("same");
 
     c0->Print("figures202005/kappa.pdf(", "pdf");
 
-    h2->DrawClone("");
+    h3->DrawClone("");
     h4->DrawClone("same");
+
+    c0->Print("figures202005/kappa.pdf", "pdf");
+    
+    h5->DrawClone("");
+    h6->DrawClone("same");
 
     c0->Print("figures202005/kappa.pdf)", "pdf");
 
