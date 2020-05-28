@@ -1140,8 +1140,9 @@ namespace DETECTOR{
     else if (strcmp(part, "p") == 0) {
       if (theta > 8.0 && theta < 15.0 && p < 4.5)
 	acc = acc_proton_solid;
-      if (theta > 15.0 && theta < 26.0 && p < 2.0)
+      else if (theta > 15.0 && theta < 26.0 && p < 2.0)
 	acc = acc_proton_solid;
+      else return 0;
     }
     else return 0;
     int binx = acc->GetXaxis()->FindBin(theta);
