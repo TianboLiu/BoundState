@@ -43,7 +43,7 @@ int main(const int argc, const char * argv[]){
   TH2D * hAngle = new TH2D("Angle", ";e^{+}e^{-} angle (deg);e^{+} momentum (GeV)", 100, 0.0, 180.0, 100, 0.0, 8.0);
   TH1D * hkappa = new TH1D("kappa", ";#kappa_{J/#psi} (GeV);Events / hour", 100, 0.0, 1.0);
 
-  if (opt == 1){
+  if (opt == 1){//raw
     for (int j = 0; j < Nfiles; j++){
       name = loadfile + Form("%.4d.dat",j);
       ifstream infile(name.Data());
@@ -77,7 +77,7 @@ int main(const int argc, const char * argv[]){
     hkappa->Scale(lumi*time/Nsim);  
   }
 
-  if (opt == 2){
+  if (opt == 2){//e+e-p detected
     for (int j = 0; j < Nfiles; j++){
       name = loadfile + Form("%.4d.dat",j);
       ifstream infile(name.Data());
@@ -111,7 +111,7 @@ int main(const int argc, const char * argv[]){
     hkappa->Scale(lumi*time/Nsim);  
   }
 
-  if (opt == 3){
+  if (opt == 3){//e+e-p detected and smeared
     for (int j = 0; j < Nfiles; j++){
       name = loadfile + Form("%.4d.dat",j);
       ifstream infile(name.Data());
@@ -145,7 +145,7 @@ int main(const int argc, const char * argv[]){
     hkappa->Scale(lumi*time/Nsim);  
   }
 
-  if (opt == 4){
+  if (opt == 4){//scatterred e and e+e-p
     for (int j = 0; j < Nfiles; j++){
       name = loadfile + Form("%.4d.dat",j);
       ifstream infile(name.Data());
@@ -179,7 +179,74 @@ int main(const int argc, const char * argv[]){
     hkappa->Scale(lumi*time/Nsim);  
   }
 
-  
+  if (opt == 5){//only e+e
+    for (int j = 0; j < Nfiles; j++){
+      name = loadfile + Form("%.4d.dat",j);
+      ifstream infile(name.Data());
+      infile.getline(tmp, 200);
+      while (infile >> weight){
+        infile >> tmp >> px >> py >> pz;
+        l.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        ep.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        em.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        p.SetXYZM(px, py, pz, Mp);
+        acc = DETECTOR::SmearSoLID(ep, "e+") * DETECTOR::SmearSoLID(em, "e-");
+        hMass->Fill( (ep+em).M(), weight * acc);
+        hep->Fill( ep.Theta() * deg, ep.P(), weight * acc);
+        hem->Fill( em.Theta() * deg, em.P(), weight * acc);
+        hp->Fill( p.Theta() * deg, p.P(), weight * acc);
+        hJpsi->Fill( (ep+em).Theta() * deg, (ep+em).P(), weight * acc);
+        hAngle->Fill( ep.Angle(em.Vect()) * deg, ep.P(), weight * acc);
+        hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
+      }
+      infile.close();
+    }
+    hMass->Scale(lumi*time/Nsim);
+    hep->Scale(lumi*time/Nsim);
+    hem->Scale(lumi*time/Nsim);
+    hp->Scale(lumi*time/Nsim);
+    hJpsi->Scale(lumi*time/Nsim);
+    hAngle->Scale(lumi*time/Nsim);
+    hkappa->Scale(lumi*time/Nsim);
+  }
+
+  if (opt == 6){//scatterred e and e+e
+    for (int j = 0; j < Nfiles; j++){
+      name = loadfile + Form("%.4d.dat",j);
+      ifstream infile(name.Data());
+      infile.getline(tmp, 200);
+      while (infile >> weight){
+        infile >> tmp >> px >> py >> pz;
+        l.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        ep.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        em.SetXYZM(px, py, pz, PARTICLE::e.M());
+        infile >> tmp >> px >> py >> pz;
+        p.SetXYZM(px, py, pz, Mp);
+        acc = DETECTOR::SmearSoLID(l, "e-") * DETECTOR::SmearSoLID(ep, "e+") * DETECTOR::SmearSoLID(em, "e-");
+        hMass->Fill( (ep+em).M(), weight * acc);
+        hep->Fill( ep.Theta() * deg, ep.P(), weight * acc);
+        hem->Fill( em.Theta() * deg, em.P(), weight * acc);
+        hp->Fill( p.Theta() * deg, p.P(), weight * acc);
+        hJpsi->Fill( (ep+em).Theta() * deg, (ep+em).P(), weight * acc);
+        hAngle->Fill( ep.Angle(em.Vect()) * deg, ep.P(), weight * acc);
+        hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
+      }
+      infile.close();
+    }
+    hMass->Scale(lumi*time/Nsim);
+    hep->Scale(lumi*time/Nsim);
+    hem->Scale(lumi*time/Nsim);
+    hp->Scale(lumi*time/Nsim);
+    hJpsi->Scale(lumi*time/Nsim);
+    hAngle->Scale(lumi*time/Nsim);
+    hkappa->Scale(lumi*time/Nsim);
+  }
+ 
   fs->Write();
 
   return 0;
