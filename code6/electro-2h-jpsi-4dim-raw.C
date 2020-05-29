@@ -7,7 +7,7 @@ int main(const int argc, const char * argv[]){
   gRandom->SetSeed(0);
 
   if (argc < 6){
-    cout << "./electro-solid-2h-jpsi-cut <model> <Ebeam> <filename> <Nsim> <Nfiles>" << endl;
+    cout << "./electro-solid-2h-jpsi-cut <model> <Ebeam> <filename> <Nsim> <Nfiles> <anglemin> <anglemax>" << endl;
     return 0;
   }
   Long64_t Nsim = atoi(argv[4]);
@@ -22,8 +22,8 @@ int main(const int argc, const char * argv[]){
 
   // Set scattered electron range
   double degtorad = M_PI / 180.0;
-  GENERATE::cthrange[0] = cos(40.0 * degtorad);
-  GENERATE::cthrange[1] = cos(0.0 * degtorad);
+  GENERATE::cthrange[0] = cos(atof(argv[7]) * degtorad);
+  GENERATE::cthrange[1] = cos(atof(argv[6]) * degtorad);
   GENERATE::perange[0] = 0.0;
   GENERATE::perange[1] = Ebeam - 7.2;
 
