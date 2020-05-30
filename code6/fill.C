@@ -44,6 +44,15 @@ int main(const int argc, const char * argv[]){
   TH1D * hkappa = new TH1D("kappa", ";#kappa_{J/#psi} (GeV);Events / hour", 100, 0.0, 1.0);
   TH2D * hkappaP = new TH2D("kappaP", ";#kappa_{J/#psi} (GeV);proton momentum (GeV)", 100, 0.0, 1.0, 50, 0.0, 5.0);
   TH2D * hkappaTheta = new TH2D("kappaTheta", ";#kappa_{J/#psi} (GeV);proton polar angle (deg)", 100, 0.0, 1.0, 60, 0.0, 30.0);
+  hMass->SetDirectory(fs);
+  hep->SetDirectory(fs);
+  hem->SetDirectory(fs);
+  hp->SetDirectory(fs);
+  hJpsi->SetDirectory(fs);
+  hAngle->SetDirectory(fs);
+  hkappa->SetDirectory(fs);
+  hkappaP->SetDirectory(fs);
+  hkappaTheta->SetDirectory(fs);  
 
   if (opt == 1){//raw
     for (int j = 0; j < Nfiles; j++){
