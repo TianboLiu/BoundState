@@ -68,9 +68,12 @@ int main(const int argc, const char * argv[]){
     f2->Scale(0.5);
     f3->Scale(0.5);
 
-    cout << f1->Integral() << endl;
-    cout << f2->Integral() << endl;
-    cout << f3->Integral() << endl;
+    int binA = f1->FindBin(3.0969 - 1.06);
+    int binB = f1->FindBin(3.0969 + 1.06);
+
+    cout << f1->Integral(binA, binB) * 0.8 << endl;
+    cout << f2->Integral(binA, binB) * 0.8 << endl;
+    cout << f3->Integral(binA, binB) * 0.8 << endl;
   }
    
 	     
@@ -231,8 +234,8 @@ int main(const int argc, const char * argv[]){
 
   if (opt == 2){// Momentum distribution, photo-production
     TFile * fsa = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsb = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsc = new TFile("result202005/quasi-0-5-smeared.root", "r");
+    TFile * fsb = new TFile("result202005/quasi-5-15-smeared.root", "r");
+    TFile * fsc = new TFile("result202005/quasi-15-40-smeared.root", "r");
     TH2D * h1 = (TH2D *) fsa->Get("ThetaP_e+");
     TH2D * h2 = (TH2D *) fsa->Get("ThetaP_p");
 
@@ -265,8 +268,8 @@ int main(const int argc, const char * argv[]){
 
   if (opt == 3){// Jpsi momentum, photo-production
     TFile * fsa = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsb = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsc = new TFile("result202005/quasi-0-5-smeared.root", "r");
+    TFile * fsb = new TFile("result202005/quasi-5-15-smeared.root", "r");
+    TFile * fsc = new TFile("result202005/quasi-15-40-smeared.root", "r");
     TH2D * h1 = (TH2D *) fsa->Get("ThetaP_Jpsi");
     TH2D * h2 = (TH2D *) fsa->Get("Angle");
 
@@ -298,8 +301,8 @@ int main(const int argc, const char * argv[]){
 
   if (opt == 4){// kappa, photo-production
     TFile * fsa = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsb = new TFile("result202005/quasi-0-5-smeared.root", "r");
-    TFile * fsc = new TFile("result202005/quasi-0-5-smeared.root", "r");
+    TFile * fsb = new TFile("result202005/quasi-5-15-smeared.root", "r");
+    TFile * fsc = new TFile("result202005/quasi-15-40-smeared.root", "r");
     TH1D * h1 = (TH1D *) fsa->Get("kappa");
     TH2D * h2 = (TH2D *) fsa->Get("kappaP");
     TH2D * h3 = (TH2D *) fsa->Get("kappaTheta");
@@ -346,6 +349,68 @@ int main(const int argc, const char * argv[]){
     h3->DrawClone("colz");
 
     c0->Print("figures202005/kappa-quasi.pdf)", "pdf");
+
+  }
+
+  if (opt == 5){
+    TFile * fs1 = new TFile("result202005/photo-smeared.root", "r");
+    TH2D * h1 = (TH2D *) fs1->Get("kappaP");
+    h1->Scale(0.5);
+    
+    TH1D * h1a = h1->ProjectionX("kappa_highP", h1->GetYaxis()->FindBin(1.0), -1);
+       
+    TFile * fsa = new TFile("result202005/quasi-0-5-smeared.root", "r");
+    TFile * fsb = new TFile("result202005/quasi-5-15-smeared.root", "r");
+    TFile * fsc = new TFile("result202005/quasi-15-40-smeared.root", "r");
+    TH2D * h2 = (TH2D *) fsa->Get("kappaP");
+
+    h2->Add( (TH2D *) fsb->Get("kappaP"));
+    h2->Add( (TH2D *) fsc->Get("kappaP"));
+
+    h2->Scale(0.5);
+
+    TH1D * h2a = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
+
+    h1a->Scale(50*24*0.8);
+    h2a->Scale(50*24*0.8);
+
+    h1a->Rebin(10);
+    h2a->Rebin(10);
+    h2a->SetMinimum(0);
+
+    for (int i = 1; i <= 10; i++){
+      h1a->SetBinError(i, sqrt(h1a->GetBinContent(i)));
+      h2a->SetBinError(i, sqrt(h2a->GetBinContent(i)));
+    }
+      
+    
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+
+    SetStyle(h1a);
+    SetStyle(h2a);
+
+    h2a->GetYaxis()->SetTitle("Counts in 50 days");
+
+    h1a->SetLineColor(2);
+    h2a->SetLineColor(4);
+
+    h1a->SetLineWidth(2);
+    h2a->SetLineWidth(2);
+
+    h1a->SetFillColorAlpha(2, 0.35);
+    h2a->SetFillColorAlpha(4, 0.35);
+
+    //h2a->SetLineStyle(7);
+
+    h2a->DrawClone("pe2");
+    h1a->DrawClone("pe2same");
+    
+    h2a->DrawClone("esame");
+    h1a->DrawClone("esame");
+
+    c0->Print("figures202005/kappaproj.pdf");
 
   }
 
