@@ -376,7 +376,7 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
   TH3D * hp82[10];
 
   double GetJpsip(const double Eg, TLorentzVector * kj){
-    double k, theta_k, theta_p, phi_p, p, ds, phi;
+    double k, theta_k, theta_p, phi_p, p, ds, ds1, ds2, phi;
     double deg = M_PI / 180.0;
     phi = random.Uniform(-M_PI, M_PI);
     phi_p = random.Uniform(-180.0, 180.0);
@@ -386,15 +386,18 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
     else if (Eg > 7.2 && Eg < 7.7){
       hds72[idx]->GetRandom3(k, theta_k, theta_p);
       p = hp72[idx]->GetBinContent(hp72[idx]->FindBin(k, theta_k, theta_p));
-      ds = hds72[idx]->Integral();
+      //ds = hds72[idx]->Integral();
     }
     else if (Eg > 7.7 && Eg < 8.2){
       hds82[idx]->GetRandom3(k, theta_k, theta_p);
       p = hp82[idx]->GetBinContent(hp82[idx]->FindBin(k, theta_k, theta_p));
-      ds = hds82[idx]->Integral();
+      //ds = hds82[idx]->Integral();
     }
     else
       return 0;
+    ds1 = hds72[idx]->Integral();
+    ds2 = hds82[idx]->Integral();
+    ds = ds1 + (Eg - 7.2) / (8.2 - 7.2) * (ds2 - ds1);
     theta_k = theta_k * deg;
     theta_p = theta_p * deg;
     phi_p = phi_p * deg;
