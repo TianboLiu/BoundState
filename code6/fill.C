@@ -5,8 +5,14 @@ double Getkappa(const double M){
   double M2 = 0.938272;
   return sqrt((M*M - pow(M1 + M2, 2)) * (M*M - pow(M1 - M2, 2))) / (2.0 * M);
 }
-  
 
+double CalcEg(const TLorentzVector P){
+  double Md = 1.8756;
+  double Mn = 0.93957;
+  double Eg = (pow(P.E() - Md, 2) - pow(P.P(), 2) - Mn * Mn) / (2.0 * (P.E() - P.Pz() - Md));
+  return Eg;
+}
+  
 int main(const int argc, const char * argv[]){
 
   if (argc < 5){
@@ -22,7 +28,7 @@ int main(const int argc, const char * argv[]){
   const double Nsim = 1e5 * Nfiles;
   const int opt = atoi(argv[4]);
 
-  const double lumi = 1.2e37 * 1e-26 * pow(0.197326,2);
+  const double lumi = 0.6e37 * 1e-26 * pow(0.197326,2);
   const double time = 3600.0;
   const double deg = 180.0 / M_PI;
 
@@ -44,6 +50,9 @@ int main(const int argc, const char * argv[]){
   TH1D * hkappa = new TH1D("kappa", ";#kappa_{J/#psi} (GeV);Events / hour", 100, 0.0, 1.0);
   TH2D * hkappaP = new TH2D("kappaP", ";#kappa_{J/#psi} (GeV);proton momentum (GeV)", 100, 0.0, 1.0, 50, 0.0, 5.0);
   TH2D * hkappaTheta = new TH2D("kappaTheta", ";#kappa_{J/#psi} (GeV);proton polar angle (deg)", 100, 0.0, 1.0, 60, 0.0, 30.0);
+  TH1D * hRealEg = new TH1D("RealEg", ";E_{#gamma} (GeV);Events / hour", 140, 7.0, 8.4);
+  TH1D * hEg = new TH1D("Eg", ";E_{#gamma} (GeV);Events / hour", 140, 7.0, 8.4);
+  TH2D * hkappaEg  = new TH2D("kappaEg", ";#kappa_{J/#psi} (GeV);E_{#gamma} (GeV)", 100, 0.0, 1.0, 140, 7.0, 8.4);
   hMass->SetDirectory(fs);
   hep->SetDirectory(fs);
   hem->SetDirectory(fs);
@@ -52,7 +61,11 @@ int main(const int argc, const char * argv[]){
   hAngle->SetDirectory(fs);
   hkappa->SetDirectory(fs);
   hkappaP->SetDirectory(fs);
-  hkappaTheta->SetDirectory(fs);  
+  hkappaTheta->SetDirectory(fs);
+  hRealEg->SetDirectory(fs);
+  hEg->SetDirectory(fs);
+  hkappaEg->SetDirectory(fs);
+  
 
   if (opt == 1){//raw
     for (int j = 0; j < Nfiles; j++){
@@ -78,6 +91,9 @@ int main(const int argc, const char * argv[]){
 	hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -89,7 +105,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
 
   if (opt == 2){//e+e-p detected
@@ -116,6 +135,9 @@ int main(const int argc, const char * argv[]){
 	hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -127,7 +149,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
 
   if (opt == 3){//e+e-p detected and smeared
@@ -154,6 +179,9 @@ int main(const int argc, const char * argv[]){
 	hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -165,7 +193,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
 
   if (opt == 4){//scatterred e and e+e-p
@@ -192,6 +223,9 @@ int main(const int argc, const char * argv[]){
 	hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -203,7 +237,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
 
   if (opt == 5){//only e+e
@@ -230,6 +267,9 @@ int main(const int argc, const char * argv[]){
         hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -241,7 +281,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
 
   if (opt == 6){//scatterred e and e+e
@@ -268,6 +311,9 @@ int main(const int argc, const char * argv[]){
         hkappa->Fill( Getkappa((ep+em+p).M()), weight * acc);
 	hkappaP->Fill( Getkappa((ep+em+p).M()), p.P(), weight * acc);
 	hkappaTheta->Fill( Getkappa((ep+em+p).M()), p.Theta() * deg, weight * acc);
+	hRealEg->Fill( l.E(), weight * acc);
+	hEg->Fill( CalcEg(ep+em+p), weight * acc);
+	hkappaEg->Fill( Getkappa((ep+em+p).M()), CalcEg(ep+em+p), weight * acc);
       }
       infile.close();
     }
@@ -279,7 +325,10 @@ int main(const int argc, const char * argv[]){
     hAngle->Scale(lumi*time/Nsim);
     hkappa->Scale(lumi*time/Nsim);
     hkappaP->Scale(lumi*time/Nsim);
-    hkappaTheta->Scale(lumi*time/Nsim); 
+    hkappaTheta->Scale(lumi*time/Nsim);
+    hRealEg->Scale(lumi*time/Nsim);
+    hEg->Scale(lumi*time/Nsim);
+    hkappaEg->Scale(lumi*time/Nsim);
   }
  
   fs->Write();
