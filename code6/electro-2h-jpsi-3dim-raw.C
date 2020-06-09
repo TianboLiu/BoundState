@@ -60,10 +60,10 @@ int main(const int argc, const char * argv[]){
       weight *= GENERATE::Event_eD2eeep_Jpsi(ki, kf);
       if (weight > 0.0){
 	fprintf(f, "%.6E\n", weight);
-	fprintf(f, "e':\t%.6E\t%.6E\t%.6E\n", kf[0].X(), kf[0].Y(), kf[0].Z());
-	fprintf(f, "e+:\t%.6E\t%.6E\t%.6E\n", kf[1].X(), kf[1].Y(), kf[1].Z());
-	fprintf(f, "e-:\t%.6E\t%.6E\t%.6E\n", kf[2].X(), kf[2].Y(), kf[2].Z());
-	fprintf(f, "p:\t%.6E\t%.6E\t%.6E\n", kf[3].X(), kf[3].Y(), kf[3].Z());
+	fprintf(f, "e':\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[0].X(), kf[0].Y(), kf[0].Z(), kf[0].E());
+	fprintf(f, "e+:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[1].X(), kf[1].Y(), kf[1].Z(), kf[1].E());
+	fprintf(f, "e-:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[2].X(), kf[2].Y(), kf[2].Z(), kf[2].E());
+	fprintf(f, "p:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[3].X(), kf[3].Y(), kf[3].Z(), kf[3].E());
       }
     }
 
@@ -74,10 +74,10 @@ int main(const int argc, const char * argv[]){
       weight *= GENERATE::Event_eD2eeep_Jpsi(ki, kf);
       if (weight > 0.0){
 	fprintf(f, "%.6E\n", weight);
-	fprintf(f, "e':\t%.6E\t%.6E\t%.6E\n", kf[0].X(), kf[0].Y(), kf[0].Z());
-	fprintf(f, "e+:\t%.6E\t%.6E\t%.6E\n", kf[1].X(), kf[1].Y(), kf[1].Z());
-	fprintf(f, "e-:\t%.6E\t%.6E\t%.6E\n", kf[2].X(), kf[2].Y(), kf[2].Z());
-	fprintf(f, "p:\t%.6E\t%.6E\t%.6E\n", kf[3].X(), kf[3].Y(), kf[3].Z());
+	fprintf(f, "e':\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[0].X(), kf[0].Y(), kf[0].Z(), kf[0].E());
+	fprintf(f, "e+:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[1].X(), kf[1].Y(), kf[1].Z(), kf[1].E());
+	fprintf(f, "e-:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[2].X(), kf[2].Y(), kf[2].Z(), kf[2].E());
+	fprintf(f, "p:\t%.6E\t%.6E\t%.6E\t%.6E\n", kf[3].X(), kf[3].Y(), kf[3].Z(), kf[3].E());
       }
     }
        
