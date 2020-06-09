@@ -365,7 +365,7 @@ namespace JPSID{//Harry's model for J/psi production from Deuteron
 
 }
 
-namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff cross section
+namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff cross section 2020-05-14
 
   TRandom3 random(0);
 
@@ -416,6 +416,94 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
       hds82[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.2_idx%d",i));
       hp82[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.2_idx%d",i));
     }
+    return 0;
+  }
+
+}
+
+namespace JPSID3d{//Harry's model for J/psi production from Deuteron 3-dim diff cross section 2020-06-07
+
+  TRandom3 random(0);
+  const double Md = 1.8756;
+  const double Mn = 0.93957;
+
+  TFile * fJpsiD;
+  TH3D * hds72, * hds77, * hds82;
+  TH3D * hp72, * hp77, * hp82;
+
+  double GetJpsip(const TLorentzVector q, TLorentzVector * kj){
+    //q: gamma(*); kj: J/psi, p
+    double k, theta_k, phi_k, p, theta_p, phi_p, ds, ds72, ds77, ds82;
+    double deg = M_PI / 180.0;
+    double Eg = q.E() + q * q / (2.0 * Md);
+    if (Eg < 7.2)
+      return 0;
+    else if (Eg > 7.2 && Eg < 7.45){
+      hds72->GetRandom3(k, theta_k, theta_p);
+      p = hp72->GetBinContent(hp72->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.45 && Eg < 7.95){
+      hds77->GetRandom3(k, theta_k, theta_p);
+      p = hp77->GetBinContent(hp77->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.95 && Eg < 8.2){
+      hds82->GetRandom3(k, theta_k, theta_p);
+      p = hp82->GetBinContent(hp82->FindBin(k, theta_k, theta_p));
+    }
+    else
+      return 0;
+    theta_k = theta_k * deg;
+    theta_p = theta_p * deg;
+    kj[0].SetXYZM(k * sin(theta_k), 0.0, k * cos(theta_k), PARTICLE::Jpsi.RandomM());
+    kj[1].SetXYZM(p * sin(theta_p), 0.0, p * cos(theta_p), Mp);
+    double cphip = (pow(q.E() + Md - kj[0].E() - kj[1].E(), 2) - pow(Mn, 2) - pow(q.P(), 2) - pow(kj[0].P(), 2) - pow(kj[1].P(), 2) + 2.0 * q.P() * kj[0].Pz() + 2.0 * q.P() * kj[1].Pz() ) / (2.0 * kj[0].Pt() * kj[1].Pt());
+    if (cphip > 1.0) cphip = 1.0;
+    if (cphip < -1.0) cphip = -1.0;
+    phi_p = acos(cphip);
+    phi_k = random.Uniform(-M_PI, M_PI);
+    kj[0].RotateZ(phi_k);
+    kj[1].RotateZ(phi_k + phi_p);
+    kj[0].RotateY(q.Theta());
+    kj[0].RotateZ(q.Phi());
+    kj[1].RotateY(q.Theta());
+    kj[1].RotateZ(q.Phi());
+    ds72 = hds72->Integral();
+    ds77 = hds77->Integral();
+    ds82 = hds82->Integral();
+    if (Eg < 7.7){
+      ds = exp((Eg - 7.2) / (7.7 - 7.2) * (log(ds77) - log(ds72)) + log(ds72));
+    }
+    else if (Eg >= 7.7){
+      ds = exp((Eg - 7.7) / (8.2 - 7.7) * (log(ds82) - log(ds77)) + log(ds77));
+    }
+    else
+      return 0;
+    return ds * 1.0e-7 / pow(0.197367,2);
+  }
+    
+
+  int SetModel(const char * model = "default"){
+    if (strcmp(model, "default") == 0){
+      fJpsiD = new TFile("harrymodel/harrymodel-jpsi-d-3D-default.root", "r");
+    }
+    else if (strcmp(model, "nv2Ia") == 0){
+      fJpsiD = new TFile("harrymodel/harrymodel-jpsi-d-3D-nv2Ia.root", "r");
+    }
+    else if (strcmp(model, "v18") == 0){
+      fJpsiD = new TFile("harrymodel/harrymodel-jpsi-d-3D-v18.root", "r");
+    }
+    else {
+      cout << "model not matching!" << endl;
+      cout << "available options: default, nv2Ia, v18" << endl;
+      return 1;
+    }
+    hds72 = (TH3D *) fJpsiD->Get("ds_E7.2");
+    hds77 = (TH3D *) fJpsiD->Get("ds_E7.7");
+    hds82 = (TH3D *) fJpsiD->Get("ds_E8.2");
+    hp72 = (TH3D *) fJpsiD->Get("p_E7.2");
+    hp77 = (TH3D *) fJpsiD->Get("p_E7.7");
+    hp82 = (TH3D *) fJpsiD->Get("p_E8.2");
+    cout << "Model: " << model << endl;
     return 0;
   }
 
@@ -836,16 +924,12 @@ namespace GENERATE{
     return weight * branch;
   }
 
+  /* Harry's model 3d 2020-06-07 */
   double Event_gD2eep_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: g; kf: [e+, e-], p
-    double Eg = ki[0].E();
     TLorentzVector kj[2];
-    double weight = JPSID4d::GetJpsip(Eg, kj);
+    double weight = JPSID3d::GetJpsip(ki[0], kj);
     if (weight == 0) return 0;
-    kj[0].RotateY(ki[0].Theta());
-    kj[0].RotateZ(ki[0].Phi());
-    kj[1].RotateY(ki[0].Theta());
-    kj[1].RotateZ(ki[0].Phi());
     double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
     GenPhase.SetDecay(kj[0], 2, mass);
     GenPhase.Generate();
@@ -900,21 +984,15 @@ namespace GENERATE{
     return weight1 * weight2 * branch;
   }
 
+   /* Harry's model 3d 2020-06-07 */
   double Event_eD2eeep_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: e; kf: e', [e+, e-], p
     double weight1 = VirtualPhoton(ki, kf);//Generate scattered electron
     if (weight1 == 0) return 0;
     TLorentzVector q = ki[0] - kf[0];
-    double s = pow(q.E() + 4.0 * Mp, 2) - pow(q.P(), 2);
-    double Eg = (s - pow(4.0 * Mp, 2)) / (2.0 * 4.0 * Mp);
-    //double Eg = q.E();
     TLorentzVector kj[2];
-    double weight2 = JPSID4d::GetJpsip(Eg, kj);
+    double weight2 = JPSID3d::GetJpsip(q, kj);
     if (weight2 == 0) return 0;
-    kj[0].RotateY(q.Theta());
-    kj[0].RotateZ(q.Phi());
-    kj[1].RotateY(q.Theta());
-    kj[1].RotateZ(q.Phi());
     double mass[2] = {PARTICLE::e.M(), PARTICLE::e.M()};
     GenPhase.SetDecay(kj[0], 2, mass);
     GenPhase.Generate();
