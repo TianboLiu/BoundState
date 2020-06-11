@@ -1152,6 +1152,15 @@ namespace DETECTOR{
       res_proton_solid_p = (TH2D *) fres_proton_solid->Get("p_resolution");
       res_proton_solid_theta = (TH2D *) fres_proton_solid->Get("theta_resolution");
       res_proton_solid_phi = (TH2D *) fres_proton_solid->Get("phi_resolution");
+      res_electron_solid_p->Scale(1.5);
+      res_electron_solid_theta->Scale(1.5);
+      res_electron_solid_phi->Scale(1.5);
+      res_positron_solid_p->Scale(1.5);
+      res_positron_solid_theta->Scale(1.5);
+      res_positron_solid_phi->Scale(1.5);
+      res_proton_solid_p->Scale(1.5);
+      res_proton_solid_theta->Scale(1.5);
+      res_proton_solid_phi->Scale(1.5);
     }
     else if (strcmp(detector, "ALERT") == 0){
       facc_alert = new TFile("acceptance/acc_alert_20190427.root", "r");
