@@ -365,7 +365,180 @@ namespace JPSID{//Harry's model for J/psi production from Deuteron
 
 }
 
-namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff cross section 2020-05-14
+namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff cross section 2020-06-14
+
+  TRandom3 random(0);
+  const double Md = 1.8756;
+  const double Mn = 0.93957;
+  
+  TFile * fJpsiD;
+  TH3D * hds72[10], * hds73[10], * hds74[10], * hds75[10], * hds76[10], * hds77[10], * hds78[10], * hds79[10], * hds80[10], * hds81[10], * hds82[10];
+  TH3D * hp72[10], * hp73[10], * hp74[10], * hp75[10], * hp76[10], * hp77[10], * hp78[10], * hp79[10], * hp80[10], * hp81[10], * hp82[10];
+  double ds72[10], ds73[10], ds74[10], ds75[10], ds76[10], ds77[10], ds78[10], ds79[10], ds80[10], ds81[10], ds82[10];
+
+  double GetJpsip(const TLorentzVector q, TLorentzVector * kj){
+    //q: gamma(*); kj: J/psi, p
+    double k, theta_k, phi_k, p, theta_p, phi_p, ds;
+    double deg = M_PI / 180.0;
+    double Eg = q.E() + q * q / (2.0 * Md);
+    phi_p = random.Uniform(-180.0, 180.0);
+    int idx = (int) ((abs(phi_p) + 10) / 20);
+    if (Eg < 7.2)
+      return 0;
+    else if (Eg > 7.2 && Eg < 7.25){
+      hds72[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp72[idx]->GetBinContent(hp72[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.25 && Eg < 7.35){
+      hds73[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp73[idx]->GetBinContent(hp73[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.35 && Eg < 7.45){
+      hds74[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp74[idx]->GetBinContent(hp74[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.45 && Eg < 7.55){
+      hds75[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp75[idx]->GetBinContent(hp75[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.55 && Eg < 7.65){
+      hds76[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp76[idx]->GetBinContent(hp76[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.65 && Eg < 7.75){
+      hds77[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp77[idx]->GetBinContent(hp77[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.75 && Eg < 7.85){
+      hds78[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp78[idx]->GetBinContent(hp78[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.85 && Eg < 7.95){
+      hds79[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp79[idx]->GetBinContent(hp79[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 7.95 && Eg < 8.05){
+      hds80[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp80[idx]->GetBinContent(hp80[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 8.05 && Eg < 8.15){
+      hds81[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp81[idx]->GetBinContent(hp81[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 8.15 && Eg < 8.2){
+      hds82[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp82[idx]->GetBinContent(hp82[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else
+      return 0;
+    phi_p = phi_p * deg;
+    theta_k = theta_k * deg;
+    theta_p = theta_p * deg;   
+    kj[0].SetXYZM(k * sin(theta_k), 0.0, k * cos(theta_k), PARTICLE::Jpsi.RandomM());
+    double A = (pow(q.E() + Md - kj[0].E(), 2) + pow(Mp, 2) - pow(Mn, 2) - pow(q.P(), 2) - pow(kj[0].P(), 2) + 2.0 * q.P() * k * cos(theta_k)) / 2.0;
+    double cth = cos(theta_k) * cos(theta_p) + sin(theta_k) * sin(theta_p) * cos(phi_p);
+    double a = pow(q.E() + Md - kj[0].E(), 2) - pow(q.P() * cos(theta_p) - k * cth, 2);
+    double b = -2.0 * A * (q.P() * cos(theta_p) - k * cth);
+    double c = pow(Mp, 2) * pow(q.E() + Md - kj[0].E(), 2) - pow(A, 2);
+    if (b * b - 4.0 * a * c <= 0){
+      p = - b / (2.0 * a);
+    }
+    else {
+      p = (- b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
+    }
+    kj[1].SetXYZM(p * sin(theta_p) * cos(phi_p), p * sin(theta_p) * sin(phi_p), p * cos(theta_p), Mp);
+    phi_k = random.Uniform(-M_PI, M_PI);
+    kj[0].RotateZ(phi_k);
+    kj[1].RotateZ(phi_k);
+    kj[0].RotateY(q.Theta());
+    kj[0].RotateZ(q.Phi());
+    kj[1].RotateY(q.Theta());
+    kj[1].RotateZ(q.Phi());
+    if (Eg < 7.3){
+      ds = exp((Eg - 7.2) / (7.3 - 7.2) * (log(ds73[idx]) - log(ds72[idx])) + log(ds72[idx]));
+    }
+    else if (Eg < 7.4){
+      ds = exp((Eg - 7.3) / (7.4 - 7.3) * (log(ds74[idx]) - log(ds73[idx])) + log(ds73[idx]));
+    }
+    else if (Eg < 7.5){
+      ds = exp((Eg - 7.4) / (7.5 - 7.4) * (log(ds75[idx]) - log(ds74[idx])) + log(ds74[idx]));
+    }
+    else if (Eg < 7.6){
+      ds = exp((Eg - 7.5) / (7.6 - 7.5) * (log(ds76[idx]) - log(ds75[idx])) + log(ds75[idx]));
+    }
+    else if (Eg < 7.7){
+      ds = exp((Eg - 7.6) / (7.7 - 7.6) * (log(ds77[idx]) - log(ds76[idx])) + log(ds76[idx]));
+    }
+    else if (Eg < 7.8){
+      ds = exp((Eg - 7.7) / (7.8 - 7.7) * (log(ds78[idx]) - log(ds77[idx])) + log(ds77[idx]));
+    }
+    else if (Eg < 7.9){
+      ds = exp((Eg - 7.8) / (7.9 - 7.8) * (log(ds79[idx]) - log(ds78[idx])) + log(ds78[idx]));
+    }
+    else if (Eg < 8.0){
+      ds = exp((Eg - 7.9) / (8.0 - 7.9) * (log(ds80[idx]) - log(ds79[idx])) + log(ds79[idx]));
+    }
+    else if (Eg < 8.1){
+      ds = exp((Eg - 8.0) / (8.1 - 8.0) * (log(ds81[idx]) - log(ds80[idx])) + log(ds80[idx]));
+    }
+    else if (Eg >= 8.1){
+      ds = exp((Eg - 8.1) / (8.2 - 8.1) * (log(ds82[idx]) - log(ds81[idx])) + log(ds81[idx]));
+    }
+    else
+      return 0;
+    return ds * 1.0e-7 / pow(0.197367,2);
+  }
+    
+
+  int SetModel(const char * model = "v18"){
+    if (strcmp(model, "v18") == 0)
+      fJpsiD = new TFile("harrymodel/harrymodel-jpsi-d-4D-v18.root", "r");
+    else {
+      cout << "model not matching!" << endl;
+      cout << "available options: v18" << endl;
+      return 1;
+    }
+    for (int i = 1; i <= 10; i++){
+      hds72[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.2_idx%d",i));
+      hp72[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.2_idx%d",i));
+      ds72[i-1]  = hds72[i-1]->Integral();
+      hds73[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.3_idx%d",i));
+      hp73[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.3_idx%d",i));
+      ds73[i-1]  = hds73[i-1]->Integral();
+      hds74[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.4_idx%d",i));
+      hp74[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.4_idx%d",i));
+      ds74[i-1]  = hds74[i-1]->Integral();
+      hds75[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.5_idx%d",i));
+      hp75[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.5_idx%d",i));
+      ds75[i-1]  = hds75[i-1]->Integral();
+      hds76[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.6_idx%d",i));
+      hp76[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.6_idx%d",i));
+      ds76[i-1]  = hds76[i-1]->Integral();
+      hds77[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.7_idx%d",i));
+      hp77[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.7_idx%d",i));
+      ds77[i-1]  = hds77[i-1]->Integral();
+      hds78[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.8_idx%d",i));
+      hp78[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.8_idx%d",i));
+      ds78[i-1]  = hds78[i-1]->Integral();
+      hds79[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E7.9_idx%d",i));
+      hp79[i-1] = (TH3D *) fJpsiD->Get(Form("p_E7.9_idx%d",i));
+      ds79[i-1]  = hds79[i-1]->Integral();
+      hds80[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.0_idx%d",i));
+      hp80[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.0_idx%d",i));
+      ds80[i-1]  = hds80[i-1]->Integral();
+      hds81[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.1_idx%d",i));
+      hp81[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.1_idx%d",i));
+      ds81[i-1]  = hds81[i-1]->Integral();
+      hds82[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.2_idx%d",i));
+      hp82[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.2_idx%d",i));
+      ds82[i-1]  = hds82[i-1]->Integral();
+    }
+    return 0;
+  }
+
+}
+
+namespace JPSID4d_old{//Harry's model for J/psi production from Deuteron 4-dim diff cross section 2020-05-14
 
   TRandom3 random(0);
   const double Md = 1.8756;
