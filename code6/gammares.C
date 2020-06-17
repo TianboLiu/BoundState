@@ -13,6 +13,10 @@ int main(const int argc, const char * argv[]){
     return 0;
   }
 
+  const double lumi = 0.6e37 * 1e-26 * pow(0.197326,2);
+  const double time = 3600.0;
+  const double Nsim = 1e6;
+
   DETECTOR::SetDetector("SoLID");
   
   TLorentzVector q, ep, em, p;
@@ -58,6 +62,14 @@ int main(const int argc, const char * argv[]){
     else if (Eg0 > 8.0 && Eg0 < 8.2)
       he->Fill(dE, weight * acc);
   }
+
+  h2->Scale(lumi*time/Nsim);
+  ha->Scale(lumi*time/Nsim);
+  hb->Scale(lumi*time/Nsim);
+  hc->Scale(lumi*time/Nsim);
+  hd->Scale(lumi*time/Nsim);
+  he->Scale(lumi*time/Nsim);
+  
 
   fs->Write();
   fs->Close();

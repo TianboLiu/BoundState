@@ -203,6 +203,54 @@ int main(const int argc, const char * argv[]){
       hs->Delete();
       hp->Delete();
     }
+    for (int i = 1; i <= 10; i++){
+      ifstream infile(Form("8p3-phip-v18/fort.90%.2d", i));
+      hs = new TH3D(Form("ds_E8.3_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      hp = new TH3D(Form("p_E8.3_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      infile.getline(dum, 200);
+      while (infile >> q >> theta_k >> k >> phi_p >> theta_p >> p >> crst >> tmp >> tmp){
+	vol = 0.01 * (cos(theta_k * deg) - cos((theta_k + 2.0) * deg)) * (2.0 * M_PI) * (cos((theta_p - 0.5) * deg) - cos((theta_p + 0.5) * deg)) * (2.0 * M_PI);
+	hs->Fill(k, theta_k + eps, theta_p, crst * vol + zero);
+	hp->Fill(k, theta_k + eps, theta_p, p);
+      }
+      infile.close();
+      fs->Write();
+      cout << i << ": " << hs->Integral() << endl;
+      hs->Delete();
+      hp->Delete();
+    }
+    for (int i = 1; i <= 10; i++){
+      ifstream infile(Form("8p4-phip-v18/fort.90%.2d", i));
+      hs = new TH3D(Form("ds_E8.4_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      hp = new TH3D(Form("p_E8.4_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      infile.getline(dum, 200);
+      while (infile >> q >> theta_k >> k >> phi_p >> theta_p >> p >> crst >> tmp >> tmp){
+	vol = 0.01 * (cos(theta_k * deg) - cos((theta_k + 2.0) * deg)) * (2.0 * M_PI) * (cos((theta_p - 0.5) * deg) - cos((theta_p + 0.5) * deg)) * (2.0 * M_PI);
+	hs->Fill(k, theta_k + eps, theta_p, crst * vol + zero);
+	hp->Fill(k, theta_k + eps, theta_p, p);
+      }
+      infile.close();
+      fs->Write();
+      cout << i << ": " << hs->Integral() << endl;
+      hs->Delete();
+      hp->Delete();
+    }
+    for (int i = 1; i <= 10; i++){
+      ifstream infile(Form("8p5-phip-v18/fort.90%.2d", i));
+      hs = new TH3D(Form("ds_E8.5_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      hp = new TH3D(Form("p_E8.5_idx%d", i), "", 900, 1.0, 10.0, 6, 0.0, 12.0, 30, 5.5, 35.5);
+      infile.getline(dum, 200);
+      while (infile >> q >> theta_k >> k >> phi_p >> theta_p >> p >> crst >> tmp >> tmp){
+	vol = 0.01 * (cos(theta_k * deg) - cos((theta_k + 2.0) * deg)) * (2.0 * M_PI) * (cos((theta_p - 0.5) * deg) - cos((theta_p + 0.5) * deg)) * (2.0 * M_PI);
+	hs->Fill(k, theta_k + eps, theta_p, crst * vol + zero);
+	hp->Fill(k, theta_k + eps, theta_p, p);
+      }
+      infile.close();
+      fs->Write();
+      cout << i << ": " << hs->Integral() << endl;
+      hs->Delete();
+      hp->Delete();
+    }
     fs->Close();
   }
 

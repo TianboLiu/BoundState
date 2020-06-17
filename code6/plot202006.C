@@ -44,16 +44,19 @@ int main(const int argc, const char * argv[]){
 
   gStyle->SetPalette(55);
   gStyle->SetOptStat(0);
-
+  
   if (opt == 0){// rates
-    TFile * fs1 = new TFile("result202006/photo-default-smeared.root");
-    TFile * fs2 = new TFile("result202006/electro-default-smeared.root");
+    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root");
   
     TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-");
     TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-");
+
+    cout << f1->Integral() << endl;
+    cout << f2->Integral() << endl;
     
-    int binA = f1->FindBin(3.0969 - 1.06);
-    int binB = f1->FindBin(3.0969 + 1.06);
+    int binA = f1->FindBin(3.0969 - 0.06);
+    int binB = f1->FindBin(3.0969 + 0.06);
 
     cout << f1->Integral(binA, binB) * 0.8 << endl;
     cout << f2->Integral(binA, binB) * 0.8 << endl;
@@ -61,8 +64,8 @@ int main(const int argc, const char * argv[]){
      
   
   if (opt == -1){// Mass spectrum of e+e-, photo-production
-    TFile * fs1 = new TFile("result202006/photo-default-detected.root", "r");
-    TFile * fs2 = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs1 = new TFile("result202006/photo-v18-detected.root", "r");
+    TFile * fs2 = new TFile("result202006/photo-v18-smeared.root", "r");
     TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
     TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
   
@@ -83,7 +86,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -2){// Momentum distribution, photo-production
-    TFile * fs = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
     TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
   
@@ -108,7 +111,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -3){// Jpsi momentum, photo-production
-    TFile * fs = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
     TH2D * h2 = (TH2D *) fs->Get("Angle");
   
@@ -132,7 +135,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == -4){// kappa, photo-production
-    TFile * fs = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
     TH1D * h1 = (TH1D *) fs->Get("kappa");
     TH2D * h2 = (TH2D *) fs->Get("kappaP");
     TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
@@ -171,8 +174,8 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 1){// Mass spectrum of e+e-, photo-production
-    TFile * fs1 = new TFile("result202006/electro-default-detected.root", "r");
-    TFile * fs2 = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs1 = new TFile("result202006/electro-v18-detected.root", "r");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
     TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
     TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
    
@@ -194,7 +197,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 2){// Momentum distribution, photo-production
-    TFile * fs = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
     TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
 
@@ -219,7 +222,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 3){// Jpsi momentum, photo-production
-    TFile * fs = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
     TH2D * h2 = (TH2D *) fs->Get("Angle");
 
@@ -243,7 +246,7 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 4){// kappa, photo-production
-    TFile * fs = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
     TH1D * h1 = (TH1D *) fs->Get("kappa");
     TH2D * h2 = (TH2D *) fs->Get("kappaP");
     TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
@@ -281,11 +284,47 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 5){
-    TFile * fs1 = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
+    TH2D * h1 = (TH2D *) fs1->Get("kappaP");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
+    TH2D * h2 = (TH2D *) fs2->Get("kappaP");
+    h1->Add(h2);
+    
+    TH1D * h1a = h1->ProjectionX("kappa_highP", h1->GetYaxis()->FindBin(1.0), -1);
+    h1a->Scale(50*24*0.8);
+
+    h1a->Rebin(10);
+
+    for (int i = 1; i <= 10; i++){
+      h1a->SetBinError(i, sqrt(h1a->GetBinContent(i)));
+    }
+      
+    
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+
+    SetStyle(h1a);
+ 
+    h1a->GetYaxis()->SetTitle("Counts in 50 days");
+
+    h1a->SetLineColor(4);
+    h1a->SetLineWidth(3);
+    
+    h1a->SetFillColorAlpha(4, 0.35);
+   
+    h1a->DrawClone("pe2");
+    h1a->DrawClone("esame");
+
+    c0->Print("figures202006/kappaproj.pdf");
+  }
+  
+  if (opt == 55){
+    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs1->Get("kappaP");
     TH1D * h1a = h1->ProjectionX("kappa_highP", h1->GetYaxis()->FindBin(1.0), -1);
        
-    TFile * fs2 = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h2 = (TH2D *) fs2->Get("kappaP");
     TH1D * h2a = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
 
@@ -333,13 +372,89 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 6){
-    TFile * fs1 = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
+    TH2D * h1 = (TH2D *) fs1->Get("kappaEgHigh");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
+    TH2D * h2 = (TH2D *) fs2->Get("kappaEgHigh");
+    h1->Add(h2);
+    h1->Scale(50*24*0.8);
+
+    TH1D * h10 = h1->ProjectionY("Eg");
+    TH1D * h1a = h1->ProjectionX("kappaEg1", 1, h1->GetYaxis()->FindBin(7.5));
+    TH1D * h1b = h1->ProjectionX("kappaEg2", h1->GetYaxis()->FindBin(7.5), h1->GetYaxis()->FindBin(7.9));
+    TH1D * h1c = h1->ProjectionX("kappaEg3", h1->GetYaxis()->FindBin(7.9), -1);
+       
+    h10->Rebin(20);
+    h10->GetXaxis()->SetRangeUser(7.2,8.2);
+
+    h1a->Rebin(20);
+    h1b->Rebin(20);
+    h1c->Rebin(20);
+
+    SetStyle(h10);
+    SetStyle(h1a);
+    SetStyle(h1b);
+    SetStyle(h1c);
+
+
+    for (int i = 1; i <= 7; i++){
+      h10->SetBinError(i, sqrt(h10->GetBinContent(i)));
+    }
+     
+    for (int i = 1; i <= 5; i++){
+      h1a->SetBinError(i, sqrt(h1a->GetBinContent(i)));
+      h1b->SetBinError(i, sqrt(h1b->GetBinContent(i)));
+      h1c->SetBinError(i, sqrt(h1c->GetBinContent(i)));
+    }
+      
+    
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    
+    h10->GetYaxis()->SetTitle("Counts in 50 days");
+    h1a->GetYaxis()->SetTitle("Counts in 50 days");
+    h1b->GetYaxis()->SetTitle("Counts in 50 days");
+    h1c->GetYaxis()->SetTitle("Counts in 50 days");
+
+    h10->SetLineColor(4);
+    h1a->SetLineColor(4);
+    h1b->SetLineColor(kGreen+2);
+    h1c->SetLineColor(2);
+
+    h10->SetLineWidth(3);
+    h1a->SetLineWidth(3);
+    h1b->SetLineWidth(3);
+    h1c->SetLineWidth(3);
+
+    h10->SetFillColorAlpha(4, 0.35);
+    h1a->SetFillColorAlpha(4, 0.35);
+    h1b->SetFillColorAlpha(kGreen+2, 0.35);
+    h1c->SetFillColorAlpha(2, 0.35);
+
+    h10->DrawClone("pe2");
+    h10->DrawClone("esame");
+    c0->Print("figures202006/gammaproj.pdf");
+  
+    h1c->DrawClone("pe2");
+    h1b->DrawClone("pe2same");
+    h1a->DrawClone("pe2same");
+    h1a->DrawClone("esame");
+    h1b->DrawClone("esame");
+    h1c->DrawClone("esame");
+    c0->Print("figures202006/kappagammaproj.pdf");
+
+  
+  }
+
+  if (opt == 66){
+    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs1->Get("kappaEgHigh");
     TH1D * h1a = h1->ProjectionX("kappaEg1", h1->GetYaxis()->FindBin(7.2), h1->GetYaxis()->FindBin(7.5));
     TH1D * h1b = h1->ProjectionX("kappaEg2", h1->GetYaxis()->FindBin(7.5), h1->GetYaxis()->FindBin(7.9));
     TH1D * h1c = h1->ProjectionX("kappaEg3", h1->GetYaxis()->FindBin(7.9), -1);
        
-    TFile * fs2 = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h2 = (TH2D *) fs2->Get("kappaEgHigh");
     TH1D * h2a = h2->ProjectionX("kappaEg1", h2->GetYaxis()->FindBin(7.2), h2->GetYaxis()->FindBin(7.5));
     TH1D * h2b = h2->ProjectionX("kappaEg2", h2->GetYaxis()->FindBin(7.5), h2->GetYaxis()->FindBin(7.9));
@@ -532,18 +647,18 @@ int main(const int argc, const char * argv[]){
   }
 
   if (opt == 7){
-    TFile * fs1a = new TFile("result202006/photo-default-smeared.root", "r");
+    TFile * fs1a = new TFile("result202006/photo-v18-smeared.root", "r");
     TFile * fs1b = new TFile("result202006/photo-nv2Ia-smeared.root", "r");
     TH2D * h1A = (TH2D *) fs1a->Get("kappaEgHigh");
     TH2D * h1B = (TH2D *) fs1b->Get("kappaEgHigh");
-    TH1D * h1a = h1A->ProjectionX("kappadefault");
+    TH1D * h1a = h1A->ProjectionX("kappav18");
     TH1D * h1b = h1B->ProjectionX("kappanv2Ia");
 
-    TFile * fs2a = new TFile("result202006/electro-default-smeared.root", "r");
+    TFile * fs2a = new TFile("result202006/electro-v18-smeared.root", "r");
     TFile * fs2b = new TFile("result202006/electro-nv2Ia-smeared.root", "r");
     TH2D * h2A = (TH2D *) fs2a->Get("kappaEgHigh");
     TH2D * h2B = (TH2D *) fs2b->Get("kappaEgHigh");
-    TH1D * h2a = h2A->ProjectionX("kappadefault");
+    TH1D * h2a = h2A->ProjectionX("kappav18");
     TH1D * h2b = h2B->ProjectionX("kappanv2Ia");
 
     h1a->Scale(50*24*0.8);
@@ -611,6 +726,35 @@ int main(const int argc, const char * argv[]){
   
   }
 
+  if (opt == 100){//photon energy resolution
+    TFile * fs = new TFile("gammares.root", "r");
+    TH2D * hs = (TH2D *) fs->Get("Eres");
+    TH1D * ha = (TH1D *) fs->Get("a");
+    TH1D * hb = (TH1D *) fs->Get("b");
+    TH1D * hc = (TH1D *) fs->Get("c");
+    TH1D * hd = (TH1D *) fs->Get("d");
+    TH1D * he = (TH1D *) fs->Get("e");				
+    
+    hs->Scale(50*24*0.8);
+
+    SetStyle(hs);
+
+    TCanvas * c0 = new TCanvas("", "", 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    c0->SetRightMargin(0.15);
+    c0->SetLogz();
+
+    hs->DrawClone("colz");
+
+    cout << ha->GetRMS() << endl;
+    cout << hb->GetRMS() << endl;
+    cout << hc->GetRMS() << endl;
+    cout << hd->GetRMS() << endl;
+    cout << he->GetRMS() << endl;
+
+    c0->Print("figures202006/gammares.pdf");
+  }
     
     
   return 0;

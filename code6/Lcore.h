@@ -372,9 +372,9 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
   const double Mn = 0.93957;
   
   TFile * fJpsiD;
-  TH3D * hds72[10], * hds73[10], * hds74[10], * hds75[10], * hds76[10], * hds77[10], * hds78[10], * hds79[10], * hds80[10], * hds81[10], * hds82[10];
-  TH3D * hp72[10], * hp73[10], * hp74[10], * hp75[10], * hp76[10], * hp77[10], * hp78[10], * hp79[10], * hp80[10], * hp81[10], * hp82[10];
-  double ds72[10], ds73[10], ds74[10], ds75[10], ds76[10], ds77[10], ds78[10], ds79[10], ds80[10], ds81[10], ds82[10];
+  TH3D * hds72[10], * hds73[10], * hds74[10], * hds75[10], * hds76[10], * hds77[10], * hds78[10], * hds79[10], * hds80[10], * hds81[10], * hds82[10], * hds83[10], * hds84[10], * hds85[10];
+  TH3D * hp72[10], * hp73[10], * hp74[10], * hp75[10], * hp76[10], * hp77[10], * hp78[10], * hp79[10], * hp80[10], * hp81[10], * hp82[10], * hp83[10], * hp84[10], * hp85[10];
+  double ds72[10], ds73[10], ds74[10], ds75[10], ds76[10], ds77[10], ds78[10], ds79[10], ds80[10], ds81[10], ds82[10], ds83[10], ds84[10], ds85[10];
 
   double GetJpsip(const TLorentzVector q, TLorentzVector * kj){
     //q: gamma(*); kj: J/psi, p
@@ -425,9 +425,21 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
       hds81[idx]->GetRandom3(k, theta_k, theta_p);
       //p = hp81[idx]->GetBinContent(hp81[idx]->FindBin(k, theta_k, theta_p));
     }
-    else if (Eg > 8.15 && Eg < 8.2){
+    else if (Eg > 8.15 && Eg < 8.25){
       hds82[idx]->GetRandom3(k, theta_k, theta_p);
       //p = hp82[idx]->GetBinContent(hp82[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 8.25 && Eg < 8.35){
+      hds83[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp83[idx]->GetBinContent(hp83[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 8.35 && Eg < 8.45){
+      hds84[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp84[idx]->GetBinContent(hp84[idx]->FindBin(k, theta_k, theta_p));
+    }
+    else if (Eg > 8.45 && Eg < 8.5){
+      hds85[idx]->GetRandom3(k, theta_k, theta_p);
+      //p = hp85[idx]->GetBinContent(hp85[idx]->FindBin(k, theta_k, theta_p));
     }
     else
       return 0;
@@ -484,6 +496,15 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
     else if (Eg >= 8.1){
       ds = exp((Eg - 8.1) / (8.2 - 8.1) * (log(ds82[idx]) - log(ds81[idx])) + log(ds81[idx]));
     }
+    else if (Eg >= 8.2){
+      ds = exp((Eg - 8.2) / (8.3 - 8.2) * (log(ds83[idx]) - log(ds82[idx])) + log(ds82[idx]));
+    }
+    else if (Eg >= 8.3){
+      ds = exp((Eg - 8.3) / (8.4 - 8.3) * (log(ds84[idx]) - log(ds83[idx])) + log(ds83[idx]));
+    }
+    else if (Eg >= 8.4){
+      ds = exp((Eg - 8.4) / (8.5 - 8.4) * (log(ds85[idx]) - log(ds84[idx])) + log(ds84[idx]));
+    }
     else
       return 0;
     return ds * 1.0e-7 / pow(0.197367,2);
@@ -532,6 +553,15 @@ namespace JPSID4d{//Harry's model for J/psi production from Deuteron 4-dim diff 
       hds82[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.2_idx%d",i));
       hp82[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.2_idx%d",i));
       ds82[i-1]  = hds82[i-1]->Integral();
+      hds83[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.3_idx%d",i));
+      hp83[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.3_idx%d",i));
+      ds83[i-1]  = hds83[i-1]->Integral();
+      hds84[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.4_idx%d",i));
+      hp84[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.4_idx%d",i));
+      ds84[i-1]  = hds84[i-1]->Integral();
+      hds85[i-1] = (TH3D *) fJpsiD->Get(Form("ds_E8.5_idx%d",i));
+      hp85[i-1] = (TH3D *) fJpsiD->Get(Form("p_E8.5_idx%d",i));
+      ds85[i-1]  = hds85[i-1]->Integral();
     }
     return 0;
   }
