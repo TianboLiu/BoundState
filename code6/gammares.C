@@ -25,7 +25,7 @@ int main(const int argc, const char * argv[]){
   double Eg0, Eg, dE;
 
   TFile * fs = new TFile("gammares.root", "RECREATE");
-  TH2D * h2 = new TH2D("Eres", ";E_{#gamma};#deltaE_{#gamma}", 100, 7.2, 8.2, 100, -0.5, 0.5);
+  TH2D * h2 = new TH2D("Eres", ";E_{#gamma};#deltaE_{#gamma}", 130, 7.2, 8.5, 100, -0.5, 0.5);
   TH1D * ha = new TH1D("a", "", 100, -0.2, 0.2);
   TH1D * hb = new TH1D("b", "", 100, -0.2, 0.2);
   TH1D * hc = new TH1D("c", "", 100, -0.2, 0.2);

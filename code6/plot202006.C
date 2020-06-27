@@ -46,252 +46,412 @@ int main(const int argc, const char * argv[]){
   gStyle->SetOptStat(0);
   
   if (opt == 0){// rates
-    TFile * fs1 = new TFile("result202006/photo-v18-smeared.root");
-    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root");
-  
-    TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-");
-    TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-");
+    if (true){
+      TFile * fs1 = new TFile("result202006/photo-v18-smeared.root");
+      TFile * fs2 = new TFile("result202006/electro-v18-smeared.root");
+      
+      TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-");
+      TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-");
 
-    cout << f1->Integral() << endl;
-    cout << f2->Integral() << endl;
-    
-    int binA = f1->FindBin(3.0969 - 0.06);
-    int binB = f1->FindBin(3.0969 + 0.06);
+      cout << "All" << endl;
+      cout << "photon: " << f1->Integral() * 0.8 << "\t" << f1->Integral() * 47 * 24 * 0.8 << endl;
+      cout << "electro:" << f2->Integral() * 0.8 << "\t" << f2->Integral() * 47 * 24 * 0.8 << endl;
+      
+      int binA = f1->FindBin(3.0969 - 0.06);
+      int binB = f1->FindBin(3.0969 + 0.06);
+      
+      cout << "120MeV" << endl;
+      cout << "photon: " << f1->Integral(binA, binB) * 0.8 << "\t" << f1->Integral(binA, binB) * 47 * 24 * 0.8 << endl;
+      cout << "electro:" << f2->Integral(binA, binB) * 0.8 << "\t" << f2->Integral(binA, binB) * 47 * 24 * 0.8 << endl;
+    }
 
-    cout << f1->Integral(binA, binB) * 0.8 << endl;
-    cout << f2->Integral(binA, binB) * 0.8 << endl;
+    if (true){
+      TFile * fs1 = new TFile("result202006/photo-v18-smeared.root");
+      TFile * fs2 = new TFile("result202006/electro-v18-smeared.root");
+      
+      TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-_above");
+      TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-_above");
+
+      cout << "All" << endl;
+      cout << "photon: " << f1->Integral() * 0.8 << "\t" << f1->Integral() * 47 * 24 * 0.8 << endl;
+      cout << "electro:" << f2->Integral() * 0.8 << "\t" << f2->Integral() * 47 * 24 * 0.8 << endl;
+      
+      int binA = f1->FindBin(3.0969 - 0.06);
+      int binB = f1->FindBin(3.0969 + 0.06);
+      
+      cout << "120MeV" << endl;
+      cout << "photon: " << f1->Integral(binA, binB) * 0.8 << "\t" << f1->Integral(binA, binB) * 47 * 24 * 0.8 << endl;
+      cout << "electro:" << f2->Integral(binA, binB) * 0.8 << "\t" << f2->Integral(binA, binB) * 47 * 24 * 0.8 << endl;
+    }
   }
      
   
   if (opt == -1){// Mass spectrum of e+e-, photo-production
-    TFile * fs1 = new TFile("result202006/photo-v18-detected.root", "r");
-    TFile * fs2 = new TFile("result202006/photo-v18-smeared.root", "r");
-    TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
-    TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
-  
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->SetLineColor(1);
-    h2->SetLineColor(2);
-
-    h1->DrawClone("");
-    h2->DrawClone("same");
-
-    c0->Print("figures202006/mass-photon.pdf");
+    if (true){
+      TFile * fs1 = new TFile("result202006/photo-v18-detected.root", "r");
+      TFile * fs2 = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
+      TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->SetLineColor(1);
+      h2->SetLineColor(2);
+      
+      h1->DrawClone("");
+      h2->DrawClone("same");
+      
+      c0->Print("figures202006/mass-photon.pdf");
+    }
+    
+    if (true){
+      TFile * fs1 = new TFile("result202006/photo-v18-detected.root", "r");
+      TFile * fs2 = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-_above");
+      TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->SetLineColor(1);
+      h2->SetLineColor(2);
+      
+      h1->DrawClone("");
+      h2->DrawClone("same");
+      
+      c0->Print("figures202006/mass-photon-above.pdf");
+    }
   }
 
   if (opt == -2){// Momentum distribution, photo-production
-    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
-    TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
-    TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
-  
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-    c0->SetRightMargin(0.15);
-
-    //c0->SetLogz();
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->DrawClone("colz");
-    
-    c0->Print("figures202006/thetap-photon.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-
-    c0->Print("figures202006/thetap-photon.pdf)", "pdf");
-
+    if (true){
+      TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
+      TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+     
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-photon.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-photon.pdf)", "pdf");
+    }
+    if (true){
+      TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+_above");
+      TH2D * h2 = (TH2D *) fs->Get("ThetaP_p_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+     
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-photon-above.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-photon-above.pdf)", "pdf");
+    }
   }
 
   if (opt == -3){// Jpsi momentum, photo-production
-    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
-    TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
-    TH2D * h2 = (TH2D *) fs->Get("Angle");
-  
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-    c0->SetRightMargin(0.15);
-
-    //c0->SetLogz();
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->DrawClone("colz");
-
-    c0->Print("figures202006/jpsi-photon.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-    c0->Print("figures202006/jpsi-photon.pdf)", "pdf");
-
+    if (true){
+      TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
+      TH2D * h2 = (TH2D *) fs->Get("Angle");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      //c0->SetLogz();
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/jpsi-photon.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      c0->Print("figures202006/jpsi-photon.pdf)", "pdf");
+    }
+    if (true){
+      TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi_above");
+      TH2D * h2 = (TH2D *) fs->Get("Angle_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      //c0->SetLogz();
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/jpsi-photon-above.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      c0->Print("figures202006/jpsi-photon-above.pdf)", "pdf");
+    }
   }
 
   if (opt == -4){// kappa, photo-production
-    TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
-    TH1D * h1 = (TH1D *) fs->Get("kappa");
-    TH2D * h2 = (TH2D *) fs->Get("kappaP");
-    TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
- 
-    TH1D * h1a = h2->ProjectionX("kappa_lowP", 1, h2->GetYaxis()->FindBin(1.0));
-    TH1D * h1b = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
-
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-
-    SetStyle(h1);
-    SetStyle(h2);
-    SetStyle(h3);
-
-    h1->SetLineColor(1);
-    h1a->SetLineColor(4);
-    h1b->SetLineColor(2);
-    h1->DrawClone();
-    h1a->DrawClone("same");
-    h1b->DrawClone("same");
-
-    c0->Print("figures202006/kappa-photon.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-
-    c0->SetRightMargin(0.15);
-    //c0->SetLogz();
-
-    c0->Print("figures202006/kappa-photon.pdf", "pdf");
-
-    h3->DrawClone("colz");
-
-    c0->Print("figures202006/kappa-photon.pdf)", "pdf");
-
+    if (true){
+      TFile * fs = new TFile("result202006/photo-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs->Get("kappa");
+      TH2D * h2 = (TH2D *) fs->Get("kappaP");
+      TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
+      h1->Add((TH1D *) fs->Get("kappa_above"));
+      h2->Add((TH2D *) fs->Get("kappaP_above"));
+      h3->Add((TH2D *) fs->Get("kappaTheta_above"));
+      
+      TH1D * h1a = h2->ProjectionX("kappa_lowP", 1, h2->GetYaxis()->FindBin(1.0));
+      TH1D * h1b = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      SetStyle(h3);
+      
+      h1->SetLineColor(1);
+      h1a->SetLineColor(4);
+      h1b->SetLineColor(2);
+      h1->DrawClone();
+      h1a->DrawClone("same");
+      h1b->DrawClone("same");
+      
+      c0->Print("figures202006/kappa-photon.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->SetRightMargin(0.15);
+      
+      c0->Print("figures202006/kappa-photon.pdf", "pdf");
+      
+      h3->DrawClone("colz");
+      
+      c0->Print("figures202006/kappa-photon.pdf)", "pdf");
+    }
   }
 
   if (opt == 1){// Mass spectrum of e+e-, photo-production
-    TFile * fs1 = new TFile("result202006/electro-v18-detected.root", "r");
-    TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
-    TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
-    TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
-   
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->SetLineColor(1);
-    h2->SetLineColor(2);
-
-    h1->DrawClone("");
-    h2->DrawClone("same");
-
-    c0->Print("figures202006/mass-quasi.pdf");
-
+    if (true){
+      TFile * fs1 = new TFile("result202006/electro-v18-detected.root", "r");
+      TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-");
+      TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->SetLineColor(1);
+      h2->SetLineColor(2);
+      
+      h1->DrawClone("");
+      h2->DrawClone("same");
+      
+      c0->Print("figures202006/mass-quasi.pdf");
+    }
+    if (true){
+      TFile * fs1 = new TFile("result202006/electro-v18-detected.root", "r");
+      TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs1->Get("Mass_e+e-_above");
+      TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->SetLineColor(1);
+      h2->SetLineColor(2);
+      
+      h1->DrawClone("");
+      h2->DrawClone("same");
+      
+      c0->Print("figures202006/mass-quasi-above.pdf");
+    }
   }
 
   if (opt == 2){// Momentum distribution, photo-production
-    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
-    TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
-    TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
-
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-    c0->SetRightMargin(0.15);
-
-    //c0->SetLogz();
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->DrawClone("colz");
-    
-    c0->Print("figures202006/thetap-quasi.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-
-    c0->Print("figures202006/thetap-quasi.pdf)", "pdf");
-
+    if (true){
+      TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+");
+      TH2D * h2 = (TH2D *) fs->Get("ThetaP_p");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-quasi.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-quasi.pdf)", "pdf");
+    }
+    if (true){
+      TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_e+_above");
+      TH2D * h2 = (TH2D *) fs->Get("ThetaP_p_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-quasi-above.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->Print("figures202006/thetap-quasi-above.pdf)", "pdf");
+    }
   }
 
   if (opt == 3){// Jpsi momentum, photo-production
-    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
-    TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
-    TH2D * h2 = (TH2D *) fs->Get("Angle");
-
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-    c0->SetRightMargin(0.15);
-
-    //c0->SetLogz();
-
-    SetStyle(h1);
-    SetStyle(h2);
-
-    h1->DrawClone("colz");
-
-    c0->Print("figures202006/jpsi-quasi.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-    c0->Print("figures202006/jpsi-quasi.pdf)", "pdf");
-
+    if (true){
+      TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi");
+      TH2D * h2 = (TH2D *) fs->Get("Angle");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/jpsi-quasi.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      c0->Print("figures202006/jpsi-quasi.pdf)", "pdf");      
+    }
+    if (true){
+      TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH2D * h1 = (TH2D *) fs->Get("ThetaP_Jpsi_above");
+      TH2D * h2 = (TH2D *) fs->Get("Angle_above");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      c0->SetRightMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->DrawClone("colz");
+      
+      c0->Print("figures202006/jpsi-quasi-above.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      c0->Print("figures202006/jpsi-quasi-above.pdf)", "pdf");      
+    }
   }
 
   if (opt == 4){// kappa, photo-production
-    TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
-    TH1D * h1 = (TH1D *) fs->Get("kappa");
-    TH2D * h2 = (TH2D *) fs->Get("kappaP");
-    TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
-
-    TH1D * h1a = h2->ProjectionX("kappa_lowP", 1, h2->GetYaxis()->FindBin(1.0));
-    TH1D * h1b = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
-
-    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
-
-    SetStyle(h1);
-    SetStyle(h2);
-    SetStyle(h3);
-
-    h1->SetLineColor(1);
-    h1a->SetLineColor(4);
-    h1b->SetLineColor(2);
-    h1->DrawClone();
-    h1a->DrawClone("same");
-    h1b->DrawClone("same");
-
-    c0->Print("figures202006/kappa-quasi.pdf(", "pdf");
-
-    h2->DrawClone("colz");
-
-    c0->SetRightMargin(0.15);
-    //c0->SetLogz();
-
-    c0->Print("figures202006/kappa-quasi.pdf", "pdf");
-
-    h3->DrawClone("colz");
-
-    c0->Print("figures202006/kappa-quasi.pdf)", "pdf");
+    if (true){
+      TFile * fs = new TFile("result202006/electro-v18-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs->Get("kappa");
+      TH2D * h2 = (TH2D *) fs->Get("kappaP");
+      TH2D * h3 = (TH2D *) fs->Get("kappaTheta");
+      h1->Add((TH1D *) fs->Get("kappa_above"));
+      h2->Add((TH2D *) fs->Get("kappaP_above"));
+      h3->Add((TH2D *) fs->Get("kappaTheta_above"));
+      
+      TH1D * h1a = h2->ProjectionX("kappa_lowP", 1, h2->GetYaxis()->FindBin(1.0));
+      TH1D * h1b = h2->ProjectionX("kappa_highP", h2->GetYaxis()->FindBin(1.0), -1);
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      SetStyle(h3);
+      
+      h1->SetLineColor(1);
+      h1a->SetLineColor(4);
+      h1b->SetLineColor(2);
+      h1->DrawClone();
+      h1a->DrawClone("same");
+      h1b->DrawClone("same");
+      
+      c0->Print("figures202006/kappa-quasi.pdf(", "pdf");
+      
+      h2->DrawClone("colz");
+      
+      c0->SetRightMargin(0.15);
+            
+      c0->Print("figures202006/kappa-quasi.pdf", "pdf");
+      
+      h3->DrawClone("colz");
+      
+      c0->Print("figures202006/kappa-quasi.pdf)", "pdf");
+    }
   }
 
   if (opt == 5){
     TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs1->Get("kappaP");
+    h1->Add((TH2D *) fs1->Get("kappaP_above"));
     TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h2 = (TH2D *) fs2->Get("kappaP");
+    h2->Add((TH2D *) fs2->Get("kappaP_above"));
     h1->Add(h2);
     
     TH1D * h1a = h1->ProjectionX("kappa_highP", h1->GetYaxis()->FindBin(1.0), -1);
-    h1a->Scale(50*24*0.8);
+    h1a->Scale(47*24*0.8);
 
     h1a->Rebin(10);
 
@@ -306,7 +466,7 @@ int main(const int argc, const char * argv[]){
 
     SetStyle(h1a);
  
-    h1a->GetYaxis()->SetTitle("Counts in 50 days");
+    h1a->GetYaxis()->SetTitle("Counts in 47 days");
 
     h1a->SetLineColor(4);
     h1a->SetLineWidth(3);
@@ -374,77 +534,35 @@ int main(const int argc, const char * argv[]){
   if (opt == 6){
     TFile * fs1 = new TFile("result202006/photo-v18-smeared.root", "r");
     TH2D * h1 = (TH2D *) fs1->Get("kappaEgHigh");
+    h1->Add((TH2D *) fs1->Get("kappaEgHigh_above"));
     TFile * fs2 = new TFile("result202006/electro-v18-smeared.root", "r");
     TH2D * h2 = (TH2D *) fs2->Get("kappaEgHigh");
+    h2->Add((TH2D *) fs2->Get("kappaEgHigh_above"));
     h1->Add(h2);
-    h1->Scale(50*24*0.8);
+    h1->Scale(47*24*0.8);
 
     TH1D * h10 = h1->ProjectionY("Eg");
-    TH1D * h1a = h1->ProjectionX("kappaEg1", 1, h1->GetYaxis()->FindBin(7.5));
-    TH1D * h1b = h1->ProjectionX("kappaEg2", h1->GetYaxis()->FindBin(7.5), h1->GetYaxis()->FindBin(7.9));
-    TH1D * h1c = h1->ProjectionX("kappaEg3", h1->GetYaxis()->FindBin(7.9), -1);
-       
-    h10->Rebin(20);
-    h10->GetXaxis()->SetRangeUser(7.2,8.2);
 
-    h1a->Rebin(20);
-    h1b->Rebin(20);
-    h1c->Rebin(20);
-
-    SetStyle(h10);
-    SetStyle(h1a);
-    SetStyle(h1b);
-    SetStyle(h1c);
-
-
-    for (int i = 1; i <= 7; i++){
-      h10->SetBinError(i, sqrt(h10->GetBinContent(i)));
-    }
-     
-    for (int i = 1; i <= 5; i++){
-      h1a->SetBinError(i, sqrt(h1a->GetBinContent(i)));
-      h1b->SetBinError(i, sqrt(h1b->GetBinContent(i)));
-      h1c->SetBinError(i, sqrt(h1c->GetBinContent(i)));
-    }
-      
+    TH1D * hh = new TH1D("hh", ";E_{#gamma} (GeV);Counts in 47 days", 7, 7.1, 8.5);
+    double Egbins[8] = {7.1, 7.3, 7.5, 7.7, 7.9, 8.1, 8.3, 8.5};
     
+    for (int i = 1; i <= 7; i++){
+      hh->SetBinContent(i, h10->Integral(h10->FindBin(Egbins[i-1]), h10->FindBin(Egbins[i]) - 1));
+      hh->SetBinError(i, sqrt(hh->GetBinContent(i)));
+    }
+    SetStyle(hh);
+     
     TCanvas * c0 = new TCanvas("c0", "", 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
     
-    h10->GetYaxis()->SetTitle("Counts in 50 days");
-    h1a->GetYaxis()->SetTitle("Counts in 50 days");
-    h1b->GetYaxis()->SetTitle("Counts in 50 days");
-    h1c->GetYaxis()->SetTitle("Counts in 50 days");
-
-    h10->SetLineColor(4);
-    h1a->SetLineColor(4);
-    h1b->SetLineColor(kGreen+2);
-    h1c->SetLineColor(2);
-
-    h10->SetLineWidth(3);
-    h1a->SetLineWidth(3);
-    h1b->SetLineWidth(3);
-    h1c->SetLineWidth(3);
-
-    h10->SetFillColorAlpha(4, 0.35);
-    h1a->SetFillColorAlpha(4, 0.35);
-    h1b->SetFillColorAlpha(kGreen+2, 0.35);
-    h1c->SetFillColorAlpha(2, 0.35);
-
-    h10->DrawClone("pe2");
-    h10->DrawClone("esame");
+    hh->SetLineColor(4);
+    hh->SetLineWidth(3);
+    hh->SetFillColorAlpha(4, 0.35);
+    
+    hh->DrawClone("pe2");
+    hh->DrawClone("esame");
     c0->Print("figures202006/gammaproj.pdf");
-  
-    h1c->DrawClone("pe2");
-    h1b->DrawClone("pe2same");
-    h1a->DrawClone("pe2same");
-    h1a->DrawClone("esame");
-    h1b->DrawClone("esame");
-    h1c->DrawClone("esame");
-    c0->Print("figures202006/kappagammaproj.pdf");
-
-  
   }
 
   if (opt == 66){
