@@ -116,7 +116,7 @@ int main(const int argc, const char * argv[]){
 	p.SetXYZM(px, py, pz, Mp);
 	q = l - lp;
 	acc = 1.0;
-	if (q.E() + q * q / 1.8756 < 8.2){
+	if (q.E() + q * q / (2.0 * Md) < 8.2){
 	  hMass->Fill( (ep+em).M(), weight * acc);
 	  hep->Fill( ep.Theta() * deg, ep.P(), weight * acc);
 	  hem->Fill( em.Theta() * deg, em.P(), weight * acc);
@@ -168,7 +168,7 @@ int main(const int argc, const char * argv[]){
 	p.SetXYZM(px, py, pz, Mp);
 	q = l - lp;
 	acc = DETECTOR::AcceptanceSoLID(ep, "e+") * DETECTOR::AcceptanceSoLID(em, "e-") * DETECTOR::AcceptanceSoLID(p, "p");
-	if (q.E() + q * q / 1.8756 < 8.2){
+	if (q.E() + q * q / (2.0 * Md) < 8.2){
 	  hMass->Fill( (ep+em).M(), weight * acc);
 	  hep->Fill( ep.Theta() * deg, ep.P(), weight * acc);
 	  hem->Fill( em.Theta() * deg, em.P(), weight * acc);
@@ -220,7 +220,7 @@ int main(const int argc, const char * argv[]){
 	p.SetXYZM(px, py, pz, Mp);
 	q = l - lp;
 	acc = DETECTOR::SmearSoLID(ep, "e+") * DETECTOR::SmearSoLID(em, "e-") * DETECTOR::SmearSoLID(p, "p");
-	if (q.E() + q * q / 1.8756 < 8.2){
+	if (q.E() + q * q / (2.0 * Md) < 8.2){
 	  hMass->Fill( (ep+em).M(), weight * acc);
 	  hep->Fill( ep.Theta() * deg, ep.P(), weight * acc);
 	  hem->Fill( em.Theta() * deg, em.P(), weight * acc);
