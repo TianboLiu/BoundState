@@ -39,7 +39,7 @@ int main(const int argc, const char * argv[]){
   char tmp[200];
   double weight, acc;
   TLorentzVector l, lp;
-  l.SetXYZM(0, 0, 8.5, PARTICLE::e.M());
+  l.SetXYZM(0, 0, 8.8, PARTICLE::e.M());
   TLorentzVector q, ep, em, p;
   double px, py, pz, E;
   TFile * fs = new TFile(argv[3], "RECREATE");
