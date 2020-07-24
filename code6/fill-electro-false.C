@@ -43,8 +43,8 @@ int main(const int argc, const char * argv[]){
   TLorentzVector q, ep, em, p;
   double px, py, pz, E;
   TFile * fs = new TFile(argv[3], "RECREATE");
-  TH1D * hMass = new TH1D("Mass_e+e-", ";M[e^{+}e^{-}] (GeV);Events / hour", 100, 2.6, 3.6);
-  TH1D * hMassFalse = new TH1D("Mass_e+e-_False", ";M[e^{+}e^{-}] (GeV);Events / hour", 100, 2.6, 3.6);
+  TH1D * hMass = new TH1D("Mass_e+e-", ";M[e^{+}e^{-}] (GeV);Events / hour", 1000, 0.0, 10.0);
+  TH1D * hMassFalse = new TH1D("Mass_e+e-_False", ";M[e^{+}e^{-}] (GeV);Events / hour", 1000, 0.0, 10.0);
   hMass->SetDirectory(fs);
   hMassFalse->SetDirectory(fs);
   
