@@ -92,8 +92,8 @@ int main(const int argc, const char * argv[]){
 	infile >> tmp >> px >> py >> pz >> E;
 	p.SetXYZM(px, py, pz, Mp);
 	q = l - lp;
-	acc1 = DETECTOR::AcceptanceSoLID(ep, "e+") * DETECTOR::AcceptanceSoLID(em, "e-") * DETECTOR::AcceptanceSoLID(p, "p");
-	acc2 = DETECTOR::AcceptanceSoLID(ep, "e+") * DETECTOR::AcceptanceSoLID(lp, "e-") * DETECTOR::AcceptanceSoLID(p, "p");
+	acc1 = DETECTOR::SmearSoLID(ep, "e+") * DETECTOR::SmearSoLID(em, "e-") * DETECTOR::SmearSoLID(p, "p");
+	acc2 = DETECTOR::SmearSoLID(ep, "e+") * DETECTOR::SmearSoLID(lp, "e-") * DETECTOR::SmearSoLID(p, "p");
 	hMass->Fill( (ep+em).M(), weight * acc1);
 	hMassFalse->Fill( (lp+ep).M(), weight * acc2);
       }
