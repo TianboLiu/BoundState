@@ -53,6 +53,7 @@ int main(const int argc, const char * argv[]){
       TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-");
       TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-");
 
+      cout << "below threshold" << endl;
       cout << "All" << endl;
       cout << "photon: " << f1->Integral() * 0.8 << "\t" << f1->Integral() * 47 * 24 * 0.8 << endl;
       cout << "electro:" << f2->Integral() * 0.8 << "\t" << f2->Integral() * 47 * 24 * 0.8 << endl;
@@ -72,6 +73,7 @@ int main(const int argc, const char * argv[]){
       TH1D * f1 = (TH1D *) fs1->Get("Mass_e+e-_above");
       TH1D * f2 = (TH1D *) fs2->Get("Mass_e+e-_above");
 
+      cout << "above threshold" << endl;
       cout << "All" << endl;
       cout << "photon: " << f1->Integral() * 0.8 << "\t" << f1->Integral() * 47 * 24 * 0.8 << endl;
       cout << "electro:" << f2->Integral() * 0.8 << "\t" << f2->Integral() * 47 * 24 * 0.8 << endl;
@@ -873,7 +875,31 @@ int main(const int argc, const char * argv[]){
 
     c0->Print("figures202006/gammares.pdf");
   }
-    
+
+  if (opt == 111){// Mass spectrum of e+e-, photo-production
+    if (true){
+      //TFile * fs1 = new TFile("result202006/false-electron-detected.root", "r");
+      TFile * fs2 = new TFile("result202006/false-electron-smeared.root", "r");
+      TH1D * h1 = (TH1D *) fs2->Get("Mass_e+e-");
+      TH1D * h2 = (TH1D *) fs2->Get("Mass_e+e-_False");
+      
+      TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+      c0->SetLeftMargin(0.15);
+      c0->SetBottomMargin(0.15);
+      
+      SetStyle(h1);
+      SetStyle(h2);
+      
+      h1->SetLineColor(1);
+      h2->SetLineColor(2);
+      
+      h2->DrawClone("");
+      //h2->DrawClone("same");
+      
+      c0->Print("figures202006/mass-epem.pdf");
+    }
+  }
+
     
   return 0;
 }

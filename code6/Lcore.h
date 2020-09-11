@@ -176,6 +176,54 @@ namespace JPSIMODEL{//Model of J/psi production
   }
 }
 
+namespace JPSIPomLQCD{//Pomeron-LQCD model of J/psi production from the proton
+
+  double cth[142];
+  double ds[21][142];
+  double W[21];
+  ROOT::Math::Interpolator * dsigma[21];
+
+  double dSigmaJpsi(const double W0, const double cth){
+    int idx = (int) floor((W0 - 4.036) / 0.05);
+    if (idx < 0) return 0;
+    if (idx < 21){
+      double ds1 = dsigma[idx]->Eval(cth);
+      double ds2 = dsigma[idx+1]->Eval(cth);
+      double res = ds1 + (ds2 - ds1) * (W0 - W[idx]) / 0.05;
+      return res * 1.0e-7 / pow(0.197327, 2);//in unit GeV^-2
+    }
+    if (idx >= 21){
+      return dsigma[21]->Eval(cth) * 1.0e-7 / pow(0.197327, 2);
+    }
+    return 0;
+  }       
+
+  int SetModel(){
+    ifstream infile("harrymodel/pomeron-lqcd/diff.dat");
+    char tmp[100];
+    infile.getline(tmp, 100);
+    double dum, th;
+    cth[0] = -1.0;
+    cth[141] = 1.0;
+    for (int i = 0; i < 21; i++){
+      for (int j = 140; j >= 1; j--){
+	infile >> dum >> th >> ds[i][j];
+	cth[j] = cos(th * M_PI / 180.0);
+      }
+      W[i] = dum;
+      ds[i][0] = ds[i][1];
+      ds[i][141] = ds[i][140];
+    }
+    infile.close();
+    for (int i = 0; i < 21; i++){
+      dsigma[i] = new ROOT::Math::Interpolator(142, ROOT::Math::Interpolation::kCSPLINE);
+      dsigma[i]->SetData(142, cth, ds[i]);
+    }
+    return 0;
+  }
+
+}
+
 namespace PHIMODEL{//Model of phi production
 
   double (* dSigmaPhi)(const double, const double);
@@ -203,7 +251,6 @@ namespace PHIMODEL{//Model of phi production
   }
 
 }
-
 
 namespace JPSIHE4{//Harry's model for J/psi production from He4
 
@@ -943,26 +990,24 @@ namespace GENERATE{
   }
 
   /* J/psi productions */
-  
+
+  /* modified 2020-09-09 to Harry's pomeron-LQCD model, arXiv:2004.13934 */
   double JpsiPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: gamma, N; kf: Jpsi, N'
     TLorentzVector Pout = ki[0] + ki[1];//Total
     double W = Pout.M();
     double MJpsi = PARTICLE::Jpsi.RandomM();
     if (W < MJpsi + Mp) return 0;//below the threshold
-    double x = (2.0 * Mp * MJpsi + MJpsi * MJpsi) / (W * W - Mp * Mp);
     double mass[2] = {MJpsi, Mp};
     GenPhase.SetDecay(Pout, 2, mass);
-    GenPhase.Generate();
+    GenPhase.Generate();//uniform generate in 4pi solid angle
     kf[0] = *GenPhase.GetDecay(0);//Jpsi
     kf[1] = *GenPhase.GetDecay(1);//N'
-    double t = (ki[0] - kf[0]) * (ki[0] - kf[0]);
-    double k = sqrt(pow(W * W - kf[0] * kf[0] - kf[1] * kf[1], 2) - 4.0 * (kf[0] * kf[0]) * (kf[1] * kf[1])) / (2.0 * W);
-    double q = sqrt(pow(W * W - ki[0] * ki[0] - ki[1] * ki[1], 2) - 4.0 * (ki[0] * ki[0]) * (ki[1] * ki[1])) / (2.0 * W);
-    double Jac = 2.0 * k * q / (2.0 * M_PI);
-    double flux = sqrt(pow(ki[0] * ki[1], 2) - (ki[0] * ki[0]) * (ki[1] * ki[1])) / (Mp * ki[0].P());
+    double k = sqrt(pow(W * W - kf[0] * kf[0] - kf[1] * kf[1], 2) - 4.0 * (kf[0] * kf[0]) * (kf[1] * kf[1])) / (2.0 * W);//final state c.m. momentum
+    double q = sqrt(pow(W * W - ki[0] * ki[0] - ki[1] * ki[1], 2) - 4.0 * (ki[0] * ki[0]) * (ki[1] * ki[1])) / (2.0 * W);//initial state c.m. momentum
+    double cth = (sqrt(ki[0] * ki[0] + q * q) * sqrt(kf[0] * kf[0] + k * k) - ki[0] * kf[0]) / (q * k);
     double volume = 4.0 * M_PI;
-    double weight = JPSIMODEL::dSigmaJpsi(x, t) * Jac * flux * volume;//ds/dOmega * volumn(4pi)
+    double weight = JPSIPomLQCD::dSigmaJpsi(W, cth) * volume;//ds/dOmega * volumn(4pi)
     return weight;//GeV^-2
   }
 
@@ -1013,7 +1058,10 @@ namespace GENERATE{
     double amp = (2.0 * Q2 - 4.0 * m * m) / (Q2 * Q2);
     double phase = kf[0].P() * kf[0].P() / (2.0 * kf[0].E() * pow(2.0 * M_PI, 3));
     double volume = 2.0 * M_PI * abs(perange[1] - perange[0]) * abs(cthrange[1] - cthrange[0]);
-    return couple * flux * amp * phase * volume;
+    double y = (ki[1] * kf[1]) / (ki[1] * ki[0]);
+    double gy = ki[1].M() * sqrt(Q2) / (ki[1] * ki[0]);
+    double epsilon = (1.0 - y - 0.24 * gy * gy) / (1.0 - y + 0.5 * y * y + 0.25 * gy * gy);
+    return couple * flux * amp * phase * volume / (1.0 - epsilon);
   }
 
   double JpsiElectroproduction(const TLorentzVector * ki, TLorentzVector * kf){
@@ -1035,15 +1083,13 @@ namespace GENERATE{
     GenPhase.Generate();
     kf[1] = *GenPhase.GetDecay(0);//e+
     kf[2] = *GenPhase.GetDecay(1);//e-
-    TLorentzVector Pc = kf1[0] + kf1[1];//total V+N
-    TLorentzVector PV = kf1[0];//V
-    TLorentzVector P1 = kf[1];//e+
-    PV.Boost(-Pc.BoostVector());
-    P1.Boost(-Pc.BoostVector());
-    P1.Boost(-PV.BoostVector());
-    double theta = P1.Angle(PV.Vect());
-    double r = 0.29;
-    double wth = 3.0 / 8.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cos(theta),2));
+    double Mj = kf1[0].M();
+    double Ep = kf1[0] * kf1[1] / Mj;//recoil proton energy in Jpsi rest frame
+    double p = sqrt(Ep * Ep - Mp * Mp);//recoil proton momentum in Jpsi rest frame
+    double l = sqrt(pow(Mj * Mj - kf[1] * kf[1] - kf[2] * kf[2], 2) - 4.0 * (kf[1] * kf[1]) * (kf[2] * kf[2])) / (2.0 * Mj);//decayed lepton momentum in Jpsi rest frame
+    double cth = (Ep * Mj / 2.0 - kf[1] * kf[0]) / (p * l);//cos(theta) between final lepton and final proton in Jpsi rest frame
+    double r = 0.0;
+    double wth = 3.0 / 4.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cth,2));
     double branch = 5.971e-2;//Branch ratio to e+e-
     return weight * wth * branch;
   }
@@ -1059,15 +1105,18 @@ namespace GENERATE{
     GenPhase.Generate();
     kf[2] = *GenPhase.GetDecay(0);//e+
     kf[3] = *GenPhase.GetDecay(1);//e-
-    TLorentzVector Pc = kf1[1] + kf1[2];//total V+N
-    TLorentzVector PV = kf1[1];//V
-    TLorentzVector P1 = kf[2];//e+
-    PV.Boost(-Pc.BoostVector());
-    P1.Boost(-Pc.BoostVector());
-    P1.Boost(-PV.BoostVector());
-    double theta = P1.Angle(PV.Vect());
-    double r = 0.29;
-    double wth = 3.0 / 8.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cos(theta),2));
+    double Mj = kf1[1].M();
+    double Ep = kf1[2] * kf1[1] / Mj;//recoil proton energy in Jpsi rest frame
+    double p = sqrt(Ep * Ep - Mp * Mp);//recoil proton momentum in Jpsi rest frame
+    double l = sqrt(pow(Mj * Mj - kf[2] * kf[2] - kf[3] * kf[3], 2) - 4.0 * (kf[2] * kf[2]) * (kf[3] * kf[3])) / (2.0 * Mj);//decayed lepton momentum in Jpsi rest frame
+    double cth = (Ep * Mj / 2.0 - kf[2] * kf[1]) / (p * l);//cos(theta) between final lepton and final proton in Jpsi rest frame
+    double y = (ki[0].E() - kf[0].E()) / ki[0].E();
+    double Q2 = - (ki[0] - kf[0]) * (ki[0] - kf[0]);
+    double gy = sqrt(Q2) / ki[0].E();
+    double epsilon = (1.0 - y - 0.24 * gy * gy) / (1.0 - y + 0.5 * y * y + 0.25 * gy * gy);
+    double R = pow(1.0 - Q2 / 2.164 / pow(Mj,2), 2.131) - 1.0;
+    double r = epsilon * R / (1.0 + epsilon * R);
+    double wth = 3.0 / 4.0 * (1.0 + r + (1.0 - 3.0 * r) * pow(cth,2));
     double branch = 5.971e-2;//Branch ratio to e+e-
     return weight * wth * branch;
   }
@@ -1169,7 +1218,7 @@ namespace GENERATE{
     return weight * branch;
   }
 
-  /* Harry's model 3d 2020-06-07, 4d 2020-06-12 */
+  /* Harry's model 4d 2020-06-07, 4d 2020-06-12 */
   double Event_gD2eep_Jpsi(const TLorentzVector * ki, TLorentzVector * kf){
     //ki: g; kf: [e+, e-], p
     TLorentzVector kj[2];

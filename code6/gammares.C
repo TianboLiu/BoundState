@@ -26,11 +26,12 @@ int main(const int argc, const char * argv[]){
 
   TFile * fs = new TFile("gammares.root", "RECREATE");
   TH2D * h2 = new TH2D("Eres", ";E_{#gamma};#deltaE_{#gamma}", 130, 7.2, 8.5, 100, -0.5, 0.5);
-  TH1D * ha = new TH1D("a", "", 100, -0.2, 0.2);
-  TH1D * hb = new TH1D("b", "", 100, -0.2, 0.2);
-  TH1D * hc = new TH1D("c", "", 100, -0.2, 0.2);
-  TH1D * hd = new TH1D("d", "", 100, -0.2, 0.2);
-  TH1D * he = new TH1D("e", "", 100, -0.2, 0.2);
+  TH1D * ha = new TH1D("7.2-7.5", "", 500, -0.5, 0.5);
+  TH1D * hb = new TH1D("7.5-7.7", "", 500, -0.5, 0.5);
+  TH1D * hc = new TH1D("7.7-7.9", "", 500, -0.5, 0.5);
+  TH1D * hd = new TH1D("7.9-8.1", "", 500, -0.5, 0.5);
+  TH1D * he = new TH1D("8.1-8.3", "", 500, -0.5, 0.5);
+  TH1D * hf = new TH1D("8.3-8.5", "", 500, -0.5, 0.5);
   
 
   char tmp[200];
@@ -51,16 +52,18 @@ int main(const int argc, const char * argv[]){
     Eg = CalcEg(ep+em+p);
     dE = Eg - Eg0;
     h2->Fill(Eg0, dE, weight * acc);
-    if (Eg0 > 7.2 && Eg0 < 7.4)
+    if (Eg0 > 7.2 && Eg0 < 7.5)
       ha->Fill(dE, weight * acc);
-    else if (Eg0 > 7.4 && Eg0 < 7.6)
+    else if (Eg0 > 7.5 && Eg0 < 7.7)
       hb->Fill(dE, weight * acc);
-    else if (Eg0 > 7.6 && Eg0 < 7.8)
+    else if (Eg0 > 7.7 && Eg0 < 7.9)
       hc->Fill(dE, weight * acc);
-    else if (Eg0 > 7.8 && Eg0 < 8.0)
+    else if (Eg0 > 7.9 && Eg0 < 8.1)
       hd->Fill(dE, weight * acc);
-    else if (Eg0 > 8.0 && Eg0 < 8.2)
+    else if (Eg0 > 8.1 && Eg0 < 8.3)
       he->Fill(dE, weight * acc);
+    else if (Eg0 > 8.3 && Eg0 < 8.5)
+      hf->Fill(dE, weight * acc);
   }
 
   h2->Scale(lumi*time/Nsim);
@@ -69,6 +72,7 @@ int main(const int argc, const char * argv[]){
   hc->Scale(lumi*time/Nsim);
   hd->Scale(lumi*time/Nsim);
   he->Scale(lumi*time/Nsim);
+  hf->Scale(lumi*time/Nsim);
   
 
   fs->Write();
